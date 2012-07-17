@@ -1,5 +1,5 @@
 # hstanev sdobrev 2007-9
-'recorder/player of object usage'
+'recorder + re-player of object usage - method calls with their args'
 
 class MethodCallData( object):
     def __init__( me, name, *a, **k):

@@ -33,7 +33,7 @@ for f in args:
             if a.endswith( opened):
                 a = a[ :-len( opened)]
                 opened = False
-            items[f] = (items.get( f, '') + '\n' + a ).strip()
+            items[f] = (items.get( f, '') + ' ' + a ).strip()
             if not opened or not optz.para:
                 break
     else:
