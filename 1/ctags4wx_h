@@ -1,0 +1,8 @@
+#!/bin/sh
+#cd $wx/include/wx
+#senv CTAGS --extra=f
+#ctags    --extra=f -I WXDLLEXPORT+ --c++-types=+px   --c-types=+px   "$@"
+ctags    --extra=f -I WXDLLEXPORT  --c++-types=+px --c-types=+px "$@"
+ctags -a --extra=f -I WXDLLEXPORT_DATA --c++-types=+px   --c-types=+px   "$@"
+#--extra=f  - include filename as tag
+#--extra=q  - include tag class::name as well as just name

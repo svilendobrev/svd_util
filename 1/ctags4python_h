@@ -1,0 +1,7 @@
+#!/bin/sh
+#	cd $pfx/include/$py
+#senv CTAGS --extra=f
+ctags    --extra=f -I DL_IMPORT+ --c++-types=+px   --c-types=+px   "$@"
+ctags -a --extra=f -I DL_IMPORT  --c++-types=+px-d --c-types=+px-d "$@"
+#--extra=f  - include filename as tag
+#--extra=q  - include tag class::name as well as just name
