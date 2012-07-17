@@ -1,6 +1,6 @@
 # sdobrev 2010
 # -*- coding: utf-8 -*-
-'simplify usage of options (wrapping optparse or else)'
+'simple !! options-getter (wrapping optparse or else)'
 
 if 0:   #very simple independent ones, copy-paste from here
     #booleans/count only:

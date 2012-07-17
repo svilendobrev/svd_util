@@ -2,6 +2,7 @@
 
 """
 symmetric datetime conversions to/from text.
+
 all this mess below because datetime.* HAS NO fromiso() or anything similar
 
  datetime2timestamp, timestamp2datetime - convert between UTC timestamp and datetime; usual time.mktime is localtime!

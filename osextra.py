@@ -1,5 +1,5 @@
 #sdobrev 2011
-'extra os-level funcs'
+'extra os-level funcs - execresult, touch, ..'
 
 def execresult( args, encoding =None):
     import subprocess, locale

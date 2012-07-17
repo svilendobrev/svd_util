@@ -1,5 +1,5 @@
 # ~2007 s.dobrev h.stanev
-'hierarchical namespaced configuration language, with types and helps and inheritance'
+'hierarchical namespaced configuration language/engine, with types, helps, inheritance'
 
 import sys
 

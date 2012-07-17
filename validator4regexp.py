@@ -1,5 +1,5 @@
 #sdobrev 2004
-'validator using regexps'
+'validators using regexps'
 
 import re
 class Validator4regexp:

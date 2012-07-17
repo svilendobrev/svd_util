@@ -1,5 +1,5 @@
 #~2006 sdobrev
-'various debug utilities: call-level-counter, call-stack inspections'
+'various debug utilities: stack-level-counter, call-stack inspections'
 
 class Level:
     '''stack-frame-living recursion-depth level counter. use as:

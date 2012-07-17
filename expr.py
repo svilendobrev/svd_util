@@ -1,5 +1,5 @@
 #sdobrev 2006
-'expression-tree builder and visitor/evaluator'
+'expression-tree builder and visitor/evaluator (language)'
 
 import operator
 

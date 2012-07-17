@@ -1,6 +1,9 @@
 #2006-2008 chefob sdobrev ico2
 # -*- coding: cp1251 -*-
-'Universal Calendar Time and Pediods arithemtics - physical, logical (next-working-day), inheritance, counting'
+'''
+Universal Calendar Time and Pediods arithmetics;
+physical, logical (next-working-day), inherit/compose, count, compare, overlap, cut
+'''
 
 from dateutil.relativedelta import *
 from dateutil.rrule import *

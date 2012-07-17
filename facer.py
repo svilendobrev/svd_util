@@ -1,12 +1,15 @@
 #sdobrev 2010
 
-''' interface/protocol declarator
+''' interface/protocol/API declaration language. Methods, arguments, results -
+types, cardinality, optionality; inheritance, specialization, cloning. Use
+visitors to do/generate all else.
+
     svilen.dobrev 2010
 
     methoddecl: name, argdecls, returns, features
     argdecl:    name, type/converter, optional/defaultvalue
 
-abstract faces cannot be instantiated - only faces with fully all methods implemented
+abstract faces cannot be instantiated - only faces with all methods implemented
 WARNING/TODO: implementation methods are NOT checked for compliance with the declaration
 
 example:

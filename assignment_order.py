@@ -1,6 +1,7 @@
 #s.dobrev 2k4
 """
  Obtain order of assigments in python source text namespaces.
+
  python loses order at end of exec, as all namespaces
  are/must be plain dicts (set via PyDict_SetItem - there is only
  a temporary array of local vars in exec' frame in C).

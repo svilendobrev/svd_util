@@ -1,5 +1,6 @@
 # sdobrev 2004
-'around generating code - C,python,vim'
+'around generating code - C, python, vim'
+
 from __future__ import print_function
 
 _CVShead = '$I' + 'd$\n'   #separated!

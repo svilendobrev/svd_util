@@ -1,5 +1,5 @@
 #sdobrev 2009
-'model-description "language" + generator of equivalent model-code for java + sqlite, '
+'model-description "language" + dialects + generator of equivalent model in java + SAX + sqlite'
 
 #from util
 from attr import issubclass, subclasses #, subclasses_in

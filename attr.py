@@ -1,7 +1,8 @@
 #s.dobrev 2k4-6
 
-'''some additional python-reflection tools
-- multilevel getattr/ setattr/ import /getitemer
+'''
+additional python-reflection tools:
+- multilevel getattr, setattr, import, getitemer
 - local vs see-through-hierarchy getattr
 - fail-proof issubclass()
 - subclasses extractor

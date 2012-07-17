@@ -1,5 +1,6 @@
 #sdobrev 2006
 '''forward-declared module.attr resolver.
+
 common between static_type and plainwrap resolvers.
 
 a klas has declarations of references (reftypes), and each of those
