@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #sdobrev 2003-6
-'filter (=count-generalize) instance-or-run -specific things, e.g. memory addresses to compare different test runs'
+'filter (=count-generalize) instance-or-run -specific things, e.g. memory addresses, to compare different test runs'
 
 replaces = {
     '^Ran \d+ tests? in (?P<time>[\d.]+)s\s*$' : [],
