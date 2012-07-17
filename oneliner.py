@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # sdobrev 2012
-'generate a (wiki) page from first __doc__ lines of input python yfiles (e.g. for github)'
+'generate a (wiki) page from first __doc__ line/para of input python files (e.g. for github)'
 
 import optz,sys
-optz.text( 'pfx',       help= 'base prefix for all links',)
-optz.bool( 'link',      help= 'show as [[name|link]]' )
+optz.text( 'base',      help= 'base prefix for all links',)
+optz.bool( 'wikilink',  help= 'show as [[name|link]]' )
+optz.bool( 'para',      help= 'get whole first paragraph' )
 optz.text( 'unprefix',  help= 'strip this prefix from input file names' )
 
 optz,args = optz.get()
@@ -14,15 +15,27 @@ for f in args:
     opened = False
     for a in open(f):
         a = a.strip()
-        if not a or a[0]=='#': continue
-        if a[0] in quotes or opened:
-            a = a.strip( quotes)
-            if not a:
-                opened = True
-                continue
+        if not a:
+            if opened: break
+            continue
+        if not opened:
+            if a[0]=='#': continue
+            if a[0] in quotes:
+                opened = a[0]
+                if a[:3].count( opened)==3:
+                    opened = a[:3]
+                a = a[ len(opened): ]   # a = a.strip( quotes)
+                a = a.strip()
 
-            items[f] = a
-            break
+                if not a:
+                    continue
+        if opened:
+            if a.endswith( opened):
+                a = a[ :-len( opened)]
+                opened = False
+            items[f] = (items.get( f, '') + '\n' + a ).strip()
+            if not opened or not optz.para:
+                break
     else:
         print >>sys.stderr, '? no description:', f
 
@@ -30,8 +43,8 @@ for f in args:
 for k,v in sorted( items.items()):
     if optz.unprefix:
         if k.startswith( optz.unprefix): k = k[ len(optz.unprefix):].lstrip('/')
-    link = optz.pfx+k
-    if optz.link: link = '[['+k+'|'+link+']]'
+    link = optz.base + k
+    if optz.wikilink: link = '[['+k+'|'+link+']]'
     print '*', link, ':', v
 
 # vim:ts=4:sw=4:expandtab
