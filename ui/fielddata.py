@@ -1,6 +1,5 @@
-# $Id: fielddata.py 8436 2009-04-27 09:46:29Z hristo $
-#s.dobrev 2k4
-# dialog/form layout description - field's meta-data
+#s.dobrev 2k4-2009
+'language for dialog/form layout description - field meta-data'
 
 class FieldUndefinedError( LookupError): pass
 

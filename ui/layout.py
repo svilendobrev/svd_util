@@ -1,6 +1,5 @@
-# $Id: layout.py,v 1.20 2004-06-18 12:28:01 sdobrev Exp $
-#s.dobrev 2k3
-# dialog/form layout description - parser
+#s.dobrev 2k3-9
+'language for dialog/form layout description - parser & buider'
 
 import re
 
@@ -487,4 +486,3 @@ Panel {} 5 columns
     unittest.main()
 
 # vim:ts=4:sw=4:expandtab
-

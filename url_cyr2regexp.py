@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #sdobrev 2010
-'cyrillic in urls - multi-transcriptions, 1251/utf, ignorecase, etc'
+'cyrillic urls into apache regexps/rewrites - multi-transcriptions, 1251/utf, ignorecase, etc'
 
 from __future__ import print_function
 #ok for py3 and py2
