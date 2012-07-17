@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-#$Id: moddump.py,v 1.2 2007-02-27 23:18:07 sdobrev Exp $
-##svilen.dobrev.2k2
+##svilen.dobrev.2k2-5
+'try describe all about a python module - name,path,doc,items'
+
 import sys
 import pprint
 

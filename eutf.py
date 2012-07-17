@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
-'check for utf or byte-encoding, and (on-the-fly) conversions, on text or files. python2 + python3'
+'guess utf or byte-encoding, and (on-the-fly) conversion, on text or files. python2 + python3'
 
 import re
 import sys

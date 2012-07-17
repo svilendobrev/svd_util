@@ -1,5 +1,6 @@
-#$Id$
-# -*- coding: cp1251 -*-
+#sdobrev 2005
+'sort/reorder sqlite .dump, for comparable outputs'
+
 all ={}
 class Tabl:
     def __init__( me, name):
@@ -31,4 +32,5 @@ for t in sorted( all.values(), key=lambda x:x.name):
     t.decl = [ l.endswith(',') and l or l+','
             for l in t.decl ]
     print '\n'.join( [ t.name ] + t.decl + t.ins )
+
 # vim:ts=4:sw=4:expandtab

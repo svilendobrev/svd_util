@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-#$Id: doprof.py,v 1.2 2007-02-27 23:18:07 sdobrev Exp $
-#svd'2k2 better view onto profiler
+#svd'2k2-7
+'better view onto python profiler results'
 #XXX BEWARE That 2.4 - 2.5 - 2.6 have diff.file-format
 
 import optparse
