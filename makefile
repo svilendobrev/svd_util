@@ -10,7 +10,7 @@ a: j #$(LIST).tmp
 .PHONY: $(LIST).tmp
 
 $(LIST).tmp: $(MAKEFILES) $(ONER)
-	$(ONER) --base=$(PFX) --para --wikilink --unprefix=$(PREPO)/ $(FILES:%=$(PREPO)/%) >$@
+	$(ONER) --base=$(PFX) --para --mdlink --unprefix=$(PREPO)/ $(FILES:%=$(PREPO)/%) >$@
 
 $(LIST): $(README) $(LIST).tmp
 	cat $(README) > $@

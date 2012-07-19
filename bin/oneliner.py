@@ -6,6 +6,7 @@ from svd_util import optz
 import sys, os
 optz.text( 'base',      help= 'base prefix for all links',)
 optz.bool( 'wikilink',  help= 'show as [[name|link]]' )
+optz.bool( 'mdlink',    help= 'show as [name](link)' )
 optz.bool( 'para',      help= 'get whole first paragraph' )
 optz.text( 'unprefix',  help= 'strip this prefix from input file names' )
 
@@ -52,6 +53,7 @@ for k,v in sorted( items.items()):
         k = os.path.join( *pp)+'/'
     link = optz.base + k
     if optz.wikilink: link = '[['+k+'|'+link+']]'
+    elif optz.mdlink: link = '['+k+']('+link+')'
     print '*', link, ':', v
 
 # vim:ts=4:sw=4:expandtab
