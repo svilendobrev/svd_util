@@ -6,16 +6,11 @@ ONER = $(PREPO)/bin/oneliner.py
 FILES = *.py bin/*.py py/[pu]*.py */__init__.py
 README = $(PREPO)/README.md
 
-a: j #$(LIST).tmp
+a: j
 .PHONY: $(LIST).tmp
 
 $(LIST).tmp: $(MAKEFILES) $(ONER)
 	$(ONER) --base=$(PFX) --para --mdlink --unprefix=$(PREPO)/ $(FILES:%=$(PREPO)/%) >$@
-
-$(LIST): $(README) $(LIST).tmp
-	cat $(README) > $@
-	@echo -e '\n-----------\n' >> $@
-	cat $(LIST).tmp >> $@
 
 j: $(README) $(LIST).tmp
 	perl -ne 'print if !$$a; $$a+=/----/;' $(README) > $(LIST)

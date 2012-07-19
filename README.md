@@ -5,7 +5,7 @@ python utility funcs, classes, small languages+frameworks, scripts.
 old or new.. collection.
 i tend to use most optz, attr, struct, py3, eutf
 
-[[ me and software|http://www.svilendobrev.com/rabota/ ]]
+[me and software](http://www.svilendobrev.com/rabota/)
 
 --------
 * [assignment_order.py](https://github.com/svilendobrev/svd_util/blob/master/assignment_order.py) : Obtain order of assigments in python source text namespaces.
