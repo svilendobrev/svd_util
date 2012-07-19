@@ -14,12 +14,13 @@ class _StackBase( object):
     # ne bachka ako nqma __doc__ kato se naprawi EXE !!!
 
     __doc__ = '''\
-стек с автоматичен забърсвач - добавящите методи
-връщат обект-забърсвач, който при изчезването си маха последното ниво.
-Пример:
-$ stack with automatic cleaner - the adding-methods
-return object-cleaner, which when destroyed restores the stack/ pops the last level.
-Example:
+стек с автоматичен забърсвач - добавящите методи връщат
+    обект-забърсвач, който при изчезването си възстановява състоянието/ маха последното ниво.
+-----
+stack with automatic cleaner - the adding-methods return
+    object-cleaner, which when destroyed restores the stack/ pops the last level.
+-----
+
     timestack = Stack( 'time', type=mytype)
     def func1( t):
         c = timestack( mytype( t))
