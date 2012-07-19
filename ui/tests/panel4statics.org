@@ -1,0 +1,245 @@
+=======
+Panel {'title': 'Document'} 1 columns
+ +   0: input-Text: "doc.db_id", size 13
+    Panel {'title': 'name'} 1 columns
+     +   0: input-Text: "doc.name.db_id", size 18
+     +   0: input-Text: "doc.name.name", size 17
+    Panel {'title': 'version'} 1 columns
+     +   0: input-Text: "doc.version.changed_by", size 26
+     +   0: input-Checkbox: "doc.version.disabled", size 24
+     +   0: input-Text: "doc.version.obj_id", size 22
+     +   0: input-Text: "doc.version.time_trans", size 26
+     +   0: input-Text: "doc.version.time_valid", size 26
+    Panel {'title': 'viewTemplate'} 1 columns
+     +   0: input-Text: "doc.viewTemplate.db_id", size 26
+     +   0: input-Text: "doc.viewTemplate.description", size 32
+=======
+Panel {'title': 'TrudovDogovor'} 1 columns
+ +   0: input-Text: "doc.db_id", size 13
+    Panel {'title': 'name'} 1 columns
+     +   0: input-Text: "doc.name.db_id", size 18
+     +   0: input-Text: "doc.name.name", size 17
+    Panel {'title': 'naznachenie'} 1 columns
+     +   0: input-Text: "doc.naznachenie.db_id", size 25
+        Panel {'title': 'dlazhnost'} 1 columns
+         +   0: input-Text: "doc.naznachenie.dlazhnost.code", size 34
+         +   0: input-Text: "doc.naznachenie.dlazhnost.db_id", size 35
+            Panel {'title': 'name'} 1 columns
+             +   0: input-Text: "doc.naznachenie.dlazhnost.name.db_id", size 40
+             +   0: input-Text: "doc.naznachenie.dlazhnost.name.name", size 39
+         +   0: input-Text: "doc.naznachenie.dlazhnost.osnovna_zaplata", size 45
+            Panel {'title': 'rabotodatel'} 1 columns
+                Panel {'title': 'address'} 1 columns
+                    Panel {'title': 'darzhava'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.darzhava.db_id", size 64
+                        Panel {'title': 'name'} 1 columns
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.darzhava.name.db_id", size 69
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.darzhava.name.name", size 68
+                        Panel {'title': 'version'} 1 columns
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.darzhava.version.changed_by", size 77
+                         +   0: input-Checkbox: "doc.naznachenie.dlazhnost.rabotodatel.address.darzhava.version.disabled", size 75
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.darzhava.version.obj_id", size 73
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.darzhava.version.time_trans", size 77
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.darzhava.version.time_valid", size 77
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.db_id", size 55
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.details", size 57
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.grad", size 54
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.address.poshtenskiKod", size 63
+                Panel {'title': 'aktivnost'} 1 columns
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.aktivnost.code", size 56
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.aktivnost.db_id", size 57
+                    Panel {'title': 'name'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.aktivnost.name.db_id", size 62
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.aktivnost.name.name", size 61
+                    Panel {'title': 'version'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.aktivnost.version.changed_by", size 70
+                     +   0: input-Checkbox: "doc.naznachenie.dlazhnost.rabotodatel.aktivnost.version.disabled", size 68
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.aktivnost.version.obj_id", size 66
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.aktivnost.version.time_trans", size 70
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.aktivnost.version.time_valid", size 70
+             +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.bulstat", size 49
+             +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.db_id", size 47
+                Panel {'title': 'manager'} 1 columns
+                    Panel {'title': 'address'} 1 columns
+                        Panel {'title': 'darzhava'} 1 columns
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.darzhava.db_id", size 72
+                            Panel {'title': 'name'} 1 columns
+                             +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.darzhava.name.db_id", size 77
+                             +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.darzhava.name.name", size 76
+                            Panel {'title': 'version'} 1 columns
+                             +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.darzhava.version.changed_by", size 85
+                             +   0: input-Checkbox: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.darzhava.version.disabled", size 83
+                             +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.darzhava.version.obj_id", size 81
+                             +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.darzhava.version.time_trans", size 85
+                             +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.darzhava.version.time_valid", size 85
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.db_id", size 63
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.details", size 65
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.grad", size 62
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.address.poshtenskiKod", size 71
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.db_id", size 55
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.egn", size 53
+                    Panel {'title': 'name'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.name.db_id", size 60
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.name.name", size 59
+                    Panel {'title': 'passport'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.passport.db_id", size 64
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.passport.izdatel", size 66
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.passport.number", size 65
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.passport.valid_to", size 67
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.snimka", size 56
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.vazrast", size 57
+                    Panel {'title': 'version'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.version.changed_by", size 68
+                     +   0: input-Checkbox: "doc.naznachenie.dlazhnost.rabotodatel.manager.version.disabled", size 66
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.version.obj_id", size 64
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.version.time_trans", size 68
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.manager.version.time_valid", size 68
+                Panel {'title': 'name'} 1 columns
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.name.db_id", size 52
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.name.name", size 51
+                Panel {'title': 'struktura'} 1 columns
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.db_id", size 57
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.level", size 57
+                    Panel {'title': 'name'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.name.db_id", size 62
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.name.name", size 61
+                    Panel {'title': 'parent'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.parent.db_id", size 64
+                        Panel {'title': 'version'} 1 columns
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.parent.version.changed_by", size 77
+                         +   0: input-Checkbox: "doc.naznachenie.dlazhnost.rabotodatel.struktura.parent.version.disabled", size 75
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.parent.version.obj_id", size 73
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.parent.version.time_trans", size 77
+                         +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.parent.version.time_valid", size 77
+                    Panel {'title': 'version'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.version.changed_by", size 70
+                     +   0: input-Checkbox: "doc.naznachenie.dlazhnost.rabotodatel.struktura.version.disabled", size 68
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.version.obj_id", size 66
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.version.time_trans", size 70
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.struktura.version.time_valid", size 70
+                Panel {'title': 'tdnap'} 1 columns
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.tdnap.code", size 52
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.tdnap.db_id", size 53
+                    Panel {'title': 'name'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.tdnap.name.db_id", size 58
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.tdnap.name.name", size 57
+                    Panel {'title': 'version'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.tdnap.version.changed_by", size 66
+                     +   0: input-Checkbox: "doc.naznachenie.dlazhnost.rabotodatel.tdnap.version.disabled", size 64
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.tdnap.version.obj_id", size 62
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.tdnap.version.time_trans", size 66
+                     +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.tdnap.version.time_valid", size 66
+                Panel {'title': 'version'} 1 columns
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.version.changed_by", size 60
+                 +   0: input-Checkbox: "doc.naznachenie.dlazhnost.rabotodatel.version.disabled", size 58
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.version.obj_id", size 56
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.version.time_trans", size 60
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.rabotodatel.version.time_valid", size 60
+            Panel {'title': 'version'} 1 columns
+             +   0: input-Text: "doc.naznachenie.dlazhnost.version.changed_by", size 48
+             +   0: input-Checkbox: "doc.naznachenie.dlazhnost.version.disabled", size 46
+             +   0: input-Text: "doc.naznachenie.dlazhnost.version.obj_id", size 44
+             +   0: input-Text: "doc.naznachenie.dlazhnost.version.time_trans", size 48
+             +   0: input-Text: "doc.naznachenie.dlazhnost.version.time_valid", size 48
+            Panel {'title': 'worktime'} 1 columns
+             +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.code", size 43
+             +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.db_id", size 44
+                Panel {'title': 'name'} 1 columns
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.name.db_id", size 49
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.name.name", size 48
+             +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.palen_raboten_den_chasove", size 64
+             +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.rabotni_chasove", size 54
+                Panel {'title': 'version'} 1 columns
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.version.changed_by", size 57
+                 +   0: input-Checkbox: "doc.naznachenie.dlazhnost.worktime.version.disabled", size 55
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.version.obj_id", size 53
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.version.time_trans", size 57
+                 +   0: input-Text: "doc.naznachenie.dlazhnost.worktime.version.time_valid", size 57
+     +   0: input-Text: "doc.naznachenie.osnovna_zaplata", size 35
+        Panel {'title': 'sluzhitel'} 1 columns
+            Panel {'title': 'address'} 1 columns
+                Panel {'title': 'darzhava'} 1 columns
+                 +   0: input-Text: "doc.naznachenie.sluzhitel.address.darzhava.db_id", size 52
+                    Panel {'title': 'name'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.sluzhitel.address.darzhava.name.db_id", size 57
+                     +   0: input-Text: "doc.naznachenie.sluzhitel.address.darzhava.name.name", size 56
+                    Panel {'title': 'version'} 1 columns
+                     +   0: input-Text: "doc.naznachenie.sluzhitel.address.darzhava.version.changed_by", size 65
+                     +   0: input-Checkbox: "doc.naznachenie.sluzhitel.address.darzhava.version.disabled", size 63
+                     +   0: input-Text: "doc.naznachenie.sluzhitel.address.darzhava.version.obj_id", size 61
+                     +   0: input-Text: "doc.naznachenie.sluzhitel.address.darzhava.version.time_trans", size 65
+                     +   0: input-Text: "doc.naznachenie.sluzhitel.address.darzhava.version.time_valid", size 65
+             +   0: input-Text: "doc.naznachenie.sluzhitel.address.db_id", size 43
+             +   0: input-Text: "doc.naznachenie.sluzhitel.address.details", size 45
+             +   0: input-Text: "doc.naznachenie.sluzhitel.address.grad", size 42
+             +   0: input-Text: "doc.naznachenie.sluzhitel.address.poshtenskiKod", size 51
+         +   0: input-Text: "doc.naznachenie.sluzhitel.db_id", size 35
+         +   0: input-Text: "doc.naznachenie.sluzhitel.egn", size 33
+            Panel {'title': 'name'} 1 columns
+             +   0: input-Text: "doc.naznachenie.sluzhitel.name.db_id", size 40
+             +   0: input-Text: "doc.naznachenie.sluzhitel.name.name", size 39
+            Panel {'title': 'passport'} 1 columns
+             +   0: input-Text: "doc.naznachenie.sluzhitel.passport.db_id", size 44
+             +   0: input-Text: "doc.naznachenie.sluzhitel.passport.izdatel", size 46
+             +   0: input-Text: "doc.naznachenie.sluzhitel.passport.number", size 45
+             +   0: input-Text: "doc.naznachenie.sluzhitel.passport.valid_to", size 47
+         +   0: input-Text: "doc.naznachenie.sluzhitel.snimka", size 36
+         +   0: input-Text: "doc.naznachenie.sluzhitel.vazrast", size 37
+            Panel {'title': 'version'} 1 columns
+             +   0: input-Text: "doc.naznachenie.sluzhitel.version.changed_by", size 48
+             +   0: input-Checkbox: "doc.naznachenie.sluzhitel.version.disabled", size 46
+             +   0: input-Text: "doc.naznachenie.sluzhitel.version.obj_id", size 44
+             +   0: input-Text: "doc.naznachenie.sluzhitel.version.time_trans", size 48
+             +   0: input-Text: "doc.naznachenie.sluzhitel.version.time_valid", size 48
+     +   0: input-Text: "doc.naznachenie.srok", size 24
+     +   0: input-Text: "doc.naznachenie.stazh", size 25
+        Panel {'title': 'version'} 1 columns
+         +   0: input-Text: "doc.naznachenie.version.changed_by", size 38
+         +   0: input-Checkbox: "doc.naznachenie.version.disabled", size 36
+         +   0: input-Text: "doc.naznachenie.version.obj_id", size 34
+         +   0: input-Text: "doc.naznachenie.version.time_trans", size 38
+         +   0: input-Text: "doc.naznachenie.version.time_valid", size 38
+        Panel {'title': 'worktime'} 1 columns
+         +   0: input-Text: "doc.naznachenie.worktime.code", size 33
+         +   0: input-Text: "doc.naznachenie.worktime.db_id", size 34
+            Panel {'title': 'name'} 1 columns
+             +   0: input-Text: "doc.naznachenie.worktime.name.db_id", size 39
+             +   0: input-Text: "doc.naznachenie.worktime.name.name", size 38
+         +   0: input-Text: "doc.naznachenie.worktime.palen_raboten_den_chasove", size 54
+         +   0: input-Text: "doc.naznachenie.worktime.rabotni_chasove", size 44
+            Panel {'title': 'version'} 1 columns
+             +   0: input-Text: "doc.naznachenie.worktime.version.changed_by", size 47
+             +   0: input-Checkbox: "doc.naznachenie.worktime.version.disabled", size 45
+             +   0: input-Text: "doc.naznachenie.worktime.version.obj_id", size 43
+             +   0: input-Text: "doc.naznachenie.worktime.version.time_trans", size 47
+             +   0: input-Text: "doc.naznachenie.worktime.version.time_valid", size 47
+    Panel {'title': 'version'} 1 columns
+     +   0: input-Text: "doc.version.changed_by", size 26
+     +   0: input-Checkbox: "doc.version.disabled", size 24
+     +   0: input-Text: "doc.version.obj_id", size 22
+     +   0: input-Text: "doc.version.time_trans", size 26
+     +   0: input-Text: "doc.version.time_valid", size 26
+    Panel {'title': 'viewTemplate'} 1 columns
+     +   0: input-Text: "doc.viewTemplate.db_id", size 26
+     +   0: input-Text: "doc.viewTemplate.description", size 32
+=======
+Panel {'title': 'MyDoc'} 1 columns
+    Panel {'width': None, 'border': 1, 'title': 'children(3)'} 2 columns
+     +   1: button: "incr", size 6
+         9: button: "decr", size 6
+        Panel {'title': '[0]'} 1 columns
+         +   0: input-Text: "doc.children.items.0.name", size 29
+         +   0: input-Text: "doc.children.items.0.sex", size 28
+        Panel {'title': '[1]'} 1 columns
+         +   0: input-Text: "doc.children.items.1.name", size 29
+         +   0: input-Text: "doc.children.items.1.sex", size 28
+        Panel {'title': '[2]'} 1 columns
+         +   0: input-Text: "doc.children.items.2.name", size 29
+         +   0: input-Text: "doc.children.items.2.sex", size 28
+    Panel {'width': None, 'border': 1, 'title': 'items(3)'} 2 columns
+     +   1: button: "incr", size 6
+         9: button: "decr", size 6
+     +   0: input-Text: "doc.items.items.0", size 21
+     +   0: input-Text: "doc.items.items.1", size 21
+     +   0: input-Text: "doc.items.items.2", size 21
+ +   0: input-Text: "doc.note", size 12
