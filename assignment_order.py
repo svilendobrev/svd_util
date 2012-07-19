@@ -42,7 +42,7 @@ use as:
     try:
         _order
     except NameError:
-        from util.assignment_order import ASTVisitor4assign
+        from svd_util.assignment_order import ASTVisitor4assign
         ASTVisitor4assign().parseFile_of_module( __file__).set_order_in_namespace( globals(), flatten =True)
         #print '==================='
         #print _order
@@ -506,7 +506,7 @@ class Record:
 
 if 0: #problem in exe mode
     def buildOrderClass( klas):
-        from static_type.util.assignment_order import ASTVisitor4assign
+        from svd_util.assignment_order import ASTVisitor4assign
         namespace = { klas.__name__  : klas }
         root = ASTVisitor4assign().parseClassSource( klas)
         root.set_order_in_namespace( namespace,

@@ -7,7 +7,7 @@ additional python-reflection tools:
 - fail-proof issubclass()
 - subclasses extractor
 '''
-#from util.py3 import basestring
+#from py3 import basestring
 import sys
 if sys.version_info[0]>=3: basestring = str
 

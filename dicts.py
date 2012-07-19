@@ -109,7 +109,7 @@ def dictOrder_fromstr( txt, dictOrder =dict):
 
 if __name__ == '__main__':
 
-    from util.struct import DictAttr
+    from struct import DictAttr
     def t0():
         e= DictAttr( a=2)
         e.c=4

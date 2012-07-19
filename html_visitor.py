@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 'html structural visitor/extractor'
 
-from util.struct import DictAttr
+from struct import DictAttr
 dbg = 0
 
 class HT4stack:
@@ -97,7 +97,7 @@ def visit( url, stack_grammar, ienc =None, html_notfixed =False, html_strict =Fa
         ienc = chardet.detect( d)[ 'encoding']   #.confidence
 
     if not html_notfixed:
-        from util.py.parser3 import HTMLParser
+        from py.parser3 import HTMLParser
     else:
         try: from html.parser import HTMLParser #p3
         except: from htmllib import HTMLParser #p2

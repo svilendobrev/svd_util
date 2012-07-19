@@ -91,7 +91,7 @@ class Func_in_locals:
     fc.locals = dlocalz( max=anothermax)
     print fc( 3)
 '''
-    #ahhh... this setup of arguments.. see dbcook.util.expr.makeExpresion()
+    #ahhh... this setup of arguments.. see expr.makeExpresion()
     def __init__( me, func, glocalsdict =None):
         me.orgfunc = func
         method = getattr( func, 'im_func', None)

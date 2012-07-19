@@ -10,8 +10,8 @@ USE_HIDDEN = _USE_HIDDEN_address
 ##or method_name?field_path=$value          USE_HIDDEN /separate_address
 ##or field_path?method_name=$value          USE_HIDDEN /separate_method
 
-from util.url import urlparse, query2dict #, dict2query, #unquote, quote
-from util.htmlcodec import htmlcodec, lf2br, escape_lf, unescape_lf, wrap_pre
+from svd_util.url import urlparse, query2dict #, dict2query, #unquote, quote
+from svd_util.htmlcodec import htmlcodec, lf2br, escape_lf, unescape_lf, wrap_pre
 def htmlize(v):
     return htmlcodec.encode( str(v))
 
@@ -611,7 +611,7 @@ class TableHTML:
 
 if __name__ == '__main__':
     import unittest
-    from util.mix import myTestCase4Function, Namer
+    from svd_util.mix import myTestCase4Function, Namer
     class myTestCase4Function( myTestCase4Function, unittest.TestCase):
         def do( me, value, expect):
             return uri2fieldMethod( value, use_separate=me.use_separate )[1:]    #less url)
@@ -661,7 +661,7 @@ if __name__ == '__main__':
         h2 = t.out
         print h2
         print '---------'
-        #from util.diff import diff
+        #from svd_util.diff import diff
         #diff( h1,h2, 'html_table', t.__class__.__name__)
 
     #test_htmlTable()

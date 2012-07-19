@@ -2,7 +2,7 @@
 #s.dobrev 2k3-4
 
 from ui.html import uri2fieldMethod, htmlize
-from util.fileCache import FileCache
+from svd_util.fileCache import FileCache
 import socket, traceback, sys
 
 fileCacher = FileCache()

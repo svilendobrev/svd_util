@@ -1,5 +1,5 @@
 #s.dobrev 2k3-9
-'language for dialog/form layout description - parser & buider'
+'language for dialog/form layout description - parser & tree-buider'
 
 import re
 
@@ -28,7 +28,8 @@ extender = '+'
 #field with empty flag makes empty column (nothing in it),
 # but attributes can be set via entry-name
 
-from util.attr import Struct
+from svd_util.struct import Struct
+class Int(int): pass
 
 class TokenMap( Struct):
     __slots__ = [ '_reversed']
@@ -41,8 +42,8 @@ class TokenMap( Struct):
     def join_tokens( me, s):
         return s.join( me.__dict__.itervalues() )
 
-field_types = [ '[input]', '<button>', '{label}', ]
-input_types = TokenMap( Checkbox= '_', Text ='', Chooser ='?' ) #'' is default
+field_types = [ '[input]', '<button>', '{label}', '#image#', '/treeview/']
+input_types = TokenMap( Checkbox= '_', Text ='', Chooser ='?', Radio = '&', Calendar='#' ) #'' is default
 flags = TokenMap( extend= '+', empty= '@' ) #mark= '!',
 
 
@@ -80,7 +81,7 @@ class Field:
                 me.fielddata = fielddata        #or update?
     def getFieldData( me):
         factory = me.subtyp == 'Chooser' and ChooserFieldData or FieldData
-        fielddata = factory( me.name, width=me.width, height=me.height, pos=me.pos)
+        fielddata = factory( me.name, width=Int(me.width), height=Int(me.height), pos=me.pos)
         #if me.typ == 'input':
         #    fielddata.label = fielddata.label + ':'
         if me.fielddata:
@@ -120,11 +121,11 @@ def r_fields():
         r += '\\'+k[0]+'(?P<'+typ+'>[^\\'+k[-1]+']*)\\'+k[-1]+'\s*'
         r_head += '\\'+k[0]
     return '(?P<outside>[^\s'+r_head+'][^'+r_head+']+)|' + r
+
 def r_entry():
     r_flags = flags.join_tokens( '')
     r_input_flags = input_types.join_tokens( '')
     return '(?P<flags>['+r_input_flags+r_flags+']*)\s*' + '(?P<name>[\w\.]+)\s*$'
-
 
 class Panel( object):
     Field = Field
@@ -133,27 +134,28 @@ class Panel( object):
     #outside_re = re.compile( '^\s*(?P<name>[\s\S]*)$')
     fielddata = property( lambda me: me.header)
 
-    def __init__( me, txt =None, field_map =(), prefix ='', **kargs_header):
+    def __init__( me, txt =None, field_map =(), prefix ='', suffix ='', allow_multipanel =False, **kargs_header):
         me.header = kargs_header.copy()
         me.panels = []                #sub-structure skeleton
         me.max_columns = 0
         me.rows = []                  #row = list of Field()s
         me.field_map = {}
+        me.allow_multipanel = allow_multipanel
         if txt:
-            me.add_txt( txt, field_map, prefix=prefix)
+            me.add_txt( txt, field_map, prefix=prefix, suffix=suffix)
 
     def calc_max_columns( me):
         if me.rows:
             me.max_columns = max( me.max_columns, len( me.rows[-1] ) )
 
-    def add_txt( me, txt, field_map =(), prefix='', **kargs):
+    def add_txt( me, txt, field_map =(), prefix='', suffix='', **kargs):
         f = me.field_map
         for k in field_map:
-            if k in f:
-                print """!Warning: %s: field_map[%s]
-                        overrides previous definition, maybe duplicated""" % (me,k)
-            f[ prefix+k] = field_map[k]
-        me.parse( txt, prefix=prefix, **kargs)
+            if prefix+k+suffix in f:
+                print """!Warning: %(me)s: field_map[%(k)s] / pfx=%(prefix)r / sfx=%(suffix)r
+                        overrides previous definition, maybe duplicated""" % locals()
+            f[ prefix+k+suffix] = field_map[k]
+        me.parse( txt, prefix=prefix, suffix=suffix, **kargs)
 
     def __iadd__( me, item):            #add item in a new row after last
         if item is None:
@@ -193,20 +195,29 @@ class Panel( object):
                     '\s*(?P<title>[\s\S]*)$'
                 )
 
-    def parse( me, txt, prefix ='', start_new_row =True ):    #left to right, top to bottom
+    def parse( me, txt, prefix ='', suffix='', start_new_row =True ):    #left to right, top to bottom
         rows = me.rows
+        #hdrdone = False
         lines = txt.split('\n')
         l=0
         for line in lines:
             l+=1
             row = []
-            #print
-            line.rstrip()
+            line = line.rstrip()
             if line:
-                if l==1:               #first line only
+                if me.allow_multipanel or l==1:               #first line only
                     hmatch = me.header_re.match( line)
                     if hmatch:
-                        me.header.update( hmatch.groupdict() )
+                        groupdict = hmatch.groupdict()
+                        if not rows and 'title' not in me.header:
+                            me.header.update( groupdict)
+                            #hdrdone = True
+                        else:   #either 1st line of add_txt(), or multiple titles in single txt
+                            #either way: pack so far into nonamed panel, and selfreplace with container
+                            #TODO: recursion/level=indent
+                            p = Panel( field_map= me.field_map, **groupdict )
+                            rows = p.rows      #switch onto p2
+                            me.rows += [[ p ]]
                         continue        #consumed
                 for fmatch in me.field_re.finditer( line):
                     pos = fmatch.start()
@@ -217,14 +228,14 @@ class Panel( object):
                             continue
 
                         #print typ,':','"'+entry+'";',
-                        f = Field( typ= typ, width= 2+len( entry), pos= pos)
+                        f = me.Field( typ= typ, width= 2+len( entry), pos= pos)
                         ematch = None
                         if typ != 'outside':
                             ematch = me.entry_re.match( entry)
                             if ematch is not None:
                                 #print ' ', ematch.groupdict()
                                 f.__dict__.update( ematch.groupdict() )
-                                if f.name and prefix: f.name = prefix + f.name
+                                if f.name and (prefix or suffix): f.name = prefix + f.name + suffix
                                 if flags.empty in f.flags:
                                     f.typ = 'empty'
                                 if flags.extend in f.flags:
@@ -265,11 +276,10 @@ class Panel( object):
             me.calc_max_columns()
         if rows:
             if not rows[-1]: del rows[-1]
-        #return rows
-        #me._print()
 
     def __str__( me):
         return '%s %s' % ( me.__class__.__name__, me.header)
+
     def _print( me, pfx ='', mode =None):
         print pfx+str(me), me.max_columns, 'columns'
         for row in me.rows:
@@ -292,21 +302,18 @@ class Panel( object):
         #    p._print( pfx+'    ')
         #print pfx+'map', me.field_map
 
-    def clone( me, prefix ='', kargs_field ={}, **kargs_header):
+    def clone( me, prefix ='', suffix ='', kargs_field ={}, **kargs_header):
         r = me.__class__()
         r.__dict__ = me.__dict__.copy()
         r.header = me.header.copy()
         r.header.update( kargs_header)
         r.rows = [
-                    [ f and f.clone( prefix, kargs_field=kargs_field)  for f in row]
+                    [ f and f.clone( prefix=prefix, suffix=suffix, kargs_field=kargs_field) for f in row]
                     for row in me.rows
                  ]
 
-        r.panels = [ f.clone( prefix, kargs_field=kargs_field) for f in me.panels]
-        f = {}
-        for k,v in me.field_map.iteritems():
-            f[ prefix+k] = v
-        r.field_map = f
+        r.panels = [ f.clone( prefix=prefix, suffix=suffix, kargs_field=kargs_field) for f in me.panels]
+        r.field_map = dict( (prefix+k+suffix, v) for k,v in me.field_map.iteritems() )
         return r
 
     def walk( me, visitor):
@@ -379,7 +386,88 @@ class Panel( object):
     def check( me, **k):
         me.walk( me.Checker( **k))
 
+def morph2LabelsLayout( layout):
+    morph_p = Panel( layout)   #parse only - make layout out of it
+    res = ' '.join( '{ l_%s }' % field.name for row in morph_p.rows for field in row)
+    return res
+
 if __name__ == '__main__':
+    if 1:
+        a = """
+        @Person
+        [ person.name] [ person.age ]
+        @Address
+        [ person.address.city ] [ person.address.street ]
+        @Telephone
+        mobile tel: { person.tel.phoneno } fax: { person.tel.fax }
+        """
+    else:
+        a = """
+    [_  log.enabled]   [? dir.change_root]      other one     []  bozoa [@pipo]
+    [   log.name]      [  log.size]             {  dir.change_response.label}
+    [+  log.name]      < trace.show>            [? dir.change_response]
+    [+  log.name]                               [+  dir.change_response]
+      some text        < log.show>              [+  dir.change_response]
+    """
+    panel_log_trace= Panel( """\
+        @Logging control
+    [_ log.enabled]     < log.view   >      logging to:[ log.name ]
+    [_ trace.enabled]   < trace.view >      logging to:[ trace.name ]
+    < trace.clear >
+    """)
+
+    panel_sniff= Panel( """\
+        @Sniffing
+    [_ sniff.enabled]
+    """) + panel_log_trace.clone( 'sniff.')
+
+    panel_term = (
+    Panel("""\
+        @Terminal Console
+    [? term.name]               [? term.work_mode]
+    [? term.root_dir]
+    """)
+    +Panel( "@messaging" )
+     *panel_log_trace
+    +panel_sniff
+    +("""\
+        @Status line
+
+    {term.connected}   {term.root_dir}   {response.dir}   {trace.dir}
+    {+ term.connected}
+    """)
+    )
+
+    def test0_panel_ops():
+        pa = Panel(a)
+        #pa += None
+        #pa *= None
+        #pa *= 'boza',{}
+        #s = Grab_stdout()
+        pa._print()
+
+    test0_panel_ops()
+
+expect = """\
+Panel {} 5 columns
+ +
+ +   5: input-Checkbox: "log.enabled", size 15
+    23: input-Chooser: "dir.change_root", size 19
+    48: outside: "other one", size 9
+    66: outside: "bozoa", size 5
+    72: empty: "pipo", flags @, size 7
+ +   4: input-Text: "log.name", size 13x3
+    23: input-Text: "log.size", size 12
+    48: label: "dir.change_response.label", size 29
+ +  23: button: "trace.show", size 13
+    48: input-Chooser: "dir.change_response", size 23x3
+ +   6: outside: "some text", size 9
+    23: button: "log.show", size 11
+ + None
+     0: outside: "boza", size 4
+"""
+
+if __name__ == '__main__1':
 
     a = """
      [_ log.enabled]   [? dir.change_root]      other one     []  bozoa [@pipo]
@@ -421,8 +509,8 @@ if __name__ == '__main__':
     """)
     )
 
-    from util.mix import Grab_stdout
-    from util.diff import diff
+    from svd_util.mix import Grab_stdout
+    from svd_util.diff import diff
     import unittest
     class t_Panel( unittest.TestCase):
         def test0_panel_ops( me):
@@ -454,8 +542,8 @@ Panel {} 5 columns
             s.release()
             result = str(s)
             #print result
+            print result
             if result != expect:
-                print result
                 df = '\n'.join( diff( result, expect, 'result', 'expect') )
                 me.failUnless( result == expect, 'result != expect\n'+df)
 
@@ -486,3 +574,4 @@ Panel {} 5 columns
     unittest.main()
 
 # vim:ts=4:sw=4:expandtab
+

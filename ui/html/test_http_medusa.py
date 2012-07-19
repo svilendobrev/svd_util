@@ -1,7 +1,7 @@
 #$Id: test_http_medusa.py,v 1.9 2006-07-11 16:14:09 sdobrev Exp $
 
 from server.medusa_handler import Base_Handler#, HTTP_codes, htmlcodec, query2dict, dict2query
-from util.attr import file_relative_to_module
+#from svd_util.module import file_relative_to_module
 
 class Config_Handler( Base_Handler):
     uri_base = 'config'
@@ -49,7 +49,7 @@ def run(
     ##for all booleans:
     #if isinstance( do_something, str): do_something= (do_something== 'True')
     # or
-    #do_something = util.runner.boolean( do_something)
+    #do_something = svd_util.runner.boolean( do_something)
 
     handlers= []
     c = Config_Handler_Factory or Config_Handler

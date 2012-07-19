@@ -2,7 +2,7 @@
 #s.dobrev 2k3
 
 #from fielddata import FieldUndefinedError
-from util.attr import set_attrib, get_attrib, notSetYet
+from svd_util.attr import set_attrib, get_attrib, notSetYet
 
 class UIController( object):
     name = ''
@@ -85,7 +85,7 @@ class UIController( object):
         return err
 
 import html
-from util.fileCache import Descriptor4FileCachedLazyAsText
+from svd_util.fileCache import Descriptor4FileCachedLazyAsText
 
 class UIController4HTML( UIController):
     class Descriptor4FileCachedLazyAsText( Descriptor4FileCachedLazyAsText):
