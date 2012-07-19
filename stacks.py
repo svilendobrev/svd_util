@@ -1,5 +1,5 @@
 #sdobrev 2007
-# -*- coding: cp1251 -*-
+# -*- coding: utf8 -*-
 'stack with automatic (ref-counted) cleanup/pop'
 
 class _StackBase( object):
@@ -14,9 +14,9 @@ class _StackBase( object):
     # ne bachka ako nqma __doc__ kato se naprawi EXE !!!
 
     __doc__ = '''\
-стек с автоматичен забърсвач - добавящите методи
-връщат обект-забърсвач, който при изчезването си маха последното ниво.
-Пример:
+СЃС‚РµРє СЃ Р°РІС‚РѕРјР°С‚РёС‡РµРЅ Р·Р°Р±СЉСЂСЃРІР°С‡ - РґРѕР±Р°РІСЏС‰РёС‚Рµ РјРµС‚РѕРґРё
+РІСЂСЉС‰Р°С‚ РѕР±РµРєС‚-Р·Р°Р±СЉСЂСЃРІР°С‡, РєРѕР№С‚Рѕ РїСЂРё РёР·С‡РµР·РІР°РЅРµС‚Рѕ СЃРё РјР°С…Р° РїРѕСЃР»РµРґРЅРѕС‚Рѕ РЅРёРІРѕ.
+РџСЂРёРјРµСЂ:
 $ stack with automatic cleaner - the adding-methods
 return object-cleaner, which when destroyed restores the stack/ pops the last level.
 Example:
@@ -32,19 +32,19 @@ Example:
         func1( t2)
         print current   #t1
 
-   stack.last() в/у празен стек вдига IndexError
+   stack.last() РІ/Сѓ РїСЂР°Р·РµРЅ СЃС‚РµРє РІРґРёРіР° IndexError
    stack.last() over empty stack raises IndexError
 
-   ВНИМАНИЕ!:
+   Р’РќРРњРђРќРР•!:
    $WARNING:
     stack = Stack(...)
     a = stack.push( xx)
     b = stack.push( yy)
-   работи както се очаква (последно е yy), докато
+   СЂР°Р±РѕС‚Рё РєР°РєС‚Рѕ СЃРµ РѕС‡Р°РєРІР° (РїРѕСЃР»РµРґРЅРѕ Рµ yy), РґРѕРєР°С‚Рѕ
    $works as expected (last is yy), while
     d = stack.push( xx)
-    d = stack.push( yy)     #същото d!
-   няма да направи каквото се очаква - остава xx !!
+    d = stack.push( yy)     #СЃСЉС‰РѕС‚Рѕ d!
+   РЅСЏРјР° РґР° РЅР°РїСЂР°РІРё РєР°РєРІРѕС‚Рѕ СЃРµ РѕС‡Р°РєРІР° - РѕСЃС‚Р°РІР° xx !!
    $ would not do the expected - xx stays.
 ''' #XXX
 
@@ -90,7 +90,7 @@ Example:
 ###############
 
 class Stack( _StackBase):
-    __doc__ = 'plain/обикновен ' + _StackBase.__doc__
+    __doc__ = 'plain/РѕР±РёРєРЅРѕРІРµРЅ ' + _StackBase.__doc__
     __slots__ = ( '__stack', )
     def __init__( me, *a,**k):
         me.__stack = []
@@ -100,7 +100,7 @@ class Stack( _StackBase):
 import threading
 
 class StackPerThread( _StackBase):
-    __doc__ = 'thread-uniq/уникален за нишката ' + _StackBase.__doc__
+    __doc__ = 'thread-uniq/СѓРЅРёРєР°Р»РµРЅ Р·Р° РЅРёС€РєР°С‚Р° ' + _StackBase.__doc__
     __slots__ = ('_stack',)
     _thread_default = threading.local()
     def __init__( me, name, *a,**k):

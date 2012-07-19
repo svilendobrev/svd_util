@@ -1,5 +1,5 @@
 #2006-2008 chefob sdobrev ico2
-# -*- coding: cp1251 -*-
+# -*- coding: utf8 -*-
 '''
 Universal Calendar Time and Pediods arithmetics;
 physical, logical (next-working-day), inherit/compose, count, compare, overlap, cut
@@ -12,8 +12,8 @@ import datetime as dt
 from mix import neighbours
 
 class BasicCalendar( object):
-    ''' представя физическия календар, т.е. 'непрекъснато' време без неработни дни (периоди)
-        някъв интерфейс
+    ''' РїСЂРµРґСЃС‚Р°РІСЏ С„РёР·РёС‡РµСЃРєРёСЏ РєР°Р»РµРЅРґР°СЂ, С‚.Рµ. 'РЅРµРїСЂРµРєСЉСЃРЅР°С‚Рѕ' РІСЂРµРјРµ Р±РµР· РЅРµСЂР°Р±РѕС‚РЅРё РґРЅРё (РїРµСЂРёРѕРґРё)
+        РЅСЏРєСЉРІ РёРЅС‚РµСЂС„РµР№СЃ
     '''
     pass
 
@@ -69,8 +69,8 @@ class TimeConversion( BaseInitShow):
             klas._order.append( tc_inst)
 
     def __init__( me, ime, selector =None, code =None):
-        ''' measure_to, measure_from - имената на мерките са в единствено число
-            isDateRequired - дали иска контекстна дата
+        ''' measure_to, measure_from - РёРјРµРЅР°С‚Р° РЅР° РјРµСЂРєРёС‚Рµ СЃР° РІ РµРґРёРЅСЃС‚РІРµРЅРѕ С‡РёСЃР»Рѕ
+            isDateRequired - РґР°Р»Рё РёСЃРєР° РєРѕРЅС‚РµРєСЃС‚РЅР° РґР°С‚Р°
         '''
         BaseInitShow.__init__( me, *tuple( None for i in range( len(me._attrs))) )
         me.ime = (ime is None) and me.measure_from or ime   #choveshko ime
@@ -97,7 +97,7 @@ class TimeConversion( BaseInitShow):
         return broi_dni
 
     def broi_dni( me, context_date):
-        '''връща броя дни за периода започващ от контекстната дата за неконвертируемите периоди или 1'''
+        '''РІСЂСЉС‰Р° Р±СЂРѕСЏ РґРЅРё Р·Р° РїРµСЂРёРѕРґР° Р·Р°РїРѕС‡РІР°С‰ РѕС‚ РєРѕРЅС‚РµРєСЃС‚РЅР°С‚Р° РґР°С‚Р° Р·Р° РЅРµРєРѕРЅРІРµСЂС‚РёСЂСѓРµРјРёС‚Рµ РїРµСЂРёРѕРґРё РёР»Рё 1'''
         if me.typ is me.NoConvert:
             coef_to_mesec = abs( me._convert[ me.mesec])
             if me == me.mesec:
@@ -106,11 +106,11 @@ class TimeConversion( BaseInitShow):
                               bymonthday=(-1),
                               count=1,
                             ) [0].day #posledniat den ot mesec X
-            res = me._razmnoji_mesechinata( from_date= context_date, times= coef_to_mesec) #mesechinko.broi_dni( context_date) # FIXME loop-вай тука
+            res = me._razmnoji_mesechinata( from_date= context_date, times= coef_to_mesec) #mesechinko.broi_dni( context_date) # FIXME loop-РІР°Р№ С‚СѓРєР°
             return res
         return 1    #TODO
 
-    '''     конвертируеми периоди                    неконвертируеми периоди (без контекстна дата)
+    '''     РєРѕРЅРІРµСЂС‚РёСЂСѓРµРјРё РїРµСЂРёРѕРґРё                    РЅРµРєРѕРЅРІРµСЂС‚РёСЂСѓРµРјРё РїРµСЂРёРѕРґРё (Р±РµР· РєРѕРЅС‚РµРєСЃС‚РЅР° РґР°С‚Р°)
             minuta  chas    den     sedmica sedmica2 mesec              trimesecie      polugodie godina
 
 minuta      1       1/60    1/60*24                  1/broi_dni*60*24  1/broi_dni*60*24*3
@@ -123,7 +123,7 @@ trimesecie  3*broi_dni*24*60
 polugodie   6*broi_dni*24*60
 godina      12*broi_dni*24*60
 
-брои_дни е сума за всеки месец от контекстната дата до края на периода
+Р±СЂРѕРё_РґРЅРё Рµ СЃСѓРјР° Р·Р° РІСЃРµРєРё РјРµСЃРµС† РѕС‚ РєРѕРЅС‚РµРєСЃС‚РЅР°С‚Р° РґР°С‚Р° РґРѕ РєСЂР°СЏ РЅР° РїРµСЂРёРѕРґР°
 '''
     def convert( me, to, value, context_date =None):    #, calendar =BasicCalendar): TODO
         koef = me._convert[ to]
@@ -139,18 +139,18 @@ from dictOrder import dictOrder
 if 10:
     TCS.setup(
         dictOrder( [
-            ('sekunda',  ( 'секунда',)),
-            ('minuta' ,  ( 'минута',)),     #timedelta(0,60)
-            ('chas'   ,  ( 'час',)),
-            ('den'    ,  ( 'ден',)),        #timedelta(1) = 24*chas
-            ('sedmica',  ( 'седмица',)),
-            ('sedmica2', ( '2седмици',)),
-            ('mesec',    ( 'месец', 'months')),      # бр.дни= календар
-    #       ( trimesecie  ( 'тримесечие', '')), # бр.дни= календар
-    #       (polugodie   ( 'полугодие', NoConvert)),  # бр.дни= календар
-            ('godina'    , ( 'година', 'years')),     # бр.дни= календар
-    #       (stoletie    ( 'век', NoConvert)),        # бр.дни= календар
-    #       (hiliadoletie( 'хилядолетие', NoConvert)),# бр.дни= календар
+            ('sekunda',  ( 'СЃРµРєСѓРЅРґР°',)),
+            ('minuta' ,  ( 'РјРёРЅСѓС‚Р°',)),     #timedelta(0,60)
+            ('chas'   ,  ( 'С‡Р°СЃ',)),
+            ('den'    ,  ( 'РґРµРЅ',)),        #timedelta(1) = 24*chas
+            ('sedmica',  ( 'СЃРµРґРјРёС†Р°',)),
+            ('sedmica2', ( '2СЃРµРґРјРёС†Рё',)),
+            ('mesec',    ( 'РјРµСЃРµС†', 'months')),      # Р±СЂ.РґРЅРё= РєР°Р»РµРЅРґР°СЂ
+    #       ( trimesecie  ( 'С‚СЂРёРјРµСЃРµС‡РёРµ', '')), # Р±СЂ.РґРЅРё= РєР°Р»РµРЅРґР°СЂ
+    #       (polugodie   ( 'РїРѕР»СѓРіРѕРґРёРµ', NoConvert)),  # Р±СЂ.РґРЅРё= РєР°Р»РµРЅРґР°СЂ
+            ('godina'    , ( 'РіРѕРґРёРЅР°', 'years')),     # Р±СЂ.РґРЅРё= РєР°Р»РµРЅРґР°СЂ
+    #       (stoletie    ( 'РІРµРє', NoConvert)),        # Р±СЂ.РґРЅРё= РєР°Р»РµРЅРґР°СЂ
+    #       (hiliadoletie( 'С…РёР»СЏРґРѕР»РµС‚РёРµ', NoConvert)),# Р±СЂ.РґРЅРё= РєР°Р»РµРЅРґР°СЂ
         ]
         )
     )
@@ -162,7 +162,7 @@ if 10:
         ( TCS.chas,         24,  ),
         ( TCS.den,          7,   ),
         ( TCS.sedmica,      2,   ),
-        ( TCS.sedmica2,     None,   ), # ами сега FIXME ко прайм тука
+        ( TCS.sedmica2,     None,   ), # Р°РјРё СЃРµРіР° FIXME РєРѕ РїСЂР°Р№Рј С‚СѓРєР°
 #    ]
 #    _time_conversions2 = [
         ( TCS.mesec,        12,   ),
@@ -317,7 +317,7 @@ class UniversalTime( object):
 
     @staticmethod
     def toString( time, timefmt =None):
-        ''' Приема дата обект, връща стринг. Указва се формат( като стринг). '''
+        ''' РџСЂРёРµРјР° РґР°С‚Р° РѕР±РµРєС‚, РІСЂСЉС‰Р° СЃС‚СЂРёРЅРі. РЈРєР°Р·РІР° СЃРµ С„РѕСЂРјР°С‚( РєР°С‚Рѕ СЃС‚СЂРёРЅРі). '''
         if not timefmt:
             timefmt = '%Y-%m-%d'
         timestr = time.strftime( timefmt)
@@ -418,9 +418,9 @@ class UniversalTime( object):
     def UIstr( me):
         return me.to_string('%Y-%m-%d')
 
-#17 седмици колко месеца са??? some conversion maybe - TODO
+#17 СЃРµРґРјРёС†Рё РєРѕР»РєРѕ РјРµСЃРµС†Р° СЃР°??? some conversion maybe - TODO
 class Period( object):
-    '''представя затворен отляво, отворен отдясно интервал от време'''
+    '''РїСЂРµРґСЃС‚Р°РІСЏ Р·Р°С‚РІРѕСЂРµРЅ РѕС‚Р»СЏРІРѕ, РѕС‚РІРѕСЂРµРЅ РѕС‚РґСЏСЃРЅРѕ РёРЅС‚РµСЂРІР°Р» РѕС‚ РІСЂРµРјРµ'''
 
     class PeriodException( Exception): pass
 
@@ -587,7 +587,7 @@ class Period( object):
 
     def containsDate( me, date, include_to =False):
         z = (date <= me.do) if include_to else (date < me.do)
-        return ( date >= me.ot and z ) #FIXME включително края или не?
+        return ( date >= me.ot and z ) #FIXME РІРєР»СЋС‡РёС‚РµР»РЅРѕ РєСЂР°СЏ РёР»Рё РЅРµ?
 
     def containsInterval( me, interval):
         return me.containsDate( interval.ot) and me.containsDate( interval.do, True)
@@ -654,7 +654,7 @@ class Period( object):
 
     def __getitem__( me, i):
         raise NotImplementedError, 'Use ot, do'
-        if i not in (0,1,-1): raise IndexError,i   #за да работи a,b=period
+        if i not in (0,1,-1): raise IndexError,i   #Р·Р° РґР° СЂР°Р±РѕС‚Рё a,b=period
         if i: return me.do
         return me.ot
 
@@ -714,13 +714,13 @@ class VremeContext( object):
         return
 
 def get_context( context):
-    'тука ще има ракети и времомашини'  #TODO
+    'С‚СѓРєР° С‰Рµ РёРјР° СЂР°РєРµС‚Рё Рё РІСЂРµРјРѕРјР°С€РёРЅРё'  #TODO
     return context
 
 class PeriodCollection( object):
-    ''' това отделен клас ли е или Period да свърши и това?''' # XXX
-    ''' тук явно влизат и колекция от UniversalTime (единични времеви обекти),
-    представени като интервал [ot, ot]
+    ''' С‚РѕРІР° РѕС‚РґРµР»РµРЅ РєР»Р°СЃ Р»Рё Рµ РёР»Рё Period РґР° СЃРІСЉСЂС€Рё Рё С‚РѕРІР°?''' # XXX
+    ''' С‚СѓРє СЏРІРЅРѕ РІР»РёР·Р°С‚ Рё РєРѕР»РµРєС†РёСЏ РѕС‚ UniversalTime (РµРґРёРЅРёС‡РЅРё РІСЂРµРјРµРІРё РѕР±РµРєС‚Рё),
+    РїСЂРµРґСЃС‚Р°РІРµРЅРё РєР°С‚Рѕ РёРЅС‚РµСЂРІР°Р» [ot, ot]
     '''
     def __init__( me, timeIntervalList):
         me.collection = list( timeIntervalList)
@@ -732,7 +732,7 @@ class PeriodCollection( object):
         col = me.collection + timeIntervalList
         return PeriodCollection( col)
 
-    # има същия интерфейс като Period + обединение
+    # РёРјР° СЃСЉС‰РёСЏ РёРЅС‚РµСЂС„РµР№СЃ РєР°С‚Рѕ Period + РѕР±РµРґРёРЅРµРЅРёРµ
     def __str__( me):
         s = ''
         for i in me.collection:
@@ -755,7 +755,7 @@ class PeriodCollection( object):
         me.collection.sort()
 
     def simplify( me, collection=None):
-        ''' обединяване на съседни или застъпващи се интервали ако може'''
+        ''' РѕР±РµРґРёРЅСЏРІР°РЅРµ РЅР° СЃСЉСЃРµРґРЅРё РёР»Рё Р·Р°СЃС‚СЉРїРІР°С‰Рё СЃРµ РёРЅС‚РµСЂРІР°Р»Рё Р°РєРѕ РјРѕР¶Рµ'''
         if collection is None:
             col = me.collection
         else:
@@ -801,13 +801,13 @@ class PeriodCollection( object):
 
     def union( me, other, context =None):
         pass
-    # TODO зацепване, разцепване, прицепване на обединение на интервали (съседни, застъпващи се, без сечение) по различни стратегии за обединени (5-6 вида)
-    # TODO всички аритметики с число, момент във времето, интервал от време
+    # TODO Р·Р°С†РµРїРІР°РЅРµ, СЂР°Р·С†РµРїРІР°РЅРµ, РїСЂРёС†РµРїРІР°РЅРµ РЅР° РѕР±РµРґРёРЅРµРЅРёРµ РЅР° РёРЅС‚РµСЂРІР°Р»Рё (СЃСЉСЃРµРґРЅРё, Р·Р°СЃС‚СЉРїРІР°С‰Рё СЃРµ, Р±РµР· СЃРµС‡РµРЅРёРµ) РїРѕ СЂР°Р·Р»РёС‡РЅРё СЃС‚СЂР°С‚РµРіРёРё Р·Р° РѕР±РµРґРёРЅРµРЅРё (5-6 РІРёРґР°)
+    # TODO РІСЃРёС‡РєРё Р°СЂРёС‚РјРµС‚РёРєРё СЃ С‡РёСЃР»Рѕ, РјРѕРјРµРЅС‚ РІСЉРІ РІСЂРµРјРµС‚Рѕ, РёРЅС‚РµСЂРІР°Р» РѕС‚ РІСЂРµРјРµ
 
     #specific query methods - needed often
-    #TODO първия работен ден >= 5то число на месеца - как се задава???
+    #TODO РїСЉСЂРІРёСЏ СЂР°Р±РѕС‚РµРЅ РґРµРЅ >= 5С‚Рѕ С‡РёСЃР»Рѕ РЅР° РјРµСЃРµС†Р° - РєР°Рє СЃРµ Р·Р°РґР°РІР°???
     def _karamboliraiSKalendar( me, nth_day_of_month, context, isBefore =True):
-        'съвсем примерна имплементация'
+        'СЃСЉРІСЃРµРј РїСЂРёРјРµСЂРЅР° РёРјРїР»РµРјРµРЅС‚Р°С†РёСЏ'
         context = get_context( context) #stub
         if isBefore:
             first_day = 1
@@ -832,7 +832,7 @@ class PeriodCollection( object):
             ruleset.exdate( neraboten)
         return ruleset
 
-    # трябва да има и първия и последния работен ден след/преди дата XXX
+    # С‚СЂСЏР±РІР° РґР° РёРјР° Рё РїСЉСЂРІРёСЏ Рё РїРѕСЃР»РµРґРЅРёСЏ СЂР°Р±РѕС‚РµРЅ РґРµРЅ СЃР»РµРґ/РїСЂРµРґРё РґР°С‚Р° XXX
     def firstWorkingDayAfter( me, nth_day_of_month, context =None):
         l = list( me._karamboliraiSKalendar( nth_day_of_month, context, isBefore = False))
         return min( l)
@@ -840,8 +840,8 @@ class PeriodCollection( object):
     def lastWorkingDayBefore( me, nth_day_of_month, context =None): #last_day is 32 ;)
         l = list( me._karamboliraiSKalendar( nth_day_of_month, context, isBefore = True))
         return max( l)
-    # когато ти трябва интервал от шест месеца назад (интервали назад) по кой
-    # работен календар се смята (към момента на поискване или някакъв друг - двубременност)
+    # РєРѕРіР°С‚Рѕ С‚Рё С‚СЂСЏР±РІР° РёРЅС‚РµСЂРІР°Р» РѕС‚ С€РµСЃС‚ РјРµСЃРµС†Р° РЅР°Р·Р°Рґ (РёРЅС‚РµСЂРІР°Р»Рё РЅР°Р·Р°Рґ) РїРѕ РєРѕР№
+    # СЂР°Р±РѕС‚РµРЅ РєР°Р»РµРЅРґР°СЂ СЃРµ СЃРјСЏС‚Р° (РєСЉРј РјРѕРјРµРЅС‚Р° РЅР° РїРѕРёСЃРєРІР°РЅРµ РёР»Рё РЅСЏРєР°РєСЉРІ РґСЂСѓРі - РґРІСѓР±СЂРµРјРµРЅРЅРѕСЃС‚)
 
 if 0:
     class WorkGraphic(object):
@@ -856,9 +856,9 @@ class RecurrentPeriod( Period):
         me.chestota = chestota
 
 class WorkCalendar( BasicCalendar):
-    ''' подлежи на извличане чрез механизЪма на наследяване/засенчване, реализиран другаде...
+    ''' РїРѕРґР»РµР¶Рё РЅР° РёР·РІР»РёС‡Р°РЅРµ С‡СЂРµР· РјРµС…Р°РЅРёР·РЄРјР° РЅР° РЅР°СЃР»РµРґСЏРІР°РЅРµ/Р·Р°СЃРµРЅС‡РІР°РЅРµ, СЂРµР°Р»РёР·РёСЂР°РЅ РґСЂСѓРіР°РґРµ...
     '''
-    #TODO xxx_intervali да връща PeriodCollection
+    #TODO xxx_intervali РґР° РІСЂСЉС‰Р° PeriodCollection
     @staticmethod
     def weekend_days( period):
         ot = period.ot.exact_time
@@ -880,7 +880,7 @@ class WorkCalendar( BasicCalendar):
         return me._holidays
 
     def working_intervals( me, period):
-        #връща колекция от отворени отляво интервали, които са работни периоди(дни)
+        #РІСЂСЉС‰Р° РєРѕР»РµРєС†РёСЏ РѕС‚ РѕС‚РІРѕСЂРµРЅРё РѕС‚Р»СЏРІРѕ РёРЅС‚РµСЂРІР°Р»Рё, РєРѕРёС‚Рѕ СЃР° СЂР°Р±РѕС‚РЅРё РїРµСЂРёРѕРґРё(РґРЅРё)
         assert isinstance( period, Period)
         ot = period.ot
         do = period.do
@@ -923,7 +923,7 @@ class WorkCalendar( BasicCalendar):
         collection = interval_fx( period)
         res = 0
         for p in collection:
-            res += p.size() #тука XXX май трябва да е наобратно-Period da vika WorkCalendar len...
+            res += p.size() #С‚СѓРєР° XXX РјР°Р№ С‚СЂСЏР±РІР° РґР° Рµ РЅР°РѕР±СЂР°С‚РЅРѕ-Period da vika WorkCalendar len...
         return res
 
     def len_working_interval( me, period):
@@ -957,7 +957,7 @@ def get_test_calendar():
 
 if __name__ == '__main__':
     def dede():
-        print 20*']' + 'Свети ПАРис - не подлежи на автоматизация:'
+        print 20*']' + 'РЎРІРµС‚Рё РџРђР РёСЃ - РЅРµ РїРѕРґР»РµР¶Рё РЅР° Р°РІС‚РѕРјР°С‚РёР·Р°С†РёСЏ:'
         #rule = rrule( MONTHLY, byweekday=FR(+1), count= 10) #experience deposed this
         rule = rrule( MONTHLY, byweekday= FR,
             bymonthday= (3,4,5,6,7,8,9),    #1st and 2nd days of a month are doomed ;)
@@ -1009,7 +1009,7 @@ if __name__ == '__main__':
 
     t = PeriodCollection( []).lastWorkingDayBefore( 4, kintext)
     print 'lastWorkingDayBefore 4th:', t
-    #тез горните два метода май съм към календара, а не тука ???
+    #С‚РµР· РіРѕСЂРЅРёС‚Рµ РґРІР° РјРµС‚РѕРґР° РјР°Р№ СЃСЉРј РєСЉРј РєР°Р»РµРЅРґР°СЂР°, Р° РЅРµ С‚СѓРєР° ???
 
     print 20*'-'
     def check_broi_dni( mera, context_date, verno):
@@ -1032,16 +1032,16 @@ if __name__ == '__main__':
         res = eval( 'miarka_ot.convert( miarka_kam, value, context_date)')
         print '%s->%s %s: %i' % ( mera_from, mera_to, str( context_date), res)
         assert res == verno, ':'.join( str( i) for i in ( mera_from, mera_to, context_date, res))
-    #конвертируеми
+    #РєРѕРЅРІРµСЂС‚РёСЂСѓРµРјРё
     if 0:
         check_convert( 'sedmica', 'den', 3, 21)
         check_convert( 'den', 'sedmica',  3, 5)
-    #неконвертируеми
+    #РЅРµРєРѕРЅРІРµСЂС‚РёСЂСѓРµРјРё
     check_convert( 'mesec', 'den',  1, 28, dt.datetime( 2007, 2, 5))
     check_convert( 'mesec', 'den',  1, 31, dt.datetime( 2008, 3, 5))
     check_convert( 'mesec', 'den',  1, 29, dt.datetime( 2008, 2,25))
     check_convert( 'mesec', 'den',  1, 31, dt.datetime( 2008, 3, 5))
-    #неконвертируеми-конвейртируеми
+    #РЅРµРєРѕРЅРІРµСЂС‚РёСЂСѓРµРјРё-РєРѕРЅРІРµР№СЂС‚РёСЂСѓРµРјРё
     #check_convert( 'sedmica', 'godina', 3, 21, dt.datetime( 2008, 3, 5))
     #check_convert( 'den', 'mesec',  1, dt.datetime( 2008, 3, 5), 31)
 
