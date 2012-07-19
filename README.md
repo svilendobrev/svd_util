@@ -5,7 +5,10 @@ python utility funcs, classes, small languages+frameworks, scripts.
 old or new.. collection.
 i tend to use most optz, attr, struct, py3, eutf
 
+[[mw and software|http://www.svilendobrev.com/rabota/]]
+
 --------
+
 * [[assignment_order.py|https://github.com/svilendobrev/svd_util/blob/master/assignment_order.py]] : Obtain order of assigments in python source text namespaces.
 * [[attr.py|https://github.com/svilendobrev/svd_util/blob/master/attr.py]] : additional python-reflection tools: - multilevel getattr, setattr, import, getitemer - local vs see-through-hierarchy getattr - fail-proof issubclass() - subclasses extractor
 * [[bin/doprof.py|https://github.com/svilendobrev/svd_util/blob/master/bin/doprof.py]] : better view onto python profiler results
