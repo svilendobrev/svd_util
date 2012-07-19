@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 #sdobrev 2012
 
-'autoconvert cp1251 to utf AND fix the "coding" line'
+'''
+autoconvert (source-files) from cp1251 to utf AND fix the "coding" line
+
+преобразува (файлове) от 1251 в УТФ и оправя реда за "coding"
+'''
 from svd_util import eutf, optz
 import os, sys, re
 

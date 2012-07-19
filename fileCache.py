@@ -1,5 +1,5 @@
-#$Id: fileCache.py,v 1.8 2006-07-12 11:24:39 sdobrev Exp $
 #s.dobrev 2k3-4
+'cache content of a file + property doing it'
 
 #could use linecache.getlines() - has checkcache() / updatecache(),
 #   but it looks on sys.path, and returns list.

@@ -2,7 +2,8 @@
 # sdobrev 2012
 'generate a (wiki) page from first __doc__ line/para of input python files (e.g. for github)'
 
-import optz,sys
+from svd_util import optz
+import sys
 optz.text( 'base',      help= 'base prefix for all links',)
 optz.bool( 'wikilink',  help= 'show as [[name|link]]' )
 optz.bool( 'para',      help= 'get whole first paragraph' )
