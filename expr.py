@@ -418,7 +418,7 @@ if __name__ == '__main__':
             return r
 
     class Test:
-        from testeng.testbase import Case    #XXX TODO FIXME
+        from testeng.base import Case    #XXX TODO FIXME
         VERBOSE = 1
 
         class A:
@@ -508,7 +508,7 @@ EXPECTED:%s
     #    class ConstTest( EvalTest):
     #    class SubclassTest( EvalTest):
 
-    from testeng.testutils import testMain
+    from testeng.utils import testMain
     testMain( [
     #    Test.WalkTest(),
     #    Test.ConstTest(),

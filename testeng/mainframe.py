@@ -1,13 +1,14 @@
-#$Id$
 # -*- coding: utf8 -*-
 
 '''
+testing engine.
+run by TestMainframe(), args as passed, or get from command-line
+
 Машина за пускане на Тестове
-Работи с параметри от командния ред или дадени на TestMainframe()
-ползва се като се създаде обект TestMainframe()
+пуска се чрез TestMainframe(), с подадени параметри или се вземат от командния ред
 '''
 import unittest
-from svd_util.mix import myTestCase4Function
+from .func import myTestCase4Function
 # параметри от командния ред
 from svd_util.config import Config
 
@@ -111,7 +112,7 @@ class TestMainframe( unittest.TestLoader):
             suite= unittest.TestLoader().loadTestsFromModule( module= module)
         return suite
 
-    def runTest( me, exit_on_error =True): # see engine/testutils
+    def runTest( me, exit_on_error =True): # see ./utils.py
         success = False
         try:
             k = me._importFromFile( me.module_name)

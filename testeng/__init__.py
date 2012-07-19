@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+#2007 sdobrev chefob ..
 '''
-testing engine - with business-analysis-oriented cases syntax/structure
-use by creating TestMainframe()
+testing engine with analysis/data-oriented syntax/structure of cases;
+simple single-or-multi-case unittestcase
 
-Машина за пускане на Тестове
-Работи с параметри от командния ред или дадени на TestMainframe()
-ползва се като се създаде обект TestMainframe()
+Машина за пускане на Тестове с аналитично-даннова структура на случаите;
+прост единичен-или-множествен тестов-случай
 '''

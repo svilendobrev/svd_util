@@ -104,7 +104,7 @@ sample: %(sample)s
 %(sample_name)r FROM'''     #след FROM се показва името на тест case-а
         return res % locals()
 
-from testutils import AppTestCase
+from .utils import AppTestCase
 class Case( BaseTestCase, AppTestCase):
     ''' Това трябва да се наследява от конкретните тестове, където трябва да има методите:
     setupEach или setup (НИКОГА и двата едновременно)
