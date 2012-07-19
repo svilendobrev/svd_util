@@ -611,7 +611,8 @@ class TableHTML:
 
 if __name__ == '__main__':
     import unittest
-    from svd_util.mix import myTestCase4Function, Namer
+    from svd_util.testeng.func import myTestCase4Function
+    from svd_util.mix import Namer
     class myTestCase4Function( myTestCase4Function, unittest.TestCase):
         def do( me, value, expect):
             return uri2fieldMethod( value, use_separate=me.use_separate )[1:]    #less url)
