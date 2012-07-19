@@ -20,7 +20,7 @@ if v3:
     #diff = difflib
     #module.import_fullname ~= import_lib.import_module
 else:
-    from util.dictOrder import dictOrder
+    from dictOrder import dictOrder
 
     #from __future__ import print_function, unicode_literals
 def prn( *a, **kargs):
