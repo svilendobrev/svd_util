@@ -9,6 +9,8 @@ i tend to use most optz, attr, struct, py3, eutf
 
 --------
 
+* https://github.com/svilendobrev/svd_util/blob/master/assignment_order.py : Obtain order of assigments in python source text namespaces.
+
 * [[assignment_order.py|https://github.com/svilendobrev/svd_util/blob/master/assignment_order.py]] : Obtain order of assigments in python source text namespaces.
 * [[attr.py|https://github.com/svilendobrev/svd_util/blob/master/attr.py]] : additional python-reflection tools: - multilevel getattr, setattr, import, getitemer - local vs see-through-hierarchy getattr - fail-proof issubclass() - subclasses extractor
 * [[bin/doprof.py|https://github.com/svilendobrev/svd_util/blob/master/bin/doprof.py]] : better view onto python profiler results
