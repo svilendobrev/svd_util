@@ -5,7 +5,7 @@ python utility funcs, classes, small languages+frameworks, scripts.
 old or new.. collection.
 i tend to use most optz, attr, struct, py3, eutf
 
-[[mw and software|http://www.svilendobrev.com/rabota/]]
+[[ me and software|http://www.svilendobrev.com/rabota/ ]]
 
 --------
 
