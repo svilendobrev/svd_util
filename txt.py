@@ -1,5 +1,4 @@
 #sdobrev 2005
-# -*- coding: cp1251 -*-
 'text encodings, escaping, whitespace stripping'
 
 MODEL_ENCODING = 'utf-8'
