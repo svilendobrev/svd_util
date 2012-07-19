@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: cp1251 -*-
+# -*- coding: utf-8 -*-
 # sdobrev 2004-8
 'cyrillic transcripting to/from latin - e.g. qwerty, SMS, sounds-like, looks-like, etc'
 
@@ -62,21 +62,21 @@ class transliterator:
 
 class zvuchene( transliterator):
     _cyr2lat,_lat2cyr = make(
-        cyr= 'абвгдезийклмнопрстуфхц',
+        cyr= 'Р°Р±РІРіРґРµР·РёР№РєР»РјРЅРѕРїСЂСЃС‚СѓС„С…С†',
         lat= 'abvgdezijklmnoprstufhc',
         cyr2lat = {
-        'ж': 'zh',
-        'ч': 'ch',
-        'ш': 'sh',
-        'щ': 'sht',
-        'ьо': 'io|yo',
-        'ь': '',
-        'ъ': 'y',
-        'ю': 'iu|yu',
-        'я': 'ia|ya',
-        'э': 'e',
-        'ы': 'i',
-        'в': 'w',
+        'Р¶': 'zh',
+        'С‡': 'ch',
+        'С€': 'sh',
+        'С‰': 'sht',
+        'СЊРѕ': 'io|yo',
+        'СЊ': '',
+        'СЉ': 'y',
+        'СЋ': 'iu|yu',
+        'СЏ': 'ia|ya',
+        'СЌ': 'e',
+        'С‹': 'i',
+        'РІ': 'w',
         })
 
 class special2plain( transliterator):
@@ -120,72 +120,72 @@ class special2plain( transliterator):
 
 class zvuchene_qw( transliterator):
     _cyr2lat,_lat2cyr = make(
-        cyr= 'абвгдезиклмнопрстуфхц',
+        cyr= 'Р°Р±РІРіРґРµР·РёРєР»РјРЅРѕРїСЂСЃС‚СѓС„С…С†',
         lat= 'abwgdeziklmnoprstufhc',
         cyr2lat = {
-        'й': 'i',
-        'ж': 'j',
-        'ч': 'ch',
-        'ш': 'sh',
-        'щ': 'sht',
-        'ьо': 'jo',
-        'ь': '',
-        'ъ': 'y',
-        'ю': 'iu|ju',
-        'я': 'iu|ju',
-        'э': 'e',
-        'ы': 'i',
-        'в': 'v',
+        'Р№': 'i',
+        'Р¶': 'j',
+        'С‡': 'ch',
+        'С€': 'sh',
+        'С‰': 'sht',
+        'СЊРѕ': 'jo',
+        'СЊ': '',
+        'СЉ': 'y',
+        'СЋ': 'iu|ju',
+        'СЏ': 'iu|ju',
+        'СЌ': 'e',
+        'С‹': 'i',
+        'РІ': 'v',
         })
 
 class qwerty_keyboard( transliterator):    #fonetic
     _cyr2lat,_lat2cyr = make(
-        cyr= 'абвгдежзийклмнопрстуфхц',
+        cyr= 'Р°Р±РІРіРґРµР¶Р·РёР№РєР»РјРЅРѕРїСЂСЃС‚СѓС„С…С†',
         lat= 'abwgdevzijklmnoprstufhc',
         cyr2lat = {
-        'ч': '`',
-        'ш': '[',
-        'щ': ']',
-        'ь': '',
-        'ъ': 'y',
-        'ю': '\\\\',
-        'я': 'q',
-        'э': '@',
-        'ы': '^',
+        'С‡': '`',
+        'С€': '[',
+        'С‰': ']',
+        'СЊ': '',
+        'СЉ': 'y',
+        'СЋ': '\\\\',
+        'СЏ': 'q',
+        'СЌ': '@',
+        'С‹': '^',
         })
 
 class qwerty_keyboard_yu( transliterator):   #fonetic
     _cyr2lat,_lat2cyr = make(
-        cyr= 'абвгдежзиклмнопрстуфхц',
+        cyr= 'Р°Р±РІРіРґРµР¶Р·РёРєР»РјРЅРѕРїСЂСЃС‚СѓС„С…С†',
         lat= 'abvgde`ziklmnoprstufhc',
         cyr2lat = {
-        #'й':'j',
+        #'Р№':'j',
         '-': 'j',
-        'ч': '~',
-        'ш': '{',
-        'щ': '}',
-        'ь': '',
-        'ъ': 'y',
-        'ю': '\\\\',
-        'я': 'q',
-        'э': '@',
-        'ы': '^',
+        'С‡': '~',
+        'С€': '{',
+        'С‰': '}',
+        'СЊ': '',
+        'СЉ': 'y',
+        'СЋ': '\\\\',
+        'СЏ': 'q',
+        'СЌ': '@',
+        'С‹': '^',
         })
 
 class desi( transliterator):   #digito-fonetic
     _cyr2lat,_lat2cyr = make(
-        cyr= 'абвгдежзийклмнопрстуфхц',
+        cyr= 'Р°Р±РІРіРґРµР¶Р·РёР№РєР»РјРЅРѕРїСЂСЃС‚СѓС„С…С†',
         lat= 'abvgdejziiklmnoprstufhc',
         cyr2lat = {
-        'ч': '4',
-        'ш': '6',
-        'щ': '6t',
-        'ь': '',
-        'ъ': 'y',
-        'ю': 'iu',
-        'я': 'ia',
-        'э': '@',
-        'ы': '^',
+        'С‡': '4',
+        'С€': '6',
+        'С‰': '6t',
+        'СЊ': '',
+        'СЉ': 'y',
+        'СЋ': 'iu',
+        'СЏ': 'ia',
+        'СЌ': '@',
+        'С‹': '^',
         })
 
 if __name__ == '__main__':

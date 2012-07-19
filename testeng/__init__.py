@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 testing engine - with business-analysis-oriented cases syntax/structure
 use by creating TestMainframe()

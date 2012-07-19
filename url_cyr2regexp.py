@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #sdobrev 2010
 'cyrillic urls into apache regexps/rewrites - multi-transcriptions, 1251/utf, ignorecase, etc'
 

@@ -1,4 +1,5 @@
 # sdobrev 2011
+# -*- coding: utf-8 -*-
 'key-translating dictionaries - lowercase, map; dictOrder_fromstr'
 
 def make_dict_lower( base):

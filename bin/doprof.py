@@ -3,18 +3,15 @@
 'better view onto python profiler results'
 #XXX BEWARE That 2.4 - 2.5 - 2.6 have diff.file-format
 
-import optparse
-oparser = optparse.OptionParser( '%prog [options] [number] infile')
-def optany( name, *short, **k):
-    return oparser.add_option( dest=name, *(list(short)+['--'+name.replace('_','-')] ), **k)
-def optbool( name, *short, **k):
-    return optany( name, action='store_true', *short, **k)
-optbool( 'hotshot', help= 'load data as hotshot')
-optany( 'strip',    help= 'regexp to strip from filenames; replaced with .#')
-optany( 'rootstrip', default= '.*/(site-packages|python\d\.\d+)/',
+from svd_util import optz
+optz.help( '%prog [options] [numberlines] infile')
+
+optz.bool( 'hotshot',   help= 'load data as hotshot')
+optz.text( 'strip',     help= 'regexp to strip from filenames; replaced with .#')
+optz.text( 'rootstrip', default= '.*/(site-packages|python\d\.\d+)/',
     help= 'regexp to strip from filenames; replaced with ##; defaults to %defaults', )
-optbool( 'withcalls', help= 'include call-stacks')
-options,args = oparser.parse_args()
+optz.bool( 'withcalls', help= 'include call-stacks')
+options,args = optz.get()
 
 import re
 import pstats

@@ -1,5 +1,9 @@
 #sdobrev 2006
-'expression-tree builder and visitor/evaluator (language)'
+# -*- coding: utf-8 -*-
+'''expression-tree builder and visitor/evaluator (language)
+
+изрази - построяване и обикаляне/изчисляване (език)
+'''
 
 import operator
 
@@ -48,9 +52,9 @@ class Expr( _Expr):
     class Visitor: pass
     __slots__ = ( 'op', 'args', 'kargs', 'arg_names', 'arg_defaults' )
     def __new__( klas, op ='pic-kle', *args, **kargs):
-        ''' op no args === const
-            empty op === const in arg1
-            op == 'var': variable
+        ''' op no args === const            | без аргументи === константа
+            empty op === const in arg1      | празна op === константа в аргумент1
+            op == 'var': variable           | променлива
             op == 'pic-kle': just for pickling -> __new__() + setattr
         '''
         if op != 'pic-kle':
@@ -204,8 +208,8 @@ as_expr = as_text_expr()
 
 
 class as_text_sql( Expr.Visitor):
-    '''expects typ.subclasses to contain (pre-generated) all
-    subtypes of typ (of interest)'''
+    ''' expects typ.subclasses to contain (pre-generated) all subtypes of typ (of interest)
+        очаква typ.subclasses да съдържа (пре-генерирани) всички (интересни) подтипове на typ '''
     def subclass( me, name, typ):
         return ' '.join(
             ['(', name.upper()+'.__class__', 'in (',
@@ -236,8 +240,8 @@ class Eval( Expr.Visitor):
     def subclass1( me, name, typ):
         return isinstance( me.context[ name ], typ )
 
-    '''expects typ.subclasses to contain (pre-generated) all
-    subtypes of typ (of interest)'''
+    ''' expects typ.subclasses to contain (pre-generated) all subtypes of typ (of interest)
+        очаква typ.subclasses да съдържа (пре-генерирани) всички (интересни) подтипове на typ '''
     def subclass2( me, name, typ):
         try:
             subclasses = typ.subclasses
@@ -295,7 +299,8 @@ class Eval( Expr.Visitor):
 
 _dict = {}
 def makeExpresion( functor):
-    'converts plain python function into Expr'
+    ''' converts plain python function into Expr
+        преобразува обикновена функция в Expr'''
     import inspect
     args,vargs,kwargs,defaults = inspect.getargspec(functor)
     if inspect.ismethod( functor): args = args[1:]
@@ -315,7 +320,8 @@ def makeExpresion( functor):
 ###################
 
 class GluerOP( object):
-    '''Glue similar function-filters together via some operator &,|,..
+    ''' Glue similar function-filters together via some operator &,|,..
+        Слепва подобни функции-филтри (lambda) чрез някакъв оператор &,|,..
        resultfunc = GluerXX( *funcs).__call__
     '''
     op = None
@@ -412,7 +418,7 @@ if __name__ == '__main__':
             return r
 
     class Test:
-        from engine.testbase import Case    #XXX TODO FIXME
+        from testeng.testbase import Case    #XXX TODO FIXME
         VERBOSE = 1
 
         class A:
