@@ -10,6 +10,7 @@ visitors to do/generate all else.
     argdecl:    name, type/converter, optional/defaultvalue
 
 abstract faces cannot be instantiated - only faces with all methods implemented
+
 WARNING/TODO: implementation methods are NOT checked for compliance with the declaration
 
 example:
@@ -38,8 +39,11 @@ class TheChannelFace( MoreChannelFace):  #implementing all methods
 
 #from util
 from struct import DictAttr, Struct
-from dictOrder import dictOrder
-import attr
+try:
+    from collections import OrderedDict as dictOrder
+except:
+    from dictOrder import dictOrder
+
 import warnings
 
 class Types( object):
@@ -654,6 +658,7 @@ def url_doco( face, only_undefs =False, pfx4url =None, separgs =' &', sepattrs= 
         yield r
 
 def test( url4webpy =url4webpy, url_doco =url_doco, **kargs):
+    import attr
     for fc in attr.subclasses( FaceDeclaration):
         print '=================', fc
         print '---dump'
