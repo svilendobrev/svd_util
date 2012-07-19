@@ -3,7 +3,7 @@
 'generate a (wiki) page from first __doc__ line/para of input python files (e.g. for github)'
 
 from svd_util import optz
-import sys
+import sys, os
 optz.text( 'base',      help= 'base prefix for all links',)
 optz.bool( 'wikilink',  help= 'show as [[name|link]]' )
 optz.bool( 'para',      help= 'get whole first paragraph' )
@@ -44,6 +44,12 @@ for f in args:
 for k,v in sorted( items.items()):
     if optz.unprefix:
         if k.startswith( optz.unprefix): k = k[ len(optz.unprefix):].lstrip('/')
+    pp = list( os.path.split( k))
+    try:
+        pp.remove( '__init__.py')
+    except: pass
+    else:
+        k = os.path.join( *pp)+'/'
     link = optz.base + k
     if optz.wikilink: link = '[['+k+'|'+link+']]'
     print '*', link, ':', v
