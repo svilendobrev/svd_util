@@ -17,6 +17,14 @@ def w_ref( x):
     if x is None: return _w_ref_None
     return weakref.ref( x)
 
+class Masker:
+    'yield incrementally-shifted 1-bit mask, e.g. m=Masker(); print m(),m(),m() -> 1 2 4'
+    def __init__( me): me.v = 1
+    def __call__( me):
+        r = me.v
+        me.v <<= 1
+        return r
+
 ##############
 def neighbours( iter):
     'a,b,c,d -> a,b  b,c  c,d'

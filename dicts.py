@@ -1,5 +1,5 @@
 # sdobrev 2011
-'key-translating dictionaries - lowercase, map'
+'key-translating dictionaries - lowercase, map; dictOrder_fromstr'
 
 def make_dict_lower( base):
     class dict_lower( base):
@@ -92,6 +92,19 @@ def make_dict_attr( base =dict):
 
     dictAttr.__name__ = base.__name__ + '_attr'
     return dictAttr
+
+#########
+def dictOrder_fromstr( txt, dictOrder =dict):
+    '''format:
+        key1 = value 1
+        key2 = value 2
+    '''
+    return dictOrder( #dict
+        (
+        (a.strip() for a in kv.split('='))
+        for kv in txt.strip().split('\n') ))
+
+
 
 if __name__ == '__main__':
 
