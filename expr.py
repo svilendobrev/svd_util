@@ -508,7 +508,7 @@ EXPECTED:%s
     #    class ConstTest( EvalTest):
     #    class SubclassTest( EvalTest):
 
-    from engine.testutils import testMain
+    from testeng.testutils import testMain
     testMain( [
     #    Test.WalkTest(),
     #    Test.ConstTest(),
