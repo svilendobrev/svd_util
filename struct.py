@@ -1,6 +1,8 @@
 #sdobrev 2003-8
 'structure as dict as structure, attr-to-item, set-keyword-attrs with allowed/mandatory-validation'
 
+#XXX py3.2 has struct.py in stdlib
+
 class Struct( object):
     'takes any kwargs and turns them into attrs'
     __slots__ = [ '__dict__' ]

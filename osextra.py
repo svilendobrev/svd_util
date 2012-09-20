@@ -10,7 +10,10 @@ def execresult( args, encoding =None):
     return r.strip()
 
 def touch( f):
-    import time, os
+    import os
+    return os.utime( f, None)
+
+    import time
     s = time.localtime()
     tm_year = s.tm_year
     tm_mon = tm_mday = 1
@@ -24,8 +27,8 @@ def touch( f):
     os.utime( f, (tm,tm) )
 
 def save_if_different( filename, txt, makedirs =True,
-        reader =lambda filename: file( filename).read(),
-        writer =lambda filename,txt: file( filename, 'w').write( txt ),
+        reader =lambda filename: open( filename).read(),
+        writer =lambda filename,txt: open( filename, 'w').write( txt ),
         writer2=None,   #func( filename,...)
         ):
     if makedirs:
@@ -42,5 +45,21 @@ def save_if_different( filename, txt, makedirs =True,
         if writer2: writer2( filename,txt)
         return True
 
+def globescape( f):
+    'as of fnmatch doc: no way to escape meta-chars.. hence replace with ?'
+    for c in '[]*':
+        f = f.replace( c,'?')
+    return f
+
+def makedirs( x):
+    'exist_ok=True doesnt work.. being toooo smart'
+    import os,errno
+    try:
+        os.makedirs( x)#, exist_ok =True)
+    except OSError as e:
+        if e.errno != errno.EEXIST: raise
+
+
+#from distutils.dep_util import newer
 
 # vim:ts=4:sw=4:expandtab

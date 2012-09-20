@@ -21,20 +21,28 @@ class Level:
         def __del__( me):  me.leveler.a -=1
         def __str__( me):  return str( me.leveler)
 
-def dbg_value( name):
+def dbg_value( name, level =0):
     import inspect
+    i
+    frame = inspect.stack()[ level]# currentframe()
     frame = inspect.currentframe()
     try:
         localz = frame.f_back.f_locals
     finally:
         del frame
+    if not name: return dict( localz)
     obj = localz[ name]
     return '%s=%s' % ( name, obj )
 
-def dbg_func( i=2):
-    'not tried/tested!!'
+
+def dbg_func_framerec( i=0):
     import inspect
-    return inspect.stack()[i][0].f_code
+    'framerec: frame object, filename, line number, function name, list of lines of context source code, index of current line within that list)'
+    return inspect.stack()[i] #[0].f_code
+
+def dbg_funcname_locals( i=0):
+    f1,f2 = dbg_func_framerec( slice( i+1, i+3))
+    return ( f2[ 3], f1[0].f_back.f_locals )
 
 def dbg_funcname( i=2, with_filename =False):
     import traceback
@@ -87,7 +95,7 @@ class Condition( _Condition):
 
     def busy_handler4sqlite( me, data, tablename, num_busy ):
         thr = currentThread().getName()
-        print "__busy_handler, %s: table/index %r (num_busy %d)" % (thr, tablename, num_busy)
+        print( "__busy_handler, %s: table/index %r (num_busy %d)" % (thr, tablename, num_busy))
         me.acquire()
         me.wait()
         me.release()
@@ -96,13 +104,13 @@ class Condition( _Condition):
 
 if __name__=='__main__':
     a = 2
-    print dbg_value( 'a' )
+    print( dbg_value( 'a' ))
     def xfunc():
-        print dbg_funcname(2)
-        print dbg_funcstack()
+        print( dbg_funcname(2))
+        print( dbg_funcstack())
     def yfunc():
-        print dbg_funcname()
-        print dbg_funcstack()
+        print( dbg_funcname())
+        print( dbg_funcstack())
         xfunc()
     yfunc()
 

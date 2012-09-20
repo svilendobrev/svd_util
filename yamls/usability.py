@@ -4,7 +4,7 @@
 from svd_util.py3 import dictOrder
 
 import yaml
-import yaml_anydict, yaml_extra
+from . import yaml_anydict, yaml_extra
 
 class Dumper( yaml_extra.Dumper_AlignMapValues,
               yaml_extra.Dumper_PreferBlock_for_Multiline,
@@ -22,9 +22,12 @@ class Dumper( yaml_extra.Dumper_AlignMapValues,
 class Loader( yaml_anydict.Loader_map_as_anydict, yaml.Loader):
     anydict = dictOrder
 
-def dump( d):
-    return yaml.dump( d, allow_unicode= True, default_flow_style= False, Dumper= Dumper)
+def dump( d, **kargs):
+    return yaml.dump( d, allow_unicode= True, default_flow_style= False, Dumper= Dumper, **kargs)
         #width=90,
+
+def load( f, **kargs):
+    return yaml.load( f, Loader= Loader, **kargs)
 
 #yaml_anydict.dump_anydict_as_map_inheriting( dictOrder)
 yaml_anydict.dump_anydict_as_map_inheriting( dict)
@@ -37,7 +40,7 @@ yaml_anydict.load_list_as_tuple()
 
 if __name__ == '__main__':
     import sys
-    d = yaml.load( open( sys.argv[1]), Loader= Loader)
-    dump( d )
+    d = load( open( sys.argv[1]) )
+    print( dump( d ))
 
 # vim:ts=4:sw=4:expandtab

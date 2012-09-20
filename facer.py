@@ -38,7 +38,7 @@ class TheChannelFace( MoreChannelFace):  #implementing all methods
 '''
 
 #from util
-from struct import DictAttr, Struct
+from .struct import DictAttr
 try:
     from collections import OrderedDict as dictOrder
 except:
@@ -552,7 +552,7 @@ class FaceDeclaration( object):
             #if inst is a klas, it would be unbound impl or Method or None (if not subklas at all)
             #if impl is m: impl = None   #??same as isinstance (impl, Method)
             if isinstance( impl, Method): impl= None
-            yield Struct( face= klas, name= k, decl= m, impl= impl)
+            yield DictAttr( face= klas, name= k, decl= m, impl= impl)
             #cases:
             # inst is the klas:     inst.k is klas.k (Method or unbound impl)
             # inst is a subklas:    inst.k may be new (Method or unbound impl), or klas.k (Method or unbound impl)
@@ -581,7 +581,7 @@ class FaceDeclaration( object):
         #assert not me.__dict__.get( '_methods_dict'), 'dont replace already used type, first inherit it'
         r = dictOrder()
         for w in me.methods_walk():
-            w = Struct( w.__dict__)
+            w = DictAttr( w.__dict__)
             w.decl = w.decl.clone_new_types( types= newtypes)
             r[ w.name] = w
         me._methods_dict = r
@@ -658,8 +658,8 @@ def url_doco( face, only_undefs =False, pfx4url =None, separgs =' &', sepattrs= 
         yield r
 
 def test( url4webpy =url4webpy, url_doco =url_doco, **kargs):
-    import attr
-    for fc in attr.subclasses( FaceDeclaration):
+    from attr import subclasses
+    for fc in subclasses( FaceDeclaration):
         print '=================', fc
         print '---dump'
         for what in fc.methods_walk(): print ' ', prn( what)
