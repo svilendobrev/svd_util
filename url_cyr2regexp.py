@@ -106,7 +106,7 @@ if __name__ == '__main__':
     try: spc = sys.argv.remove( '--spc') or ' '
     except: spc=''
 
-    from util import eutf
+    from svd_util import eutf
     eutf.fix_std_encoding()
     for a in sys.argv[1:]:
         a = a.decode( eutf.e_utf_stdout() and 'utf8' or 'cp1251')
