@@ -213,6 +213,23 @@ def subclasses( klas):
         klasi = x
     return subklasi
 
+class anymethod( object):
+    '''wrapper that calls func with/via whatever it is called
+        - either klas or instance - unlike classmethod, e.g.
+class X:
+    @anymethod
+    def printer( inst_or_klas, args): print inst_or_klas, args
+
+>>> X.printer( 5)
+__main__.X 5
+>>>
+>>> X().printer( 6)
+<__main__.X instance at 0xb74983ac> 6
+    '''
+    def __init__( me, func): me.func = func
+    def __get__( me, obj, klas ):
+        if obj is None: obj = klas
+        return lambda *a,**ka: me.func( obj, *a,**ka)
 
 ########
 # util/module.py
