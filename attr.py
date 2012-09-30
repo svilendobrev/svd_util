@@ -231,6 +231,21 @@ __main__.X 5
         if obj is None: obj = klas
         return lambda *a,**ka: me.func( obj, *a,**ka)
 
+def inspect_methods( klas, underscored= False):
+    import inspect
+    methods = {}
+    for name in dir( klas):
+        if not underscored and name[0] == '_': continue
+        m = getattr( klas, name)
+        if not inspect.ismethod( m): continue
+
+        for kl in klas.mro():
+            if name in kl.__dict__:
+                methods.setdefault( kl, []).append( (name, m) )
+                break
+    return methods
+
+
 ########
 # util/module.py
 
