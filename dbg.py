@@ -1,5 +1,6 @@
 #~2006 sdobrev
 'various debug utilities: stack-level-counter, call-stack inspections'
+from __future__ import print_function
 
 class Level:
     '''stack-frame-living recursion-depth level counter. use as:
@@ -55,10 +56,67 @@ def dbg_funcstack( start=2, depth=3, dlm=''):
     return dlm.join( traceback.format_list( traceback.extract_stack( limit=start+depth+1)[-start-depth+1:-start+1] ))
     #traceback.print_list( traceback.extract_stack( )[-start-depth+1:-start+1] )
 
+
+class log_funcname:
+    'inherit, set .do_log, use .log() in some func'
+    do_log = True
+    @classmethod
+    def log( me, no_locals =False ):
+        if not me.do_log: return
+        if no_locals:
+            print( dbg.dbg_funcname( 1+2), '(..)')
+        else:
+            print( dbg.dbg_funcname_locals( 1))
+
+class funcwrap:
+    ''' do-nothing and/or log; e.g.
+        rename = funcwrap( os.rename)
+        ..
+        rename( a,b) would log it but not exec (if log=True, really=False)
+        '''
+    really = True
+    log = True
+    def __init__( me, func): me.func = func
+    def __call__( me, *a, **k):
+        if me.log: print( me.func, a, k)
+        if me.really: return me.func( *a, **k)
+
+class log_pseudo:
+    ''' l = Log()
+    l.mymethod( args)
+    l.anotherfunc( 1, a=2, b=3)
+    '''
+    def __getattr__( me, a):
+        print( ' >', a, end=' ')
+        return print
+#       print ' >', ' '.join(str(x) for x in a)
+
+class namewrap:
+    ''' do-nothing and/or log; e.g.
+        rename = funcwrap( os.rename)
+        ..
+        rename( a,b) would log it but not exec (if log=True, really=False)
+        '''
+    really = True
+    log = True
+    def __init__( me, namespace): me.namespace = namespace
+    def __getattr__( me, a):
+        if me.really:
+            r = funcwrap( me.namespace[a])
+            r.log = me.log
+            r.really = me.really
+            return r
+        if me.log:
+            print( ' >', a, end=' ')
+            return print
+        return lambda *a,**k: None
+
+
 from threading import _Condition, currentThread
 def dbg_funcname_thread( i=3):
     #thread
     return '%s | %s() ' % (currentThread().getName(), dbg_funcname(i+1) )
+
 
 class Condition( _Condition):
     name = ''
