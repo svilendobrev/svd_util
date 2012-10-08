@@ -58,15 +58,15 @@ def dbg_funcstack( start=2, depth=3, dlm=''):
 
 
 class log_funcname:
-    'inherit, set .do_log, use .log() in some func'
+    'set .do_log, use .log() in some func'
     do_log = True
     @classmethod
     def log( me, no_locals =False ):
         if not me.do_log: return
         if no_locals:
-            print( dbg.dbg_funcname( 1+2), '(..)')
+            print( dbg_funcname( 1+2), '(..)')
         else:
-            print( dbg.dbg_funcname_locals( 1))
+            print( dbg_funcname_locals( 1))
 
 class funcwrap:
     ''' do-nothing and/or log; e.g.
@@ -80,6 +80,9 @@ class funcwrap:
     def __call__( me, *a, **k):
         if me.log: print( me.func, a, k)
         if me.really: return me.func( *a, **k)
+    def methodwrap( me):
+        'use as funcwrap( method).methodwrap()'
+        return lambda *a,**k: me( *a,**k)
 
 class log_pseudo:
     ''' l = Log()
