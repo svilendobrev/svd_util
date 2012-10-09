@@ -64,6 +64,9 @@ def optbool( name, *short, **k):
 _int = int
 def optint( name, *short, **k):
     return optany( name, type=_int, *short, **k)
+_float = float
+def optfloat( name, *short, **k):
+    return optany( name, type=_float, *short, **k)
 addopt = optany
 addopt1 = addbool = optbool
 
@@ -76,9 +79,11 @@ def getoptz():
     options,args = oparser.parse_args()
     return options,args
 
+_str = str
 add = any = str = text = addopt
 add1= bool = addbool
 int = optint
+float = optfloat
 multi = append = optappend
 count = optcount
 get = parse = getoptz
