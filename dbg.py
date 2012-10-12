@@ -60,8 +60,9 @@ class log_funcname:
     'set .do_log, use .log() in some func'
     do_log = True
     @classmethod
-    def log( me, no_locals =False ):
+    def log( me, msg =None, no_locals =False ):
         if not me.do_log: return
+        if msg: print( msg, end= ' ')
         if no_locals:
             print( dbg_funcname( 1+2), '(..)')
         else:
