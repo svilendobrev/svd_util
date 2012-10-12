@@ -24,7 +24,6 @@ class Level:
 
 def dbg_value( name, level =0):
     import inspect
-    i
     frame = inspect.stack()[ level]# currentframe()
     frame = inspect.currentframe()
     try:
@@ -113,6 +112,34 @@ class namewrap:
             print( ' >', a, end=' ')
             return print
         return lambda *a,**k: None
+
+import types as _types
+
+class Meta4log( type):
+    '''use as __metaclass__ and setup these, per-class (auto-aggregated along inheritance):
+    LOG_PFXS      = seq of prefixes of methods to log; empty->None; *->all
+    LOG_PFXS_EXCL = seq of prefixes of methods to not log; empty->None; *->all
+    '''
+    funcwrap = funcwrap     #inherit+overwrite to set local .really/.log
+    def __new__( meta, name, bases, dict_):
+        def pfxs( name):
+            log_pfxs = dict_.get( name,())
+            log_pfxs = set( isinstance( log_pfxs, basestring) and log_pfxs.split() or log_pfxs )
+            if bases: log_pfxs.update( getattr( bases[0], name, ()))
+            dict_[ name ] = log_pfxs
+            return log_pfxs
+        log_incl = pfxs( 'LOG_PFXS')
+        log_excl = pfxs( 'LOG_PFXS_EXCL' )
+        def is_pfx( name):
+            for p in log_incl:
+                if p=='*' or name.startswith( p):
+                    if p not in log_excl and '*' not in log_excl:
+                        return True
+        dict_.update( (k, meta.funcwrap( v).methodwrap())
+                for k,v in dict_.items()
+                if isinstance( v, ( _types.FunctionType, _types.GeneratorType, _types.MethodType, )) and is_pfx( k)
+                )
+        return type.__new__( meta, name, bases, dict_)
 
 
 from threading import _Condition, currentThread
