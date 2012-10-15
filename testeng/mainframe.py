@@ -58,8 +58,8 @@ class TestMainframe( unittest.TestLoader):
         me.module_name = module or config.module
         me.testcase = testcase or config.case
         me.sample = sample or config.sample
-        me.prevodach= {}
-        'prevodach = { "човешко" име : име от модула } - Опростени имена на cases '
+        me.translator= {}
+        'translator = { "човешко" име : име от модула } - Опростени имена на cases '
 
     def _importFromFile( me, name):
         assert name
@@ -68,7 +68,7 @@ class TestMainframe( unittest.TestLoader):
             if issubclass( v, TestBase):
                 try:
                     n= v.__name__.split('_', 1)[1]
-                    me.prevodach[ n.lower()] = v
+                    me.translator[ n.lower()] = v
                 except IndexError:
                     pass
         return module
@@ -101,12 +101,12 @@ class TestMainframe( unittest.TestLoader):
 
     def groupTests( me, module):
         if me.testcase and me.sample: # TestCase and Sample(s)
-            klas= me.prevodach.get( me.testcase)
+            klas= me.translator.get( me.testcase)
             klas.TESTOVE= me.stripTestCase( klas.TESTOVE)
             case= unittest.TestLoader().loadTestsFromTestCase( klas)
             suite= unittest.TestSuite( case)
         elif me.testcase and not me.sample: # TestCase
-            tc= me.prevodach.get( me.testcase)
+            tc= me.translator.get( me.testcase)
             suite= unittest.TestLoader().loadTestsFromName( tc.__name__, module= module)
         else: # All
             suite= unittest.TestLoader().loadTestsFromModule( module= module)
@@ -117,7 +117,7 @@ class TestMainframe( unittest.TestLoader):
         try:
             k = me._importFromFile( me.module_name)
             if config.all_cases:
-                print me.prevodach.keys()
+                print me.translator.keys()
                 raise SystemExit
             suite = me.groupTests( k)
             success = unittest.TextTestRunner( verbosity= 2).run( suite).wasSuccessful()
