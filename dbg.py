@@ -132,10 +132,12 @@ class Meta4log( type):
         log_incl = pfxs( 'LOG_PFXS')
         log_excl = pfxs( 'LOG_PFXS_EXCL' )
         def is_pfx( name):
+            if '*' in log_excl: return
             for p in log_incl:
                 if p=='*' or name.startswith( p):
-                    if p not in log_excl and '*' not in log_excl:
-                        return True
+                    for ex in log_excl:
+                        if name.startswith( ex): return
+                    return True
         dict_.update( (k, meta.funcwrap( v).methodwrap())
                 for k,v in dict_.items()
                 if isinstance( v, ( _types.FunctionType, _types.GeneratorType, _types.MethodType, )) and is_pfx( k)
