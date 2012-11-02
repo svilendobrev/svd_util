@@ -231,11 +231,11 @@ __main__.X 5
         if obj is None: obj = klas
         return lambda *a,**ka: me.func( obj, *a,**ka)
 
-def inspect_methods( klas, underscored= False):
+def inspect_methods( klas, filter_out =lambda name: name.startswith( '_') ):
     import inspect
     methods = {}
     for name in dir( klas):
-        if not underscored and name[0] == '_': continue
+        if filter_out and filter_out( name): continue
         m = getattr( klas, name)
         if not inspect.ismethod( m): continue
 
