@@ -232,6 +232,7 @@ __main__.X 5
         return lambda *a,**ka: me.func( obj, *a,**ka)
 
 def inspect_methods( klas, filter_out =lambda name: name.startswith( '_') ):
+    'ret { klas: { name: func }}'
     import inspect
     methods = {}
     for name in dir( klas):
@@ -241,7 +242,7 @@ def inspect_methods( klas, filter_out =lambda name: name.startswith( '_') ):
 
         for kl in klas.mro():
             if name in kl.__dict__:
-                methods.setdefault( kl, []).append( (name, m) )
+                methods.setdefault( kl, {})[ name] = m
                 break
     return methods
 
