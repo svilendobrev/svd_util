@@ -76,9 +76,10 @@ class funcwrap:
         '''
     really = True
     log = True
+    pfx = ''
     def __init__( me, func): me.func = func
     def __call__( me, *a, **k):
-        if me.log: print( me.func.__name__, a, k)
+        if me.log: print( me.pfx+me.func.__name__, a, k)
         if me.really: return me.func( *a, **k)
     def methodwrap( me):
         'use as funcwrap( method).methodwrap()'
