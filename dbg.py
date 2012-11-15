@@ -82,7 +82,11 @@ class funcwrap:
         if me.really: return me.func( *a, **k)
     def methodwrap( me):
         'use as funcwrap( method).methodwrap()'
-        return lambda *a,**k: me( *a,**k)
+        def call( *a,**k): return me( *a,**k)
+        call.__name__ = '@'+me.func.__name__
+        call.me = me
+        return call
+
 
 class log_pseudo:
     ''' l = Log()
