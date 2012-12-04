@@ -314,6 +314,13 @@ public class %(klas_name)s extends BaseSAXHandler {
 
     type_of_id = Int
 
+    annotations = dict(
+            #someattr = 'some_annotation'
+        )
+
+    as_getKey =True
+    as_getId  =True
+
     def gen_model( me, klas):
         if klas._dialects.default.notapplicable: return
         item_name = klas.__name__
@@ -328,6 +335,10 @@ public class %(item_name)s extends Model {
             default = me.get_by_type( typ, me.defaults)
             if not default: default = ''
             else: default = ' = '+default
+            anno = me.annotations.get( k)
+            if anno: all += '''\
+    %(anno)s
+''' % locals()
             all += '''\
     public %(type)-10s %(k)s%(default)s;
 ''' % locals()
@@ -341,12 +352,15 @@ public class %(item_name)s extends Model {
             continue
 
         if as_getId or as_getKey:
-            if not as_getKey: as_getKey = '""+'+as_getId
-            if not as_getId:  as_getId  = 'funk.fail( "dont call this"); return -1'
-            else: as_getId = 'return '+as_getId
+            if me.as_getKey and not as_getKey: as_getKey = '""+'+as_getId
+            if me.as_getId:
+                if not as_getId:  as_getId  = 'funk.fail( "dont call this"); return -1'
+                else: as_getId = 'return '+as_getId
             idtype = me.types.get( me.type_of_id, me.type_of_id )
-            all += '''\
+            if me.as_getKey: all += '''\
     @Override public String getKey()    { return %(as_getKey)s; }
+'''
+            if me.as_getId: all += '''\
     @Override public %(idtype)s getId()     { %(as_getId)s; }
 '''
         if klas.types:
