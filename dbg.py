@@ -1,6 +1,7 @@
 #~2006 sdobrev
 'various debug utilities: stack-level-counter, call-stack inspections'
 from __future__ import print_function
+import inspect
 
 class Level:
     '''stack-frame-living recursion-depth level counter. use as:
@@ -23,7 +24,6 @@ class Level:
         def __str__( me):  return str( me.leveler)
 
 def dbg_value( name, level =0):
-    import inspect
     frame = inspect.stack()[ level]# currentframe()
     frame = inspect.currentframe()
     try:
@@ -36,7 +36,6 @@ def dbg_value( name, level =0):
 
 
 def dbg_func_framerec( i=0):
-    import inspect
     'framerec: frame object, filename, line number, function name, list of lines of context source code, index of current line within that list)'
     return inspect.stack()[i] #[0].f_code
 
@@ -55,6 +54,14 @@ def dbg_funcstack( start=2, depth=3, dlm=''):
     return dlm.join( traceback.format_list( traceback.extract_stack( limit=start+depth+1)[-start-depth+1:-start+1] ))
     #traceback.print_list( traceback.extract_stack( )[-start-depth+1:-start+1] )
 
+def getdefaultargs( func):
+    a = inspect.getargspec( func)
+    return dict( zip( reversed( a.args), reversed( a.defaults or ())))
+
+def getdefaultargs_wrap( func):
+    if isinstance( getattr( func, 'me', None), dbg.funcwrap):
+        func = func.me.func
+    return getdefaultargs( func)
 
 class log_funcname:
     'set .do_log, use .log() in some func'

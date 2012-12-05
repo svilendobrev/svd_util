@@ -8,10 +8,13 @@ import gencxx
 import xml2obj
 
 class Type( DictAttr):
-    type = None
-    noninput = False
+    type        = None
+    noninput    = False     #completely ignored from walking
     is_user_key = False
-    as_getKey = as_getId = False
+    as_getKey   = as_getId = False
+    no_save    = False     # ignored at save only
+    no_save_but_value = None   # if not None, this value is saved
+    no_dump    = False
     #default_value
     def convert( me, v, context):
         if me.type:
@@ -86,9 +89,9 @@ class Dialect:
 
     def __str__( me): return me.name
 
-class Dialects( DictAttr):
+class Dialects: #( DictAttr):
     def __init__( me, all, types, klasname):
-        DictAttr.__init__( me, all)
+        me.all = DictAttr( all) #DictAttr.__init__( me, all)
         me.klasname = klasname
         me.default = Dialect( types=types)
         for k,a in all.items():
@@ -100,16 +103,23 @@ class Dialects( DictAttr):
                 if a is b: continue
                 b.ignore( a.only)
     def __getattr__( me, k):
+        if k in me.all: return me.all[k]
         return me.default
+
+    def notapplicable( me):
+        me.default.notapplicable = True
+        for d in me.all.values():
+            d.notapplicable = True
+
 
 class metaModel( type):
     def __new__( meta, name, bases, adict):
         types = {}
         dialects = {}
         for k,v in adict.iteritems():
-            if issubclass( v, Type): v = v()
-            if isinstance( v, Type): types[k] = v
-            if isinstance( v, Dialect):
+            if issubclass( v, Type): types[k] = v = v()
+            elif isinstance( v, Type): types[k] = v
+            elif isinstance( v, Dialect):
                 dialects[k] = v
                 v.name = k
                 v.types = types
@@ -117,6 +127,9 @@ class metaModel( type):
         for k in types: del adict[k]
         adict[ 'types'] = types
         adict[ '_dialects'] = Dialects( dialects, types, name)
+
+        if 'NO_MAPPING' in adict:
+            adict[ '_dialects'].notapplicable()
 
         for b in bases:
             try:
@@ -294,10 +307,22 @@ public class %(klas_name)s extends BaseSAXHandler {
         }'''
         return r
 
+    @staticmethod
+    def namesize( klas):
+        if not klas.types: return None
+        return max( len(k) for k in klas.types)
 
     type_of_id = Int
 
+    annotations = dict(
+            #someattr = 'some_annotation'
+        )
+
+    as_getKey =True
+    as_getId  =True
+
     def gen_model( me, klas):
+        if klas._dialects.default.notapplicable: return
         item_name = klas.__name__
         all = '''\
 public class %(item_name)s extends Model {
@@ -310,6 +335,10 @@ public class %(item_name)s extends Model {
             default = me.get_by_type( typ, me.defaults)
             if not default: default = ''
             else: default = ' = '+default
+            anno = me.annotations.get( k)
+            if anno: all += '''\
+    %(anno)s
+''' % locals()
             all += '''\
     public %(type)-10s %(k)s%(default)s;
 ''' % locals()
@@ -323,22 +352,25 @@ public class %(item_name)s extends Model {
             continue
 
         if as_getId or as_getKey:
-            if not as_getKey: as_getKey = '""+'+as_getId
-            if not as_getId:  as_getId  = 'funk.fail( "dont call this"); return -1'
-            else: as_getId = 'return '+as_getId
-            idtype = me.types[ me.type_of_id ]
-            all += '''\
+            if me.as_getKey and not as_getKey: as_getKey = '""+'+as_getId
+            if me.as_getId:
+                if not as_getId:  as_getId  = 'funk.fail( "dont call this"); return -1'
+                else: as_getId = 'return '+as_getId
+            idtype = me.types.get( me.type_of_id, me.type_of_id )
+            if me.as_getKey: all += '''\
     @Override public String getKey()    { return %(as_getKey)s; }
-    @Override public %(idtype)s getId()        { %(as_getId)s; }
 '''
-
-        namesize = max( len(k) for k,typ in klas.types.iteritems())
-
-        all += '''
-    public String dump() { String s = "";
-        s += super.dump();''' + ''.join( ('''
-        s += "\\n %(k)-'''+str(namesize)+'''s = " + %(k)s; ''') % locals()
-            for k,typ in sorted( klas.types.iteritems())) + '''
+            if me.as_getId: all += '''\
+    @Override public %(idtype)s getId()     { %(as_getId)s; }
+'''
+        if klas.types:
+            namesize = me.namesize( klas)
+            all += '''
+    public String dump() { String s = super.dump();''' + ''.join( ('''
+        s += "\\n '''+k.ljust( namesize) + ''' = " + %(k)s;''') % locals()
+            for k,typ in sorted( klas.types.iteritems())
+            if not typ.no_dump
+            ) + '''
         return s;
     }
 '''
@@ -353,28 +385,35 @@ public class %(item_name)s extends Model {
         r = ''.join( [gencxx.CVShead, gencxx.AUTOGEN_STAMP % locals(), text, gencxx.VIMtail ])
         gencxx.save_if_different( filename, r)
 
-    def save_klasi( me, mainklas, head, klasi, tail=''):
-        me.save( mainklas+'.java', (head+ '''
+    def save_klasi( me, mainklas, klasi, head ='', head0 ='', tail=''):
+        me.save( mainklas+'.java', (head+ head0 + '''
 public class %(mainklas)s {
 ''') % locals() + ''.join( ('''
 
 static
-'''+x.rstrip() ) for x in klasi if x) + ('''
+'''+x.strip() ) for x in klasi if x) + ('''
 } //%(mainklas)s
 '''+ tail) % locals() )
 
 
-    def save_models( me, mainklas, head ='', klasi =[], **k):
+    def save_models( me, mainklas, klasi =[], **k):
         klasi = klasi + [ me.gen_model( klas)
                     for klas in subclasses( Model) ]
-        me.save_klasi( mainklas, head, klasi, **k)
+        me.save_klasi( mainklas, klasi, **k)
 
     #saxes_args= {}
-    def save_saxes( me, mainklas, head= '', dialect= '', klasi =[], **k):
+    def save_saxes( me, mainklas, dialect= '', klasi =[], **ka):
         klasi = [ me.gen_sax_parser( klas, dialect=dialect)
                     for klas in subclasses( Model) ] + klasi
+        ka.setdefault( 'head0', '''
+import org.xml.sax.Attributes;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.SAXException;
+import java.util.ArrayList;
+''')
+        #import com.woosha.epg.model.%(model4sax)s;
 
-        me.save_klasi( mainklas, head, klasi, **k)
+        me.save_klasi( mainklas, klasi, **ka)
 
     ##########
 
@@ -383,14 +422,15 @@ static
         return convertors.get( typ.__class__,
                         convertors.get( type, '' ))
 
-    def assign_item( me, name, typ, arg =None, indent ='', convertors =None):
+    def assign_item( me, name, typ, arg =None, indent ='', convertors =None, ljustify =15):
         current_value = 'item.'+name
         convertor = me.get_by_type( typ, convertors or me.convertors)
         if ';' not in convertor:
             if convertor and '%(arg)s' not in convertor:
                 convertor += '( %(arg)s )'
+            if ljustify: current_value = current_value.ljust( ljustify + len(current_value) - len(name) )
             convertor = ('''\
-%(indent)s%(current_value)-15s = '''+convertor +''';
+%(indent)s%(current_value)s = '''+convertor +''';
 ''')
         return convertor % locals()
 
@@ -403,7 +443,7 @@ static
         Float   : D( load= 'sqlite.sql2float(   %(arg)s, c)', create= 'REAL' ),
         Bool    : D( load= 'sqlite.sql2bool(    %(arg)s, c)', create= 'INTEGER',  set ='sqlite.bool2sql' ),
         TimeStamp:D( load= 'sqlite.sql2TimeStamp( sqlite.sql2int( %(arg)s, c))', create= 'INTEGER', set= 'sqlite.TimeStamp2sqlI' ),
-        BLOB    :D( load= 'sqlite.sql2blob( %(arg)s, c)', create= 'BLOB', ),
+        BLOB    : D( load= 'sqlite.sql2blob( %(arg)s, c)', create= 'BLOB', ),
     }
 
 
@@ -569,17 +609,49 @@ class %(item_name)s extends sqlite.Base {
 '''
 
 
-    def save_sqlites( me, mainklas, head='', klasi =[], **k):
+    def save_sqlites( me, mainklas, klasi =[], **ka):
         klasi = [ me.sqlite( klas)
                     for klas in subclasses( Model) ] + klasi
-        me.save_klasi( mainklas, head,
-            klasi + 0*[ '''\
-void setup() {''' + ''.join('''
+        if 1:
+            klasi += [ '''\
+void setup() {
+/* example''' + ''.join('''
     new ''' + klas.__name__ + '();'
         for klas in subclasses( Model)) + '''
-} // static initialization works but call this elsewhere; see http://www.satyakomatineni.com/akc/display?url=displaynoteimpurl&ownerUserId=satya&reportId=1027
-''' ],
-            **k)
+*/
+} // statics apply when class is used, so call these from some class sure-used before anything else, e.g. the app
+''' ]
 
+        ka.setdefault( 'head0', '''
+import android.content.ContentValues;
+import android.database.Cursor;
+import java.util.Collection;
+''')
+#import com.woosha.jbase.Model;
+#import com.woosha.jbase.funk;
+#import com.woosha.epg.model.Models;
+
+        me.save_klasi( mainklas, klasi=klasi, **ka)
+    #static initialization:
+    #see http://www.satyakomatineni.com/akc/display?url=displaynoteimpurl&ownerUserId=satya&reportId=1027
+
+if 0:
+    class javahead:
+        head0 = ''
+        package = ''
+        head1 = ''
+        imports = {}    #name : from
+        head2 = ''
+
+        def javahead( org, imports ={}):
+            if imports is None: imports = {}
+            else: imports = dict( me.imports, **imports)
+            return '\n'.join( x for x in [
+                me.head0,
+                me.package and 'package '+me.package+';\n',
+                me.head1,
+                ] + [ 'import '+v+';' for v in imports.values() ] + [
+                me.head2
+                ] if x )
 
 # vim:ts=4:sw=4:expandtab
