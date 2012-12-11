@@ -51,13 +51,13 @@ def globescape( f):
         f = f.replace( c,'?')
     return f
 
-def makedirs( x):
+def makedirs( x, exist_ok =True):
     'exist_ok=True doesnt work.. being toooo smart'
     import os,errno
     try:
         os.makedirs( x)#, exist_ok =True)
     except OSError as e:
-        if e.errno != errno.EEXIST: raise
+        if e.errno != errno.EEXIST or not exist_ok: raise
 
 
 #from distutils.dep_util import newer

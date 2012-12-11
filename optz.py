@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 'simple !! options-getter (wrapping optparse or else)'
 
+_list = list
 if 0:   #very simple independent ones, copy-paste from here
     #booleans/count only:
     def opt( *xx):
@@ -28,7 +29,7 @@ if 0:   #very simple independent ones, copy-paste from here
     oparser = optparse.OptionParser(
     '...')
     def optany( name, *short, **k):
-        return oparser.add_option( dest=name, *(list(short)+['--'+name.replace('_','-')] ), **k)
+        return oparser.add_option( dest=name, *(_list(short)+['--'+name.replace('_','-')] ), **k)
     def optbool( name, *short, **k):
         return optany( name, action='store_true', *short, **k)
     optbool( 'verbose', '-v')
@@ -58,7 +59,7 @@ def optany( name, *short, **k):
         h = k.pop( 'help', None)
         if h is not None:
             k['help'] = isinstance( h, unicode) and h or h.decode( 'utf8')
-    return parser.add_option( dest=name, *(list(short)+['--'+name.replace('_','-')] ), **k)
+    return parser.add_option( dest=name, *(_list(short)+['--'+name.replace('_','-')] ), **k)
 def optbool( name, *short, **k):
     return optany( name, action='store_true', *short, **k)
 _int = int
@@ -79,12 +80,14 @@ def getoptz():
     options,args = oparser.parse_args()
     return options,args
 
+#.. type= 'choice', choices= mp3times.apps,
 _str = str
+
 add = any = str = text = addopt
 add1= bool = addbool
 int = optint
 float = optfloat
-multi = append = optappend
+list = multi = append = optappend
 count = optcount
 get = parse = getoptz
 help = usage
