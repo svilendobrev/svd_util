@@ -71,7 +71,7 @@ class java( jg.java):
         dialect = klas._dialects.sqlite
         if dialect.notapplicable: return
         item_name = klas.__name__
-        model_name = me.model4sax + '.' + item_name
+        model_name = me.models_klas + '.' + item_name
 
         dbtypes_get = dict( (k,d.load) for k,d in me.dbtypes.iteritems() if d)
         load = ''

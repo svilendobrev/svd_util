@@ -169,7 +169,7 @@ class java:
         'String'    : '""',
     }
 
-    model4sax = 'Models'
+    models_klas = 'Models'
 
     convertors = {
         Int:        'parseInt',
@@ -185,7 +185,7 @@ class java:
         namespace = None
         item_name = klas.__name__
         klas_name = item_name + (dialect and '_'+dialect)
-        item_name = me.model4sax+'.'+item_name
+        item_name = me.models_klas+'.'+item_name
         dialect = dialect or me.default_sax_dialect
         all = '''\
 public class %(klas_name)s extends BaseSAXHandler {
@@ -411,7 +411,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.SAXException;
 import java.util.ArrayList;
 ''')
-        #import com.bugger.model.%(model4sax)s;
+        #import com.actual.app.model.%(models_klas)s;
 
         me.save_klasi( mainklas, klasi, **ka)
 
@@ -451,7 +451,7 @@ import java.util.ArrayList;
         dialect = klas._dialects.sqlite
         if dialect.notapplicable: return
         item_name = klas.__name__
-        model_name = me.model4sax + '.' + item_name
+        model_name = me.models_klas + '.' + item_name
         tablename = getattr( klas, '_tablename__', item_name)
         all = '''public
 class %(item_name)s extends sqlite.Base {
@@ -629,7 +629,7 @@ import java.util.Collection;
 ''')
 #import com.svilendobrev.jbase.funk;
 #import com.svilendobrev.jbase.Model;
-#import com.bugger.model.Models;
+#import com.actual.app.model.Models;
 
         me.save_klasi( mainklas, klasi=klasi, **ka)
     #static initialization:
