@@ -2,10 +2,10 @@
 'model-description "language" + dialects + generator of equivalent model in java + SAX + sqlite'
 
 #from util
-from attr import issubclass, subclasses #, subclasses_in
-from struct import DictAttr
-import gencxx
-import xml2obj
+from ..attr import issubclass, subclasses #, subclasses_in
+from ..struct import DictAttr
+from .. import gencxx
+from .. import xml2obj
 
 class Type( DictAttr):
     type        = None
