@@ -411,7 +411,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.SAXException;
 import java.util.ArrayList;
 ''')
-        #import com.woosha.epg.model.%(model4sax)s;
+        #import com.bugger.model.%(model4sax)s;
 
         me.save_klasi( mainklas, klasi, **ka)
 
@@ -627,9 +627,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import java.util.Collection;
 ''')
-#import com.woosha.jbase.Model;
-#import com.woosha.jbase.funk;
-#import com.woosha.epg.model.Models;
+#import com.svilendobrev.jbase.funk;
+#import com.svilendobrev.jbase.Model;
+#import com.bugger.model.Models;
 
         me.save_klasi( mainklas, klasi=klasi, **ka)
     #static initialization:
