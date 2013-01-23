@@ -59,7 +59,7 @@ item0 = '''\
 final TDViewReduceBlock null_reduce = null;
 '''
 
-class reduces_builtin:
+class my_builtin:
     if 0*'originals':
         js_sum= ''' function( keys, values, rereduce) {
             return sum(values);
@@ -138,8 +138,8 @@ Map< String, Boolean> views4%(dbname)s( TDServer server, String version ) {
                     yield y.replace('\n', '''
         ''')
             else:
-                result = getattr( reduces_builtin, reduce_fun, None)
-                if result: reduces_builtin.used+=1
+                result = getattr( my_builtin, reduce_fun, None)
+                if result: my_builtin.used+=1
                 if not result:
                     result = '''null;
                 /* XXX ''' + reduce_fun + ' */'
@@ -318,9 +318,13 @@ class translator:
         return dattr
 
     def emit_key( me, key ):
+        rek = key
+        orcond = rek.split( '||' )
+        if len( orcond)>1:
+            rek = 'funk.first_non_null( ' + ', '.join( orcond) + ' )'
         rek = re.sub( doc_attr
             .replace( ' ', ' *')
-            , me.subattr, key)
+            , me.subattr, rek)
 
         rek = re.sub( ' *\]', ' }', rek)
         rek = re.sub( '\[ *', 'new Object[] { ', rek)

@@ -181,7 +181,7 @@ class %(item_name)s extends touchdb.Base {
                         for i in jviews.gen_view4db( dbname, views, predefs) )
                 for dbname,views in dv.items()
                 ]
-        ka.setdefault( 'head0', jviews.head + jviews.reduces_builtin.imports() )
+        ka.setdefault( 'head0', jviews.head + jviews.my_builtin.imports() )
         me.save_klasi( mainklas,
             klasi= generated_views + [ jviews.gen_view4all( dv) ],
             **ka
