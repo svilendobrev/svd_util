@@ -84,11 +84,11 @@ def gen_view4db( dbname, views, predefs ={}):
     #each should become static method
     yield '''\
 public
-Map< String, Boolean> views4%(dbname)s( TDServer server, String version ) {
+Map< String, Boolean> views4%(dbname)s( TDServer server, String version, String dbname ) {
     TDView view ;
-    TDDatabase db = server.getDatabaseNamed( "%(dbname)s" ); //autocreate
+    TDDatabase db = server.getDatabaseNamed( funk.defaults( dbname, "%(dbname)s") ); //autocreate
     Map< String, Boolean> meta_value_is_doc = new HashMap();
-    String viewname;
+     String viewname;
 ''' % locals()
 
     for v in views:
@@ -168,11 +168,16 @@ Map< String, Boolean> views4%(dbname)s( TDServer server, String version ) {
 def gen_view4all( dbnames):
     return '''\
 public
-void views( TDServer server, String version, Map< String, Map< String, Boolean>> dbname2view2value_is_doc) {
+void views( TDServer server, String version,
+    Map< String, String> dbname2dbname,
+    Map< String, Map< String, Boolean>> out_dbname2view2value_is_doc
+) {
     Map< String, Boolean> meta_value_is_doc;
+    String dbname;
 ''' + ''.join( '''\
-    meta_value_is_doc = views4%(dbname)s( server, version );
-    if (dbname2view2value_is_doc != null) dbname2view2value_is_doc.put( "%(dbname)s", meta_value_is_doc );
+    dbname = funk.get( dbname2dbname, "%(dbname)s", "%(dbname)s" );
+    meta_value_is_doc = views4%(dbname)s( server, version, dbname );
+    if (out_dbname2view2value_is_doc != null) out_dbname2view2value_is_doc.put( dbname, meta_value_is_doc );
 ''' % locals()
     for dbname in dbnames
 ) + '}'
