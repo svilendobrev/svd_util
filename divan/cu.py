@@ -22,6 +22,7 @@ class Users( Base):
 
     DBNAME = '_users'
     _KIND = DBNAME
+    TYPE = 'user'
 
     def __init__( me, storage):
         me._open( storage, dbname= me.DBNAME)
@@ -38,7 +39,7 @@ class Users( Base):
         if not name: name = 'uz' + me._uuid()
         doc = me._update_if_not_None( {}, **ka)
         #avoid overriding these
-        doc.update( type= 'user',
+        doc.update( type= me.TYPE,
             name    = name,
             _id     = me._id( name),
             password= password,
@@ -186,7 +187,11 @@ class Channel4user( Base):
             else:
                 me.storage.Sec4db( db= me.db ).del_user( me.username, at_least_admin =None)
         if update_user:
-            me.storage.Users().set_field( me.username, me.USER_FIELD, me.db._name)
+            if isinstance( update_user, dict):
+                assert update_user.get( 'name') == me.username
+                me.storage.Users()._set_field( update_user, me.USER_FIELD, me.db._name)
+            else:
+                me.storage.Users().set_field( me.username, me.USER_FIELD, me.db._name)
 
     def disable( me, update_user =False):
         #make inaccessible
