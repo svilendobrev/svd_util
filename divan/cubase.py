@@ -60,11 +60,17 @@ class Storage( object):
         return me.server.create( dbname)
 
     @classmethod
-    def is_templated( me, dbname):
-        #log()
+    def get_dbkind_by_name( me, dbname):
+        assert None not in me.dbkind_by_name
         for kind,matcher in me.dbkind_by_name.items():
             if matcher( dbname):
-                return me.dbtemplate_by_dbkind.get( kind, kind)
+                return kind
+    @classmethod
+    def is_templated( me, dbname):
+        #log()
+        kind = me.get_dbkind_by_name( dbname)
+        if kind is not None:
+            return me.dbtemplate_by_dbkind.get( kind, kind)
 
     def setup_if_templated( me, db =None, dbname =None, template =None):
         template = template or me.is_templated( dbname or db._name)
