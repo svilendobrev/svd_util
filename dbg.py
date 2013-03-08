@@ -24,7 +24,7 @@ class Level:
         def __str__( me):  return str( me.leveler)
 
 def dbg_value( name, level =0):
-    frame = inspect.stack()[ level]# currentframe()
+#    frame = inspect.stack()[ level]# currentframe()
     frame = inspect.currentframe()
     try:
         localz = frame.f_back.f_locals
@@ -33,6 +33,15 @@ def dbg_value( name, level =0):
     if not name: return dict( localz)
     obj = localz[ name]
     return '%s=%s' % ( name, obj )
+
+def dbg_value_g( name, level =0):
+    frame = inspect.stack()[ level][0]
+    try:
+        localz = frame.f_locals
+        if name not in localz: localz = frame.f_globals
+    finally:
+        del frame
+    return localz[ name]
 
 
 def dbg_func_framerec( i=0):
