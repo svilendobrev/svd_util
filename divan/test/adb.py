@@ -77,7 +77,7 @@ class cudb( object):
         USERDBNAME = me.USERDBNAME
         if me.cur_userdbname == USERDBNAME: return
 
-        print 1111111111, USERDBNAME
+        print ' dbusers=', USERDBNAME
         #~HACK
         me.scfg = s.resource( *'_config/couch_httpd_auth/authentication_db'.split('/') )
         if USERDBNAME in s: me.unsetup()
