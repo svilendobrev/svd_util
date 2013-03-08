@@ -96,7 +96,7 @@ class cudb( object):
 
     @classmethod
     def unsetup( me):
-        print 333333, me.org_userdbname
+#        print 333333, me.org_userdbname
         if 1: #me.cur_userdbname != me._org_userdbname:
             put_json_always( me.scfg, body= me._org_userdbname)
             me.cur_userdbname = me._org_userdbname
