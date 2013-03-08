@@ -58,7 +58,6 @@ class cudb( object):
 
     _org_userdbname = cu.Users.DBNAME
     USERDBNAME = pfx_dbname( _org_userdbname)
-    cu.Users.DBNAME = USERDBNAME
     cur_userdbname = _org_userdbname
     org_userdbname = _org_userdbname
     if _org_userdbname in DesignDefinition.designs4db:
@@ -78,7 +77,7 @@ class cudb( object):
         USERDBNAME = me.USERDBNAME
         if me.cur_userdbname == USERDBNAME: return
 
-        #print 1111111111, USERDBNAME
+        print 1111111111, USERDBNAME
         #~HACK
         me.scfg = s.resource( *'_config/couch_httpd_auth/authentication_db'.split('/') )
         if USERDBNAME in s: me.unsetup()
@@ -89,6 +88,7 @@ class cudb( object):
             me.cur_userdbname = USERDBNAME
             #print 323232, me.org_userdbname, me.cur_userdbname
 
+            cu.Users.DBNAME = USERDBNAME
             me.setup_extra()
         except:
             me.unsetup()
@@ -96,7 +96,7 @@ class cudb( object):
 
     @classmethod
     def unsetup( me):
-        #print 333333, me.org_userdbname
+        print 333333, me.org_userdbname
         if 1: #me.cur_userdbname != me._org_userdbname:
             put_json_always( me.scfg, body= me._org_userdbname)
             me.cur_userdbname = me._org_userdbname

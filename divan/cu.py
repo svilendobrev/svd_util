@@ -148,7 +148,7 @@ class Channel4user( Base):
 
     def q_user( me):
         uu = me.storage.Sec4db( db= me.db ).q_users()
-        assert len(uu) == 1
+        assert len(uu) == 1, uu
         return uu[0]
 
     _KIND = 'cc'
@@ -159,6 +159,9 @@ class Channel4user( Base):
     def __init__( me, storage, username ):
         me.username = username
         me.storage = storage
+
+    def __repr__( me):
+        return me.__class__.__name__ + '/' + me.username
 
     def _open( me, **ka):
         return Base._open( me, me.storage, dbname= me._cc_name( me.username), **ka)

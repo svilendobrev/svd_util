@@ -89,7 +89,7 @@ class Storage( object):
             create dont open    - new=True
         '''
         #naming: see http://wiki.apache.org/couchdb/HTTP_database_API
-        #log()
+        log()
         server = me.server
         assert dbname
 
