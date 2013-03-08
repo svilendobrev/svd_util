@@ -19,7 +19,7 @@ class adicty( dict):
         if len(a)==1 and not isinstance( a[0], (dict, _types.GeneratorType) ): return a[0]
         r = dict.__new__( klas, *a,**k)
         #for k,v in r.items():
-        #    if isinstance( v, dict): v.__hash__ = klas.__hash__.im_func
+        #    if isinstance( v, dict): v.__hash__ = klas.__hash__.__func__
         return r
     def __hash__( me):
         return hash( hasher(me))#tuple( (k,hasher(v) ) for k,v in sorted( me.items())))
