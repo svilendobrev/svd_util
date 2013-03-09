@@ -97,9 +97,10 @@ class Storage( object):
         if not new:
             try:
                 return server[ dbname]
-            except ResourceNotFound:
+            except ResourceNotFound, e:
                 if not maycreate:
                     if ok_if_no_db: return None
+                    e.args = ( dbname,)
                     raise
 
         try:
@@ -389,14 +390,18 @@ class Base( object):
     def _delete( me, id, ok_if_missing =False):
         try:
             del me.db[ id]  #dontconflict, del last one
-        except ResourceNotFound:
-            if not ok_if_missing: raise
+        except ResourceNotFound, e:
+            if not ok_if_missing:
+                e.args = ( id,)
+                raise
 
     def get( me, id, ok_if_missing =False):
         try:
             return DictAttr( me.db[ id])
-        except ResourceNotFound:
-            if not ok_if_missing: raise
+        except ResourceNotFound, e:
+            if not ok_if_missing:
+                e.args = ( id,)
+                raise
 
     def has( me, id):
         return id in me.db
@@ -486,6 +491,15 @@ def del_from_field( u, field, value, dont_empty =False):
 
 def js_if_doc_type( typ):
     return ' if (doc.type == "' + typ + '") '
+
+class Pfx:
+    def __init__( me, pfx): me.pfx = pfx
+    def a2id( me, a):
+        if not a.startswith( me.pfx): a = me.pfx+a
+        return a
+    def id2a( me, id):
+        assert id.startswith( me.pfx)
+        return id[ len(me.pfx):]
 
 
 
