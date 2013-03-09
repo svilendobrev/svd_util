@@ -20,6 +20,7 @@ from couchdb import Server, ResourceNotFound, ResourceConflict, PreconditionFail
 from couchdb import client
 from views import ViewDefinition, DesignDefinition
 
+
 #other special views Server.:
 # .config .stats .tasks .uuids
 # just server.resource.get_json()  also should give some info??
@@ -482,6 +483,9 @@ def del_from_field( u, field, value, dont_empty =False):
     else:
         u[ field] = v
     return u
+
+def js_if_doc_type( typ):
+    return ' if (doc.type == "' + typ + '") '
 
 
 

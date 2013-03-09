@@ -208,32 +208,39 @@ class Channel4user( Base):
         if update_user:
             me.storage.Users().del_field( me.username, me.USER_FIELD)
 
-    def add_db( me, dbname):
-        #XXX rename = add_discussion
-        #me._open( maycreate= True)  #may autocreate if valid user
-        try:
-            me.db[ dbname] = dict( type= 'db')
-        except ResourceConflict: pass           #ok if already there
-
     if 0:
         def save( me, doc):
             me.db.save( doc)
 
-    def del_db( me, dbname):
-        if me.db is None:
-            me._open( ok_if_no_db =True)
-        if me.db is not None:   #ok if no channel
-            me._delete( dbname, ok_if_missing= True)
+def itemset_mixin( type, dbkind):
 
-    def q_has_db( me, dbname):
-        return me.db is not None and dbname in me.db
+    class itemset_mixin( object):
+        TYPE = type
 
-    #XXX name+viewname is misleading
-    def q_dbs( me, view =ViewDefinition( 'cc/db_by_user', db= _KIND,
-            map_fun = ''' if (doc.type == 'db') emit( null, null ); ''',
-            ) ):
-        r = me._q_doc( view, only_ids= True,)
-        return list( r)
+        def add_item( me, item):
+            #XXX rename = add_discussion
+            #me._open( maycreate= True)  #may autocreate if valid user
+            try:
+                me.db[ item] = dict( type= me.TYPE)
+            except ResourceConflict: pass           #ok if already there
+
+        def del_item( me, item):
+            if me.db is None:
+                me._open( ok_if_no_db =True)
+            if me.db is not None:   #ok if no channel
+                me._delete( item, ok_if_missing= True)
+
+        def q_has_item( me, item):
+            return me.db is not None and item in me.db
+
+        def q_items( me, view =ViewDefinition( 'itemset/'+type,
+                db= dbkind,
+                map_fun = js_if_doc_type( type ) + 'emit( null, null ); ',
+                ) ):
+            r = me._q_doc( view, only_ids= True,)
+            return list( r)
+    itemset_mixin.__name__ += '4'+type
+    return itemset_mixin
 
 Storage.dbkind_by_name[ Channel4user._KIND ] = lambda dbname: dbname.startswith( Channel4user.PREFIX)
 
