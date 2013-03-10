@@ -388,6 +388,7 @@ class Base( object):
         me.storage.setup_if_templated( db= me.db, template= me._KIND)
 
     def _delete( me, id, ok_if_missing =False):
+        assert isinstance( id, basestring)
         try:
             del me.db[ id]  #dontconflict, del last one
         except ResourceNotFound, e:
@@ -396,6 +397,7 @@ class Base( object):
                 raise
 
     def get( me, id, ok_if_missing =False):
+        assert isinstance( id, basestring)
         try:
             return DictAttr( me.db[ id])
         except ResourceNotFound, e:
@@ -404,6 +406,7 @@ class Base( object):
                 raise
 
     def has( me, id):
+        assert isinstance( id, basestring)
         return id in me.db
 
     def _save( me, d):
