@@ -79,6 +79,13 @@ class Users( Base):
         u = me.db[ me._id( name= username) ]
         me._del_from_field( u, field, value)
 
+    _auths = 'password_sha salt auth password'.split()
+    def disable_user( me,  username):
+        u = me.db[ me._id( name= username) ]
+        for p in me._auths:
+            u.pop( p, None)
+        me.db.save( u)
+
 
 class Sec4db( Base):
     LOG_PFXS = '*'
