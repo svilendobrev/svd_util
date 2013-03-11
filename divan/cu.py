@@ -80,12 +80,15 @@ class Users( Base):
         me._del_from_field( u, field, value)
 
     _auths = 'password_sha salt auth password'.split()
-    def disable_user( me,  username):
+    def disable_user( me, username):
         u = me.db[ me._id( name= username) ]
         for p in me._auths:
             u.pop( p, None)
         me.db.save( u)
 
+    @classmethod
+    def is_disabled( me, user):
+        return not user.get('auth') and not (user.get('password_sha') or user.get('password'))
 
 class Sec4db( Base):
     LOG_PFXS = '*'
