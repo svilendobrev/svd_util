@@ -124,6 +124,7 @@ class Sec4db( Base):
             rs[ 'names'] = [ at_least_admin ]
             #ns.append( at_least_admin )
         #print 22222222, ns, me.sec
+        #XXX without anything becomes public!
         me._save()
 
     def q_users( me):
