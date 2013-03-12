@@ -179,6 +179,8 @@ class Channel4user( Base):
 
     @property
     def ccname( me): return me._cc_name( me.username)
+    @property
+    def userid( me): return Users._id( me.username)
 
     def __repr__( me):
         return me.__class__.__name__ + '/' + me.username
