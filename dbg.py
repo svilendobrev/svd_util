@@ -147,11 +147,13 @@ class Meta4log( type):
         def pfxs( name):
             log_pfxs = dict_.get( name,())
             log_pfxs = set( isinstance( log_pfxs, basestring) and log_pfxs.split() or log_pfxs )
-            if bases: log_pfxs.update( getattr( bases[0], name, ()))
+            for b in bases:
+                log_pfxs.update( getattr( b, name, ()))
             dict_[ name ] = log_pfxs
             return log_pfxs
         log_incl = pfxs( 'LOG_PFXS')
         log_excl = pfxs( 'LOG_PFXS_EXCL' )
+        #print( 1111111, name, log_incl, log_excl )
         def is_pfx( name):
             if '*' in log_excl: return
             for p in log_incl:
