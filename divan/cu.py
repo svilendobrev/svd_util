@@ -82,9 +82,11 @@ class Users( Base):
     _auths = 'password_sha salt auth password'.split()
     def disable_user( me, username):
         u = me.db[ me._id( name= username) ]
+        uu = dict(u)
         for p in me._auths:
             u.pop( p, None)
-        me.db.save( u)
+        if u != uu:
+            me.db.save( u)
 
     @classmethod
     def is_disabled( me, user):
@@ -166,16 +168,23 @@ class Channel4user( Base):
 
     USER_FIELD = 'control_channel'
 
+    @classmethod
+    def get_user_field_control_channel( me, user):
+        return user.get( me.USER_FIELD)
+
     #XXX lazy - for create/del
     def __init__( me, storage, username ):
         me.username = username
         me.storage = storage
 
+    @property
+    def ccname( me): return me._cc_name( me.username)
+
     def __repr__( me):
         return me.__class__.__name__ + '/' + me.username
 
     def _open( me, **ka):
-        return Base._open( me, me.storage, dbname= me._cc_name( me.username), **ka)
+        return Base._open( me, me.storage, dbname= me.ccname, **ka)
 
     def __str__( me): return me.__class__.__name__ + '/' + me.username
 
