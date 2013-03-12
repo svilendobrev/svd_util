@@ -255,7 +255,8 @@ def itemset_mixin( type, dbkind):
 
 Storage.dbkind_by_name[ Channel4user._KIND ] = lambda dbname: dbname.startswith( Channel4user.PREFIX)
 
-class Channel4user_mixin:
+class Channel4user_mixin( object):
+    #__metaclass__ = Base.__metaclass__
     _KIND = Channel4user._KIND
 
     def _open( me, channel4user, **ka_ignore):
