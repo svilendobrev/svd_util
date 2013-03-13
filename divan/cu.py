@@ -199,7 +199,7 @@ class Channel4user( Base):
     def _open( me, **ka):
         return Base._open( me, me.storage, dbname= me.ccname, **ka)
 
-    def __str__( me): return me.__class__.__name__ + '/' + me.username
+    #def __str__( me): return me.__class__.__name__ + '/' + me.username
 
     _db = None
     def _db_get( me):
@@ -319,6 +319,8 @@ class Channel4user_mixin( object):
             owner = channel4user.username
         return factory( channel4user= channel4user, owner= owner)
 
+    def __repr__( me):
+        return me.__class__.__name__ + '/' + str(me.channel4user)
 
 class Mgr( Storage):
     if 0:
