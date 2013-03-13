@@ -422,21 +422,24 @@ class Base( object):
                 dct[k] = v
         return dct
 
-    def _set_field( me, u, field, value):
+    def _set_field( me, u, field, value, save= True):
         if u.get( field) == value: return
         u[ field] = value
-        me.db.save( u)
-    def _del_field( me, u, field, default =None):
+        if save: me.db.save( u)
+    def _del_field( me, u, field, default =None, save= True):
         if field not in u: return default
         r = u.pop( field)
-        me.db.save( u)
+        if save: me.db.save( u)
         return r
-    def _add_to_field( me, u, field, value):
+    def _add_to_field( me, u, field, value, save= True):
         if add_to_field( u, field, value) is None: return
-        me.db.save( u)
-    def _del_from_field( me, u, field, value):
+        if save: me.db.save( u)
+    def _del_from_field( me, u, field, value, save= True):
         if del_from_field( u, field, value) is None: return
-        me.db.save( u)
+        if save: me.db.save( u)
+
+    def _changes( me, **ka):
+        return me.storage.changes( me.dbname, **ka)
 
 # add_to_field and del_from_field are made to:
 #   - allow non-list single value (treated as list of 1 element - the value)
@@ -498,10 +501,11 @@ def js_if_doc_type( typ):
 class Pfx:
     def __init__( me, pfx): me.pfx = pfx
     def a2id( me, a):
+        return me.pfx+a
         if not a.startswith( me.pfx): a = me.pfx+a
         return a
     def id2a( me, id):
-        assert id.startswith( me.pfx)
+        assert id.startswith( me.pfx), id
         return id[ len(me.pfx):]
 
 

@@ -19,6 +19,11 @@ class Users( Base):
         if id: return id
         if name.startswith( me.PFX4name): return name
         return me.PFX4name + name
+    @classmethod
+    def _name( me, id ):
+        assert id.startswith( me.PFX4name)
+        return id[ len( me.PFX4name):]
+
 
     DBNAME = '_users'
     _KIND = DBNAME
@@ -59,29 +64,32 @@ class Users( Base):
         id = me._id( name, id)
         return me.get( id, **ka)
 
-    def q_users( me):
-        return [ DictAttr( u['doc'])
-            for u in me.db.view( '_all_docs', include_docs= True)
+    def q_users( me, only_ids =False ):
+        return [ DictAttr( u['doc']) if not only_ids else u['id']
+            for u in me.db.view( '_all_docs', include_docs= not only_ids)
             if u.key.startswith( me.PFX4name)
-            #if u.key[0]!='_'
             ]
 
-    def set_field( me, username, field, value):
-        u = me.db[ me._id( name= username) ]
+    def _user( me, user):
+        if not isinstance( user, dict):
+            user = me.db[ me._id( name= user) ]
+        return user
+    def set_field( me, user, field, value):
+        u = me._user( user)
         me._set_field( u, field, value)
-    def del_field( me, username, field, default =None):
-        u = me.db[ me._id( name= username) ]
+    def del_field( me, user, field, default =None):
+        u = me._user( user)
         return me._del_field( u, field, default)
-    def add_to_field( me, username, field, value):
-        u = me.db[ me._id( name= username) ]
+    def add_to_field( me, user, field, value):
+        u = me._user( user)
         me._add_to_field( u, field, value)
-    def del_from_field( me, username, field, value):
-        u = me.db[ me._id( name= username) ]
+    def del_from_field( me, user, field, value):
+        u = me._user( user)
         me._del_from_field( u, field, value)
 
     _auths = 'password_sha salt auth password'.split()
-    def disable_user( me, username):
-        u = me.db[ me._id( name= username) ]
+    def disable_user( me, user):
+        u = me._user( user)
         uu = dict(u)
         for p in me._auths:
             u.pop( p, None)
@@ -173,7 +181,10 @@ class Channel4user( Base):
         return user.get( me.USER_FIELD)
 
     #XXX lazy - for create/del
-    def __init__( me, storage, username ):
+    def __init__( me, storage, username =None, userid= None ):
+        if not username:
+            assert userid
+            username = Users._name( userid)
         me.username = username
         me.storage = storage
 
@@ -212,23 +223,36 @@ class Channel4user( Base):
             else:
                 me.storage.Sec4db( db= me.db ).del_user( me.username, at_least_admin =None)
         if update_user:
-            if isinstance( update_user, dict):
-                assert update_user.get( 'name') == me.username
-                me.storage.Users()._set_field( update_user, me.USER_FIELD, me.db._name)
-            else:
-                me.storage.Users().set_field( me.username, me.USER_FIELD, me.db._name)
+            me._set_user_field_control_channel( user= update_user)
 
-    def disable( me, update_user =False):
+    def _set_user_field_control_channel( me, user= None, **ka):
+        Users = me.storage.Users()
+        if not isinstance( user, dict):
+            user = Users.q_user( name= me.username)
+        else:
+            assert user.get( 'name') == me.username
+        Users._set_field( user, me.USER_FIELD, value= me.dbname, **ka)
+
+    def _del_user_field_control_channel( me, user= None, **ka):
+        Users = me.storage.Users()
+        if not isinstance( user, dict):
+            user = Users.q_user( name= me.username)
+        else:
+            assert user.get( 'name') == me.username
+        Users._del_field( user, me.USER_FIELD, **ka)
+
+
+    def disable( me, update_user =False, **ka):
         #make inaccessible
         me.storage.Sec4db( db= me.db ).del_user( me.username )#, at_least_admin= 'admin')
         if update_user:
-            me.storage.Users().del_field( me.username, me.USER_FIELD)
+            me._del_user_field_control_channel( update_user, **ka)
 
-    def destroy( me, update_user =True):
+    def destroy( me, update_user =True, **ka):
         try: me._destroy()
         except ResourceNotFound: pass
         if update_user:
-            me.storage.Users().del_field( me.username, me.USER_FIELD)
+            me._del_user_field_control_channel( update_user, **ka)
 
     if 0:
         def save( me, doc):
@@ -318,7 +342,8 @@ class Mgr( Storage):
         return u
 
     _Channel4user = Channel4user
-    def Channel4user( me, username): return me._Channel4user( me, username)
+    def Channel4user( me, username =None, userid =None):
+        return me._Channel4user( me, username, userid)
 
     _Sec4db = Sec4db
     def Sec4db( me, **ka): return me._Sec4db( storage= me, **ka)
