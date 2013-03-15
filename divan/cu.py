@@ -244,7 +244,9 @@ class Channel4user( Base):
 
     def disable( me, update_user =False, **ka):
         #make inaccessible
-        me.storage.Sec4db( db= me.db ).del_user( me.username )#, at_least_admin= 'admin')
+        try:
+            me.storage.Sec4db( db= me.db ).del_user( me.username )#, at_least_admin= 'admin')
+        except ResourceNotFound: pass
         if update_user:
             me._del_user_field_control_channel( update_user, **ka)
 
