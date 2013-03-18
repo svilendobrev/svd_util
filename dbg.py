@@ -82,7 +82,7 @@ class log_funcname:
         if no_locals:
             print( dbg_funcname( 1+2), '(..)')
         else:
-            print( dbg_funcname_locals( 1))
+            print( *dbg_funcname_locals( 1))
 
 class funcwrap:
     ''' do-nothing and/or log; e.g.
