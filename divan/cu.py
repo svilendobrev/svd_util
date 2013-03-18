@@ -64,9 +64,9 @@ class Users( Base):
         id = me._id( name, id)
         return me.get( id, **ka)
 
-    def q_users( me, only_ids =False ):
+    def q_users( me, only_ids =False, **ka ):
         return [ DictAttr( u['doc']) if not only_ids else u['id']
-            for u in me.db.view( '_all_docs', include_docs= not only_ids)
+            for u in me.db.view( '_all_docs', include_docs= not only_ids, **ka)
             if u.key.startswith( me.PFX4name)
             ]
 
