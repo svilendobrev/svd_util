@@ -63,14 +63,32 @@ def dbg_funcstack( start=2, depth=3, dlm=''):
     return dlm.join( traceback.format_list( traceback.extract_stack( limit=start+depth+1)[-start-depth+1:-start+1] ))
     #traceback.print_list( traceback.extract_stack( )[-start-depth+1:-start+1] )
 
+
+#these not really belong here
 def getdefaultargs( func):
     a = inspect.getargspec( func)
     return dict( zip( reversed( a.args), reversed( a.defaults or ())))
-
 def getdefaultargs_wrap( func):
     if isinstance( getattr( func, 'me', None), dbg.funcwrap):
         func = func.me.func
     return getdefaultargs( func)
+def func_meta( func):
+    '.module, .args, .argdefaults=dict; .varkargs, .varargs'
+    func = getattr( func, '__func__', func)
+#            print( 3333333, ffunc, dir(ffunc))
+    #if isinstance( func, classmethod): ffunc = func.__func__
+    a = inspect.getargspec( func)
+    func.args = a.args
+    func.varkargs = a.keywords
+    func.varargs  = a.varargs
+    #func.argdefaults = getdefaultargs( func)
+    func.argdefaults = dict( zip( reversed( a.args), reversed( a.defaults or ())))
+    func.module = func.func_globals.get( '__name__')
+    if func.module == '__main__':
+        func.module = func.func_globals.get( '__file__')
+    return func
+###
+
 
 class log_funcname:
     'set .do_log, use .log() in some func'
