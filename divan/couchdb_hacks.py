@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from couchdb import Server, Unauthorized
+from couchdb import Server
 from couchdb import client, design
 
 #other special views Server.:
@@ -31,7 +31,7 @@ if 1*'_replicator':
 #####################
 
 def session( server, username, password):
-    '_session itself can also be used via cookie without name/password - to logout?'
+    '_session itself can also be used via cookie without name/password - to logout/renew?'
     data = dict( name= username, password= password)
     status, headers, data = server.resource.post_json( '_session', data)
 #    print( status, headers, data)
@@ -57,25 +57,23 @@ def delete( db, doc):
 
 #####################
 
-if 1*'simplest':
-    def get_cookie_direct( headers):
-        return headers.get( 'Set-Cookie','').split(';')[0]
+if 1*'cookies':
+    if 1*'simplest':
+        def get_cookie_direct( headers):
+            return headers.get( 'Set-Cookie','').split(';')[0]
+    elif 0*'most-generic':
+        #import cookielib
+        #jj = cookielib.CookieJar()
+        class _fake_resp:
+            def __init__( me, h): me.h = h
+            def info( me): return me.h
+        def get_cookies_via_cookiejar( cookiejar, server, *a,**ka):
+            from urllib2 import Request
+            cookiejar.extract_cookies( _fake_resp( headers), Request( server.resource.url))
+    elif 0*'parse_ns':
+        def get_cookies_via_parse( headers):
+            return cookielib.parse_ns_headers( headers.headers)
 
-elif 0*'most-generic':
-    #import cookielib
-    #jj = cookielib.CookieJar()
-    class _fake_resp:
-        def __init__( me, h): me.h = h
-        def info( me): return me.h
-    def get_cookies_via_cookiejar( cookiejar, server, *a,**ka):
-        from urllib2 import Request
-        cookiejar.extract_cookies( _fake_resp( headers), Request( server.resource.url))
-
-elif 0*'parse_ns':
-    def get_cookies_via_parse( headers):
-        return cookielib.parse_ns_headers( headers.headers)
-
-if 10:
     get_cookie = get_cookie_direct
     from couchdb import http
     _Session = http.Session
@@ -92,27 +90,38 @@ if 10:
     http.Session = Session
 
 
-from couchdb import json as _json
-def put_json_always( resource, path =None, body =None):
-    #XXX path in resource.put/_request is useless for _real_ paths
-    if path:
-        if isinstance( path, basestring): path = path.split('/')
-        resource = s.resource( *path)
-    body = _json.encode( body).encode('utf-8')
-    return resource.put_json( body= body)
+if 1*'allow path as tuple to avoid %2f encoding (e.g. for _config/ _stats/)':
+    from couchdb.http import urljoin as _urljoin
+    def urljoin( base, *path, **query):
+        pp = []
+        for p in path:
+            if isinstance( p, basestring): pp.append( p)
+            else: pp += p   #tuple/list
+        return _urljoin( base, *pp, **query)
+    couchdb.http.urljoin = urljoin
+
+if 1*'Session.request: if body=basestring, cannot be json..':
+    from couchdb import json as _json
+    def put_json_always( resource, path, body =None):
+        body = _json.encode( body).encode('utf-8')
+        return resource.put_json( path, body= body)
 
 #####################
-
-from couchdb import http
-#Resource. def _request(self, method, path=None, body=None, headers=None, **params):
-#Session. def request(self, method, url, body=None, headers=None, credentials=None, num_redirects=0):
-_srequest = http.Session.request
-def srequest( *a,**ka):
-    try: return _srequest( *a,**ka)
-    except Exception as e:
-        e.request_args = a,ka
-        raise
-http.Session.request = srequest
+if 1*'verbose exceptions with call-args plz':
+    #XXX TODO move this above inside Session
+    from couchdb import http
+    #Resource. def _request(self, method, path=None, body=None, headers=None, **params):
+    #Session. def request(self, method, url, body=None, headers=None, credentials=None, num_redirects=0):
+    _srequest = http.Session.request
+    def srequest( *a,**ka):
+        try: return _srequest( *a,**ka)
+        except Exception as e:
+            e.request_args = a,ka
+            s = ' --- *a,**ka: '+str(e.request_args)
+            e.message = str(getattr( e, 'message', '') or '') + s
+            e.args = e.args + ( s,)
+            raise
+    http.Session.request = srequest
 
 #####################
 
@@ -151,18 +160,33 @@ if 0:
 
 
 if __name__ == '__main__':
+    import sys
+    aa = sys.argv[1:2]
+    from couchdb import Unauthorized, ResourceNotFound
+    s = Server( *aa)#'http://osha:5984')
+
     def test_session():
-        import cu
-        s = cu.Server( 'http://osha:5984')
         try:
             print s['czuha']
-        except Unauthorized:
+        except (Unauthorized, ResourceNotFound) as e:
             print ' ok inaccessible'
         else:
             raise RuntimeError('accessible')
-        cu.session( s, username='uha',password='uha')
+        session( s, username='uha',password='uha')
         print s['czuha']
 
+    def test_allow_path_tuple():
+        rstats = status, headers, data = s.resource.get_json('_stats')
+        dw = data['couchdb']['database_writes']
+        print dw
+        dw1 = dict( couchdb= dict( database_writes= dw))
+        rstats = status, headers, data = s.resource.get_json( ['_stats','couchdb','database_writes'] )
+        dw2 = data['couchdb']['database_writes']
+        print dw2
+        assert dw==dw2
+        assert dw1==data
+
+    test_allow_path_tuple()
     test_session()
 
 # vim:ts=4:sw=4:expandtab
