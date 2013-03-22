@@ -78,15 +78,15 @@ class cudb( object):
         if me.cur_userdbname == USERDBNAME: return
 
         print ' dbusers=', USERDBNAME
-        #~HACK
-        me.scfg = s.resource( *'_config/couch_httpd_auth/authentication_db'.split('/') )
+
+        me.scfg = '_config/couch_httpd_auth/authentication_db'.split('/')
         if USERDBNAME in s: me.unsetup()
         try:
             me.mgr.open( USERDBNAME, new=True) #emplate= me._org_userdbname)
             #s.create( USERDBNAME )
-            me.org_userdbname = put_json_always( me.scfg, body= USERDBNAME )[2]
+            #me.org_userdbname = s.resource.put_json( me.scfg, body= json( USERDBNAME ))[2]
+            me.org_userdbname = put_json_always( s.resource, me.scfg, body= USERDBNAME )[2]
             me.cur_userdbname = USERDBNAME
-            #print 323232, me.org_userdbname, me.cur_userdbname
 
             cu.Users.DBNAME = USERDBNAME
             me.setup_extra()
@@ -96,11 +96,10 @@ class cudb( object):
 
     @classmethod
     def unsetup( me):
-#        print 333333, me.org_userdbname
-        if 1: #me.cur_userdbname != me._org_userdbname:
-            put_json_always( me.scfg, body= me._org_userdbname)
-            me.cur_userdbname = me._org_userdbname
         s = me.mgr.server
+        if 1:
+            put_json_always( s.resource, me.scfg, body= me._org_userdbname)
+            me.cur_userdbname = me._org_userdbname
         try:
             del s[ me.USERDBNAME ]
         except ResourceNotFound:
