@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 #TODO
 # + permanent views     http://wiki.apache.org/couchdb/HTTP_view_API#Temporary_Views
@@ -90,7 +91,7 @@ class Storage( object):
             create dont open    - new=True
         '''
         #naming: see http://wiki.apache.org/couchdb/HTTP_database_API
-        log()
+        #log()
         server = me.server
         assert dbname
 
@@ -161,7 +162,7 @@ class Storage( object):
         avalue = only_keys and 'key' or only_ids and 'id' or include_docs and 'doc' or 'value'
         no_obj = no_obj or only_keys or only_ids
         for v in r:
-            if prn: print prn, v
+            if prn: print( prn, v)
             if not raw: v = v[ avalue]
             yield v if no_obj else DictAttr( v)
 
@@ -181,10 +182,10 @@ class Storage( object):
         for name in dbname and [ dbname ] or s:
             if name[0]=='_' and name != dbname: continue
             db = s[ name]
-            print db
-            print db.info()
+            print( db)
+            print( db.info() )
             for doc_id in db:
-                print db.get( doc_id)
+                print( db.get( doc_id))
 
     class Replica:
         def __init__( me, storage):
@@ -530,6 +531,6 @@ def optz_url_usr( optz):
 def optz_url_usr_fix( optz):
     if optz.userpsw:
         optz.couchdb = user2url( optz.couchdb, optz.userpsw)
-    print '.. url=', optz.couchdb
+    print( '.. url=', optz.couchdb)
 
 # vim:ts=4:sw=4:expandtab

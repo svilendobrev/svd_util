@@ -244,17 +244,21 @@ class Channel4user( Base):
 
     def disable( me, update_user =False, **ka):
         #make inaccessible
+        exists = True
         try:
             me.storage.Sec4db( db= me.db ).del_user( me.username )#, at_least_admin= 'admin')
-        except ResourceNotFound: pass
+        except ResourceNotFound: exists = False
         if update_user:
             me._del_user_field_control_channel( update_user, **ka)
+        return exists
 
     def destroy( me, update_user =True, **ka):
+        exists = True
         try: me._destroy()
-        except ResourceNotFound: pass
+        except ResourceNotFound: exists = False
         if update_user:
             me._del_user_field_control_channel( update_user, **ka)
+        return exists
 
     if 0:
         def save( me, doc):
