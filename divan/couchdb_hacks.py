@@ -101,6 +101,18 @@ def put_json_always( resource, path =None, body =None):
     body = _json.encode( body).encode('utf-8')
     return resource.put_json( body= body)
 
+#####################
+
+from couchdb import http
+#Resource. def _request(self, method, path=None, body=None, headers=None, **params):
+#Session. def request(self, method, url, body=None, headers=None, credentials=None, num_redirects=0):
+_srequest = http.Session.request
+def srequest( *a,**ka):
+    try: return _srequest( *a,**ka)
+    except Exception as e:
+        e.request_args = a,ka
+        raise
+http.Session.request = srequest
 
 #####################
 
