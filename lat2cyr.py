@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # sdobrev 2004-8
-'cyrillic transcripting to/from latin - e.g. qwerty, SMS, sounds-like, looks-like, etc'
+from __future__ import unicode_literals
 
+'cyrillic transcripting to/from latin - e.g. qwerty, SMS, sounds-like, looks-like, etc'
 import sys
 _v3 = sys.version_info[0]>=3
 
@@ -22,7 +23,7 @@ def do321( map, x):
 def dec(x): return x and x.decode( 'cp1251')
 
 def make( cyr =(), lat =(), cyr2lat ={} ):
-    if not _v3:
+    if 0 :#not _v3:
         cyr = dec( cyr)
         lat = dec( lat)
         cyr2lat = dict( (dec(k), dec(v)) for k,v in cyr2lat.items())
@@ -210,8 +211,8 @@ if __name__ == '__main__':
     if opt( '--cyr2lat', '--c2l', '-c2l'): l2c = 0
     if opt( '--lat2cyr', '--l2c', '-l2c'): l2c = 1
     utf = opt( '--utf') and not _v3
-    iutf = opt( '-iutf', '--iutf') and not _v3 or utf
-    outf = opt( '-outf', '--outf') and not _v3 or utf
+    iutf = opt( '-iutf', '--iutf', '-i8', '--i8' ) and not _v3 or utf
+    outf = opt( '-outf', '--outf', '-o8', '--o8' ) and not _v3 or utf
     o1251= opt( '-1251', '--1251', '--cp1251', '-cp1251') and not _v3
     org = opt( '--org')
     rename = opt( '--rename')

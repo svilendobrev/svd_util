@@ -185,8 +185,12 @@ class Meta4log( type):
                 )
         return type.__new__( meta, name, bases, dict_)
 
+try:
+    from threading import _Condition
+except (ImportError, NameError):   #py3.3+
+    from threading import Condition as _Condition
+from threading import currentThread
 
-from threading import _Condition, currentThread
 def dbg_funcname_thread( i=3):
     #thread
     return '%s | %s() ' % (currentThread().getName(), dbg_funcname(i+1) )
