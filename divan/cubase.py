@@ -6,6 +6,7 @@ from __future__ import print_function
 # + permanent views     http://wiki.apache.org/couchdb/HTTP_view_API#Temporary_Views
 # - update handlers     http://wiki.apache.org/couchdb/Document_Update_Handlers
 # - update validators   http://wiki.apache.org/couchdb/Document_Update_Validation
+# - XXX all dbs should be owned by admin by default .. i.e. default.owner-per-server ?
 
 from svd_util import dbg
 log = dbg.log_funcname.log
