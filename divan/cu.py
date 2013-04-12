@@ -139,14 +139,17 @@ class Sec4db( Base):
         '''
         if me.db is None: return        #ok if missing
         rs = me.sec.get( 'readers')
-        if not rs and not at_least_admin: return
-        ns = rs.get( 'names', ())
-        if not ns and not at_least_admin: return
-        if username is None:
-            rs.pop( 'names', None)
+        if not rs:
+            if not at_least_admin: return
             ns = ()
         else:
-            while username in ns: ns.remove( username)
+            ns = rs.get( 'names', ())
+            if not ns and not at_least_admin: return
+            if username is None:
+                rs.pop( 'names', None)
+                ns = ()
+            else:
+                while username in ns: ns.remove( username)
         if at_least_admin and not ns:
             rs = me.sec.setdefault( 'readers', {})
             rs[ 'names'] = [ at_least_admin ]
@@ -376,15 +379,15 @@ class Mgr( Storage):
     _Sec4db = Sec4db
     def Sec4db( me, **ka): return me._Sec4db( storage= me, **ka)
 
-if 0:
+#if 0:
     def setup_if_templated( me, db =None, dbname =None, template =None):
         me.security( db= db, dbname= dbname)
         return Storage.setup_if_templated( me, db, dbname, template)
 
     #default: include all, exclude _users and Channel4user
-    sec_include = dict( dbnames= (), kinds= (), all= True)      #same as =None
-    sec_exclude = dict( dbnames= ( Users.DBNAME,),
-                        kinds= ( Users._KIND, Channel4user._KIND ),
+    sec_include = dict( names= (), kinds= (), all= True)      #same as =None
+    sec_exclude = dict( names= ( _Users.DBNAME,),
+                        kinds= ( _Users._KIND, _Channel4user._KIND ),
                         all= False)
     # include = None  # all
     # include = dict( all = True)   #all
