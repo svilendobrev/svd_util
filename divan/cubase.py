@@ -78,6 +78,7 @@ class Storage( object):
     def setup_if_templated( me, db =None, dbname =None, template =None):
         template = template or me.is_templated( dbname or db._name)
         log()
+        #me.security( db= db, dbname= dbname, template=template)
         if not template: return
 
         if db is None: db = me.server[ dbname]

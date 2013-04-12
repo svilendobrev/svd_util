@@ -118,26 +118,39 @@ class Sec4db( Base):
         status, headers, data = me.db.resource.put_json( me._security_name, body= me.sec)
 
     def add_user( me, username, overwrite =False):
+        assert username
         rs = me.sec.setdefault( 'readers', {})
         ns = rs.setdefault( 'names', [])
-        if overwrite: ns[:] = []
+        if overwrite:
+            if ns == [ username ]: return
+            ns[:] = []
         elif username in ns: return     #ok if already there
         ns.append( username)
         me._save()
 
-    def del_user( me, username, at_least_admin ='admin'):
+    def set_user( me, username):
+        return me.add_user( username, overwrite= True)
+
+    def del_user( me, username, at_least_admin ='_admin'):
+        '''
+        username =None : remove all users
+        at_least_admin : if not empty, set that to no-users databases to prevent becoming public.
+                         it is _admin by default, as no users can start with _
+        '''
         if me.db is None: return        #ok if missing
         rs = me.sec.get( 'readers')
         if not rs and not at_least_admin: return
         ns = rs.get( 'names', ())
         if not ns and not at_least_admin: return
-        while username in ns: ns.remove( username)
+        if username is None:
+            rs.pop( 'names', None)
+            ns = ()
+        else:
+            while username in ns: ns.remove( username)
         if at_least_admin and not ns:
             rs = me.sec.setdefault( 'readers', {})
             rs[ 'names'] = [ at_least_admin ]
-            #ns.append( at_least_admin )
-        #print 22222222, ns, me.sec
-        #XXX without anything becomes public!
+        #XXX without anything it becomes public!
         me._save()
 
     def q_users( me):
@@ -210,6 +223,12 @@ class Channel4user( Base):
     db = property( _db_get, _db_set)
 
     def create( me, update_user =True, update_sec =True, new= True, empty_sec =False, **ka):
+        ''' new : die if exists
+        update_user : _set_user_field_control_channel
+        update_sec  : change Sec4db
+        empty_sec   : empty the Sec4db i.e. make public
+
+        '''
         #if new:
         #    assert me.db is None, me.db
         me._open( maycreate= True, new= new, **ka)
@@ -220,6 +239,7 @@ class Channel4user( Base):
         if update_sec:
             if not empty_sec:
                 me.storage.Sec4db( db= me.db ).add_user( me.username)
+                #maybe set_user instead of add_user... though only admins can change those
             else:
                 me.storage.Sec4db( db= me.db ).del_user( me.username, at_least_admin =None)
         if update_user:
@@ -355,6 +375,45 @@ class Mgr( Storage):
 
     _Sec4db = Sec4db
     def Sec4db( me, **ka): return me._Sec4db( storage= me, **ka)
+
+if 0:
+    def setup_if_templated( me, db =None, dbname =None, template =None):
+        me.security( db= db, dbname= dbname)
+        return Storage.setup_if_templated( me, db, dbname, template)
+
+    #default: include all, exclude _users and Channel4user
+    sec_include = dict( dbnames= (), kinds= (), all= True)      #same as =None
+    sec_exclude = dict( dbnames= ( Users.DBNAME,),
+                        kinds= ( Users._KIND, Channel4user._KIND ),
+                        all= False)
+    # include = None  # all
+    # include = dict( all = True)   #all
+    # include = dict( dbnames = [], kinds = [] )
+    # include = dict() #none
+    @staticmethod
+    def _sec_matches( filt, dbname, dbkind):
+        return filt is None or filt.get('all') or dbname in filt.get( 'names',()) or dbkind in filt.get( 'kinds',())
+
+    def security( me, db =None, dbname =None):
+        'make all dbs Sec4db.at_least_admin'
+        if db is None: db = me.server[ dbname]
+        dbname = db._name
+        dbkind = me.is_templated( dbname )
+        #rules... default is include all, exclude _users
+        # - exclude all
+        # - exclude these kinds
+        # - exclude these dbs
+        # - exclude none
+        # - include none == exclude all
+        # - include only these dbs
+        # - include only these kinds
+        # - include all == exclude none
+        inc = me._sec_matches( me.sec_include, dbname, dbkind)
+        exc = me._sec_matches( me.sec_exclude, dbname, dbkind)
+        do_apply = inc and not exc
+        print 'default security:', do_apply, dbname
+        if not do_apply: return
+        me.Sec4db( db= db).del_user( None)  #no users, at_least_admin
 
 
 
