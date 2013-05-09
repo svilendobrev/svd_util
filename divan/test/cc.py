@@ -67,7 +67,7 @@ class cc( test4db_users, TEST):
     def disable( me):
         me.create()
         me.cc.disable()
-        me.assert_eq_sec_users( [ 'admin' ] )
+        me.assert_eq_sec_users( [ cu.Sec4db._admin ] )
 
     def destroy( me):
         me.create()
