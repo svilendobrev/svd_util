@@ -131,7 +131,8 @@ class Sec4db( Base):
     def set_user( me, username):
         return me.add_user( username, overwrite= True)
 
-    def del_user( me, username, at_least_admin ='_admin'):
+    _admin = '_admin'
+    def del_user( me, username, at_least_admin =_admin):
         '''
         username =None : remove all users
         at_least_admin : if not empty, set that to no-users databases to prevent becoming public.
