@@ -1,4 +1,5 @@
 """Pure python implementation of the binary Tokyo Tyrant 1.1.17 protocol
+###svd: fixed for python3 using UTF8 for strings
 
 Tokyo Cabinet <http://tokyocabinet.sourceforge.net/> is a "super hyper ultra
 database manager" written and maintained by Mikio Hirabayashi and released
@@ -25,7 +26,8 @@ for the raw Tyrant protocol::
 """
 import socket
 import struct
-import UserDict
+#from UserDict import DictMixin
+from collections import MutableMapping as DictMixin
 
 __version__ = '1.1.17'
 
@@ -143,16 +145,18 @@ def _t3F(code, func, opts, key, value):
         value,
     ]
 
+ENC='utf8'
 
 def socksend(sock, lst):
     for chunk in lst:
-        sock.sendall(chunk)
+        if not isinstance( chunk, bytes): chunk = chunk.encode( ENC)
+        sock.sendall( chunk )
 
 
-def sockrecv(sock, bytes):
-    d = ''
-    while len(d) < bytes:
-        d += sock.recv(min(8192, bytes - len(d)))
+def sockrecv(sock, nbytes):
+    d = b''
+    while len(d) < nbytes:
+        d += sock.recv(min(8192, nbytes - len(d)))
     return d
 
 
@@ -171,18 +175,18 @@ def socklong(sock):
 
 
 def sockstr(sock):
-    return sockrecv(sock, socklen(sock))
+    return sockrecv(sock, socklen(sock)) .decode( ENC)
 
 
 def sockstrpair(sock):
     klen = socklen(sock)
     vlen = socklen(sock)
-    k = sockrecv(sock, klen)
-    v = sockrecv(sock, vlen)
+    k = sockrecv(sock, klen) .decode( ENC)
+    v = sockrecv(sock, vlen) .decode( ENC)
     return k, v
 
 
-class PyTyrant(object, UserDict.DictMixin):
+class PyTyrant( DictMixin):
     """
     Dict-like proxy for a Tyrant instance
     """
