@@ -416,7 +416,7 @@ class Base( object):
         'does update d'
         me.db.save( d)
         return d
-    def save_and_repeat_if_gone( me, d):
+    def _save_and_repeat_if_gone( me, d):
         me.db.save( d)
         #XXX repeat for the COUCHDB-1415 defect - for recreating same-id docs
         check = me.get( d['_id'], ok_if_missing= True)
