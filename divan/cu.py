@@ -284,10 +284,6 @@ class Channel4user( Base):
             me._del_user_field_control_channel( update_user, **ka)
         return exists
 
-    if 0:
-        def save( me, doc):
-            me.db.save( doc)
-
 def itemset_mixin( type, dbkind):
 
     class itemset_mixin( object):

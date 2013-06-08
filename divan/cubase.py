@@ -413,8 +413,15 @@ class Base( object):
         return id in me.db
 
     def _save( me, d):
-        'does not update d'
-        return me.db.save( dict(d))
+        'does update d'
+        me.db.save( d)
+        return d
+    def save_and_repeat_if_gone( me, d):
+        me.db.save( d)
+        #XXX repeat for the COUCHDB-1415 defect - for recreating same-id docs
+        check = me.get( d['_id'], ok_if_missing= True)
+        if not check: me.db.save( d)
+        return d
 
     def last_seq( me):
         return me.db.info()[ 'update_seq'] #committed_
