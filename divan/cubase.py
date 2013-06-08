@@ -413,6 +413,7 @@ class Base( object):
         return id in me.db
 
     def _save( me, d):
+        'does not update d'
         return me.db.save( dict(d))
 
     def last_seq( me):
