@@ -6,16 +6,29 @@ from __future__ import print_function, unicode_literals
 
 re_nomer = '(\d+|[ivxIVX]+)'
 
-rim = dict( I=1, II=2, III=3, IV=4, V=5, VI=6, VII=7, VIII=8, IX=9, X=10)
-rim.update( [('X'+k,10+v) for k,v in rim.items() ])
+rim10 = dict( I=1, II=2, III=3, IV=4, V=5, VI=6, VII=7, VIII=8, IX=9, X=10)
+rim = dict(rim10)
+rim.update( ('X'+k,10+v) for k,v in rim10.items() )
+rim.update( ('XX'+k,20+v) for k,v in rim10.items() )
 
-I= '\u0406' # u'І'ne-lat ne-cyr
-X= '\u0425' # u'Х'cyr
+extra = dict(
+ I= '\u0406', # u'І'ne-lat ne-cyr
+ X= '\u0425', # u'Х'cyr
+ x= '\u0445', # u'x'cyr
+)
+def extrafix( txt, e):
+    return txt.replace( extra[e], e)
 def rim2fix( nomer, doX =True):
-    r = nomer.replace( I,'I')
-    if doX: r = r.replace( X,'X')
+    r = extrafix( nomer, 'I')
+    if doX:
+        r = extrafix( r, 'X')
+        r = extrafix( r, 'x')
     return r
 #).replace( '\u2013','-'     #-
+
+re_nomer_extrafix = re_nomer
+for i,v in extra.items():
+    re_nomer_extrafix = re_nomer_extrafix.replace( i, i+v)
 
 def rim2int( nomer, *default):
     return rim.get( nomer.upper(), *default)
