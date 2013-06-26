@@ -43,15 +43,16 @@ def session( server, username, password):
 
 #####################
 
-def delete( db, doc):
+def delete( db, doc): #, **ka):
     """Delete the given document from the database.
     AND return the new rev!
+    **ka: e.g. body={body-to-store}
+    ... u can put a body in the DELETE. with whatever fields you want in the deletion stubs
+    doesnt work. USE PUT/UPDATE _deleted=true and whatever fields
     """
     if doc['_id'] is None:
         raise ValueError('document ID cannot be None')
-    s,h,data = db.resource.delete_json(doc['_id'], rev=doc['_rev'])
-    #print 1111111, s,h,data
-    #doc['_rev'] =
+    s,h,data = db.resource.delete_json(doc['_id'], rev=doc['_rev']) #, **ka)
     return data['rev']
 
 
