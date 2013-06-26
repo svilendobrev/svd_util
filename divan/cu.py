@@ -422,7 +422,7 @@ class cmd:
     @classmethod
     def optz( me, optz):
         optz_url_usr( optz)
-        optz.str( 'method')
+        optz.str( 'method',     help= 'invoke it. args as arg=value')
         optz.bool( 'api',       help= 'list api methods')
         optz.bool( 'sync_views', help = 'sync before doing other stuff')
         optz.str( 'user',     default= 'me', help= 'user name for methods [%defaults]')
@@ -443,7 +443,7 @@ class cmd:
             for klas in me.all_klasi:
                 methods = inspect_methods( klas)
                 for kl,mm in sorted( methods.items(), key= lambda kv: kv[0].__name__ ):
-                    for name, m in mm.items():
+                    for name, m in sorted( mm.items()):
                         argspec = inspect.getargspec( m)
                         print kl, name, inspect.formatargspec( argspec[0][1:], *argspec[1:])
         #elif optz.dumpdbs:      pprint( EVENTER.adb )
