@@ -3,6 +3,7 @@ from __future__ import print_function
 
 from svd_util import dbg
 from svd_util.struct import DictAttr
+from svd_util.attr import subclasses
 log = dbg.log_funcname.log
 
 from couchdb import Server, ResourceNotFound, client, design
@@ -33,55 +34,43 @@ class DesignDefinition( design.ViewDefinition):
 
     def __hash__( me): return id(me)
 
-    #XXX defect! h*ck! sort it stupid!
     @staticmethod
-    def sync_many( db, views, remove_missing =False, callback =None):
+    def all_designdocs( db):
+        return db.view( '_all_docs', startkey='_design', endkey= '_designz', include_docs=True)
+
+    class kind4sync( object):
+        remove_missing = False
+        section = 'views'
+        def _get( me, doc):
+            me.missing = list( doc.get( me.section, {}).keys())
+        def _set( me, doc, name, value):
+            doc.setdefault( me.section, {})[ name] = value
+            if name in me.missing: me.missing.remove( name)
+        def _del( me, doc, name):
+            for name in me.missing:
+                del doc[ me.section ][ name]
+        def _take( me, view):
+            if not view.map_fun: return
+            value = {'map': view.map_fun}
+            if view.reduce_fun:
+                value['reduce'] = view.reduce_fun
+            return value
+
+    @classmethod
+    def sync_many( me, db, views, remove_missing =False, remove_missing_docs =False, callback =None):
+        #XXX defect! h*ck! sort it stupid!
         #return design.ViewDefinition.sync_many( db, sorted( views, key= attrgetter('design')), **ka)
 
         views.sort( key= attrgetter('design'))
 
         #rework of couchdb.ViewDefinition.sync_many
+        kinds = [ k() for k in [ DesignDefinition.kind4sync ] + subclasses( DesignDefinition.kind4sync) ]
+        ddocs = dict( (o.id, o.doc) for o in me.all_designdocs( db))
+
         docs = []
-
-        class kind_view:
-            remove_missing = False
-            section = 'views'
-            def _get( me, doc):
-                me.missing = list( doc.get( me.section, {}).keys())
-            def _set( me, doc, name, value):
-                doc.setdefault( me.section, {})[ name] = value
-                if name in me.missing: me.missing.remove( name)
-            def _del( me, doc, name):
-                for name in me.missing:
-                    del doc[ me.section ][ name]
-            def _take( me, view):
-                if not view.map_fun: return
-                value = {'map': view.map_fun}
-                if view.reduce_fun:
-                    value['reduce'] = view.reduce_fun
-                return value
-
-        class kind_update( kind_view):
-            remove_missing = True
-            section = 'updates'
-            def _take( me, view): return view.get( 'updator')
-
-        class kind_valldate( kind_view):
-            remove_missing = True
-            section = 'validate_doc_update'
-            def _get( me, doc):
-                me.missing = doc.get( me.section) or ()
-            def _set( me, doc, name, value):
-                doc[ me.section ] = value
-                me.missing = ()
-            def _del( me, doc, name): del doc[ me.section ]
-            def _take( me, view): return view.get( 'validator')
-
-        kinds = [ k() for k in kind_view, kind_update, kind_valldate ]
-
         for design, views in groupby(views, key=attrgetter('design')):
             doc_id = '_design/%s' % design
-            doc = db.get(doc_id, {'_id': doc_id})
+            doc = ddocs.pop( doc_id, {'_id': doc_id})
             orig_doc = deepcopy(doc)
             languages = set()
 
@@ -93,65 +82,78 @@ class DesignDefinition( design.ViewDefinition):
                     value = kind._take( view)
                     if value: break
                 else:
-                    raise ValueError( 'unknown view-kind '+ str(view) )
+                    raise ValueError( 'unknown design-kind '+ str(view) )
                 kind._set( doc, view.name, value)
                 languages.add( view.language)
 
             for kind in kinds:
                 if not kind.missing: continue
                 if remove_missing or kind.remove_missing:
+                    if me.do_print: print( 'remove from design-doc', db, doc['_id'], kind.section, ':', kind.missing)
                     kind._del( doc)
                 if 'language' in doc:
                     languages.add( doc['language'])
 
             if len(languages) > 1:
-                raise ValueError('Found different language views in one '
-                                 'design document (%r)', list(languages))
+                raise ValueError('Found different languages in one design document (%r)', list(languages))
             doc['language'] = list(languages)[0]
 
             if doc != orig_doc:
-                if callback is not None:
-                    callback(doc)
+                if me.do_print: print( 'updating design-doc', db, doc['_id'])
+                if callback is not None: callback(doc)
                 docs.append(doc)
 
         if docs:
-           db.update( docs)
+            db.update( docs)
+
+        if remove_missing_docs and ddocs:
+            for d in ddocs.values():
+                if me.do_print: print( 'remove design-doc', db, d['_id'] )
+                db.delete( d)
+
         #XXX not going to remove docs in does not know about
 
     do_print = True
     @classmethod
-    def sync_one_db( me, db, views, remove_missing =False,
-            #changed_dbs =None,
-            callback = print
-            ):
-        if callback is print:
-            callback = me.do_print and (lambda doc: print( 'updating view', db, doc['_id']) ) or None
+    def sync_one_db( me, db, views, remove_missing =True, remove_missing_docs =True, **ka):
+        #if callback is print:
+        #    callback = me.do_print and (lambda doc: print( 'updating view', db, doc['_id']) ) or None
                 #import pprint
                 #for l in difflib.unified_diff( *[pprint.pformat(x).splitlines(1) for x in (orig_doc, doc)]): print l
 
         #XXX it can only remove stuff in known designdocs.. mentioned in views
-        me.sync_many( db, [ v for v in views if v.map_fun],
-                remove_missing= remove_missing,
-                callback = callback,
-                ) #XXX removing?
+        me.sync_many( db, views,
+                remove_missing = remove_missing,
+                remove_missing_docs = remove_missing_docs,
+                **ka
+                )
 
 
     @classmethod
     def sync_all_views( me, db_opener, **ka):
-        'db_opener may autocreate databases having views'
+        'db_opener may autocreate databases having views, return None to ignore or raise'
         print( 'sync_all_views', me.designs4db.keys() )
+        #def db_opener( dbname): return server[ dbname ] if dbname in server else server.create( dbname)
         for dbname,views in me.designs4db.items():
             #print( dbname, 'sync_all_views')
             db = db_opener( dbname)
             if db is None: continue
-            me.sync_one_db(
-                #server[ dbname ] if dbname in server else server.create( dbname),
-                db,
-                views, **ka)
+            me.sync_one_db( db, views, **ka)
+
+if 0:
+    class kind_filter( kind_view):
+        remove_missing = True
+        section = 'filters'
+        def _take( me, view): return view.get( 'filter')
 
 
 class UpdatorDefinition( DesignDefinition):
     # http://wiki.apache.org/couchdb/Document_Update_Handlers
+    class kind4sync( DesignDefinition.kind4sync):
+        remove_missing = True
+        section = 'updates'
+        def _take( me, view): return view.get( 'updator')
+
     def __init__( me, name, func):
         me._args = name
         if not func.startswith( 'function'):
@@ -162,10 +164,22 @@ class UpdatorDefinition( DesignDefinition):
         name = me._args
         return me.__class__( name, **dict( func= me.updator, **ka))
     #TODO usage
-    #def
+    #def put    #update
+    #def post   #create
 
 class ValidatorDefinition( DesignDefinition):
     # http://wiki.apache.org/couchdb/Document_Update_Validation
+    class kind4sync( DesignDefinition.kind4sync):
+        remove_missing = True
+        section = 'validate_doc_update'
+        def _get( me, doc):
+            me.missing = doc.get( me.section) or ()
+        def _set( me, doc, name, value):
+            doc[ me.section ] = value
+            me.missing = ()
+        def _del( me, doc, name): del doc[ me.section ]
+        def _take( me, view): return view.get( 'validator')
+
     def __init__( me, func):
         if not func.startswith( 'function'):
             func = '\n'.join( [ 'function( newDoc, oldDoc, userCtx, secObj) {', func, '}' ])
@@ -203,7 +217,6 @@ class ViewDefinition( DesignDefinition):
 
     def __init__( me, name, **ka):
         me._args = name, ka.copy()
-        #print( 11223123, ka)
         include_docs = ka.get( 'include_docs', False)
         seq_field = ka.pop( 'seq_field', None)
 
