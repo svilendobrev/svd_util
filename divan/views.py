@@ -1,0 +1,326 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+
+from svd_util import dbg
+from svd_util.struct import DictAttr
+log = dbg.log_funcname.log
+
+from couchdb import Server, ResourceNotFound, client, design
+from copy import deepcopy
+from itertools import groupby
+from operator import attrgetter
+
+class DesignDefinition( design.ViewDefinition):
+    kind = '_view'  #_show _list _validat.. etc
+    def __repr__( me):
+        return '<%s %r>' % (me.__class__.__name__, '/'.join([
+            '_design', me.design, me.kind, me.name
+        ]))
+
+    designs4db = {}
+    def __init__( me, design_name, fname =None, **ka):
+        dbname = ka.pop( 'db', None) or ka.pop( 'dbname', None)
+        if dbname:
+            me.designs4db.setdefault( dbname, []).append( me)
+        me.dbname = dbname
+
+        if not fname:
+            if design_name:
+                design_name,fname = design_name.split('/')
+            else:
+                design_name = fname = ''
+        design.ViewDefinition.__init__( me, design_name, fname, **ka)
+
+    def __hash__( me): return id(me)
+
+    #XXX defect! h*ck! sort it stupid!
+    @staticmethod
+    def sync_many( db, views, remove_missing =False, callback =None):
+        #return design.ViewDefinition.sync_many( db, sorted( views, key= attrgetter('design')), **ka)
+
+        views.sort( key= attrgetter('design'))
+
+        #rework of couchdb.ViewDefinition.sync_many
+        docs = []
+
+        class kind_view:
+            remove_missing = False
+            section = 'views'
+            def _get( me, doc):
+                me.missing = list( doc.get( me.section, {}).keys())
+            def _set( me, doc, name, value):
+                doc.setdefault( me.section, {})[ name] = value
+                if name in me.missing: me.missing.remove( name)
+            def _del( me, doc, name):
+                for name in me.missing:
+                    del doc[ me.section ][ name]
+            def _take( me, view):
+                if not view.map_fun: return
+                value = {'map': view.map_fun}
+                if view.reduce_fun:
+                    value['reduce'] = view.reduce_fun
+                return value
+
+        class kind_update( kind_view):
+            remove_missing = True
+            section = 'updates'
+            def _take( me, view): return view.get( 'updator')
+
+        class kind_valldate( kind_view):
+            remove_missing = True
+            section = 'validate_doc_update'
+            def _get( me, doc):
+                me.missing = doc.get( me.section) or ()
+            def _set( me, doc, name, value):
+                doc[ me.section ] = value
+                me.missing = ()
+            def _del( me, doc, name): del doc[ me.section ]
+            def _take( me, view): return view.get( 'validator')
+
+        kinds = [ k() for k in kind_view, kind_update, kind_valldate ]
+
+        for design, views in groupby(views, key=attrgetter('design')):
+            doc_id = '_design/%s' % design
+            doc = db.get(doc_id, {'_id': doc_id})
+            orig_doc = deepcopy(doc)
+            languages = set()
+
+            for kind in kinds:
+                kind._get( doc)
+
+            for view in views:
+                for kind in kinds:
+                    value = kind._take( view)
+                    if value: break
+                else:
+                    raise ValueError( 'unknown view-kind '+ str(view) )
+                kind._set( doc, view.name, value)
+                languages.add( view.language)
+
+            for kind in kinds:
+                if not kind.missing: continue
+                if remove_missing or kind.remove_missing:
+                    kind._del( doc)
+                if 'language' in doc:
+                    languages.add( doc['language'])
+
+            if len(languages) > 1:
+                raise ValueError('Found different language views in one '
+                                 'design document (%r)', list(languages))
+            doc['language'] = list(languages)[0]
+
+            if doc != orig_doc:
+                if callback is not None:
+                    callback(doc)
+                docs.append(doc)
+
+        if docs:
+           db.update( docs)
+        #XXX not going to remove docs in does not know about
+
+    do_print = True
+    @classmethod
+    def sync_one_db( me, db, views, remove_missing =False,
+            #changed_dbs =None,
+            callback = print
+            ):
+        if callback is print:
+            callback = me.do_print and (lambda doc: print( 'updating view', db, doc['_id']) ) or None
+                #import pprint
+                #for l in difflib.unified_diff( *[pprint.pformat(x).splitlines(1) for x in (orig_doc, doc)]): print l
+
+        #XXX it can only remove stuff in known designdocs.. mentioned in views
+        me.sync_many( db, [ v for v in views if v.map_fun],
+                remove_missing= remove_missing,
+                callback = callback,
+                ) #XXX removing?
+
+
+    @classmethod
+    def sync_all_views( me, db_opener, **ka):
+        'db_opener may autocreate databases having views'
+        print( 'sync_all_views', me.designs4db.keys() )
+        for dbname,views in me.designs4db.items():
+            #print( dbname, 'sync_all_views')
+            db = db_opener( dbname)
+            if db is None: continue
+            me.sync_one_db(
+                #server[ dbname ] if dbname in server else server.create( dbname),
+                db,
+                views, **ka)
+
+
+class UpdatorDefinition( DesignDefinition):
+    # http://wiki.apache.org/couchdb/Document_Update_Handlers
+    def __init__( me, name, func):
+        me._args = name
+        if not func.startswith( 'function'):
+            func = '\n'.join( [ 'function( doc, req) {', func, '}' ])
+        me.updator = func
+        DesignDefinition.__init__( me, name, map_fun= '')
+    def clone( me, **ka):
+        name = me._args
+        return me.__class__( name, **dict( func= me.updator, **ka))
+    #TODO usage
+    #def
+
+class ValidatorDefinition( DesignDefinition):
+    # http://wiki.apache.org/couchdb/Document_Update_Validation
+    def __init__( me, func):
+        if not func.startswith( 'function'):
+            func = '\n'.join( [ 'function( newDoc, oldDoc, userCtx, secObj) {', func, '}' ])
+        me.validator = func
+        DesignDefinition.__init__( me, name, map_fun= '')
+    def clone( me, **ka):
+        return me.__class__( **dict( func= me.validator, **ka))
+
+    '''
+newDoc - The document to be created or used for update.
+oldDoc - The current document if document id was specified in the HTTP request
+userCtx - User context object, which contains three properties:
+ - db - String name of database
+ - name - String user name
+ - roles - Array of roles to which user belongs. Currently only admin role is supported.
+secObj - The security object of the database
+
+Thrown errors must be javascript objects with a key of either "forbidden" or "unauthorized," and a value = the message:
+ throw({forbidden: 'Error message here.'});
+or
+ throw({unauthorized: 'Error message here.'});
+
+available funcs
+ required( field, message /* optional */): throws if field not available
+ unchanged( field): throws if field has changed
+ user_is( role): boolean
+'''
+
+class ViewDefinition( DesignDefinition):
+
+    #XXX include_docs=True saves index.space but is extra lookup per row (+race cond)
+    #there is builtin log(x) func in javascript views
+    #.ini: log_level = debug -> reduce calls go to log
+    #most errors go only to log
+
+    def __init__( me, name, **ka):
+        me._args = name, ka.copy()
+        #print( 11223123, ka)
+        include_docs = ka.get( 'include_docs', False)
+        seq_field = ka.pop( 'seq_field', None)
+
+        map_fun = ka[ 'map_fun'].strip()
+        reduce_fun = (ka.get( 'reduce_fun') or '').strip()
+
+        substs = dict(
+                DOC= include_docs and 'null' or 'doc',
+        )
+        seq_field_init = '-1111.0'
+        if seq_field:
+            if isinstance( seq_field, basestring): seq_field = seq_field.split()
+
+            seq_fieldx  = [ s if s.startswith( '(') else 'doc.'+s for s in seq_field ]
+                #SEQ= 'parseInt( doc.%s)' % seq_field
+            seq_field_safe = '%(SEQ)s ? %(SEQ)s : 0'
+            if len(seq_field) <2:
+                seq_fieldx = seq_fieldx[0]
+                substs.update(
+                        SEQ = seq_fieldx,
+                        SEQ_INIT4MAX = seq_field_init,
+                        SEQ_SAFE = seq_field_safe % dict( SEQ= seq_fieldx),
+                        )
+            else:
+                for k,ss in dict(
+                        SEQ         = seq_fieldx,
+                        SEQ_INIT4MAX= (seq_field_init for s in seq_fieldx),
+                        SEQ_SAFE    = (seq_field_safe % dict( SEQ= s) for s in seq_fieldx),
+                        ).items():
+                    substs[ k] = '['+ ','.join( ss) + ']'
+
+        map_fun    = map_fun % substs
+        reduce_fun = reduce_fun % substs or None
+        me.mapred = DictAttr(
+            map_fun    = map_fun ,
+            reduce_fun = reduce_fun,
+            seq_field  = seq_field,
+            seq_field_init = seq_field_init,
+            )
+
+        if not map_fun.startswith( 'function'):
+            map_fun = '\n'.join( [ 'function(doc) {', map_fun, '}' ])
+        if reduce_fun and not reduce_fun.startswith( 'function') and not reduce_fun.startswith('_'):
+            reduce_fun = '\n'.join( [ 'function( keys, values, rereduce) {', reduce_fun, '}' ])
+
+        ka.update( map_fun= map_fun, reduce_fun= reduce_fun)
+
+        DesignDefinition.__init__( me, name, **ka)
+
+    def clone( me, **ka):
+        name, kargs = me._args
+        return me.__class__( name, **dict( kargs, **ka))
+
+    def query( me, db, tmp= False, **ka):
+        #print( 33333333333, me.name, tmp, ka)
+        if tmp: #exec as immediate temp view
+            return db.query(
+                map_fun     = me.map_fun,
+                reduce_fun  = me.reduce_fun,
+                language    = me.language,
+                wrapper     = me.wrapper,
+                **dict( me.defaults, **ka))
+        return me.__call__( db, **ka)
+
+
+
+#TODO   http://wiki.apache.org/couchdb/Document_Update_Validation
+#       http://wiki.apache.org/couchdb/Document_Update_Handlers
+
+'''
+{
+  .."_id": "_design/myview", ..
+
+    #one per design-doc - to have multiple, needs multiple design docs; EACH doc goes through ALL validators
+  "validate_doc_update": "function(newDoc, oldDoc, userCtx, secObj) {
+        if (newDoc.address === undefined) {
+                 throw({forbidden: 'Document must have an address.'});
+        }"
+
+
+    #these can be multiple, like 'views'. can autocreate
+  "updates": {
+    "hello" : "function(doc, req) {
+      if (!doc) {
+        if (req.id) {
+          return [{
+            _id : req.id
+          }, 'New World']
+        }
+        return [null, 'Empty World'];
+      }
+      doc.world = 'hello';
+      doc.edited_by = req.userCtx;
+      return [doc, 'hello doc'];
+    }",
+
+    "in-place" : "function(doc, req) {
+      var field = req.form.field;
+      var value = req.form.value;
+      var message = 'set '+field+' to '+value;
+      doc[field] = value;
+      return [doc, message];
+    }",
+
+  "filters": {
+      "myfilter": "function goes here"
+    }
+  ...
+
+'''
+
+if __name__ == '__main__':
+    q_people_all = ViewDefinition( name= 'people/all', db= 'discus',
+        map_fun= ''' function( doc) {
+            if (doc.type == 'person') emit( %(SEQ)s, %(DOC)s );
+            } ''',  # no need for [doc.name,doc.seq]
+            include_docs =False,
+        )
+
+# vim:ts=4:sw=4:expandtab
