@@ -349,15 +349,6 @@ class Channel4user_mixin( object):
         return me.__class__.__name__ + '/' + str(me.channel4user)
 
 class Mgr( Storage):
-    if 0:
-        def discus_walker( me):
-            return [
-                me.Discu( 'bzzz', dbname, server= me.server )
-                for dbname in me.server
-                if dbname[0] != '_'
-                ]
-        def q_discus_by_user( me, user, **ka):
-            return me._Discu.q_discus_by_user( user, me.discus_walker(), **ka )
     def __repr__( me):
         return me.__class__.__name__+'/'+str( me.server)
 
