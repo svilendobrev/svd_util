@@ -507,7 +507,7 @@ def del_from_field( u, field, value, dont_empty =False):
     return u
 
 def js_if_doc_type( typ):
-    return ' if (doc.type == "' + typ + '") '
+    return ' if (doc.type && doc.type == "' + typ + '") '
 
 class Pfx:
     def __init__( me, pfx): me.pfx = pfx
