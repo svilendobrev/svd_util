@@ -284,6 +284,67 @@ class Channel4user( Base):
             me._del_user_field_control_channel( update_user, **ka)
         return exists
 
+
+    class aValidatorDefinition( ValidatorDefinition):
+        def add( me, **ka):
+            for k,vv in me._validators.items():
+                v = ka.pop( k, None)
+                if not v: continue
+                if isinstance( v, basestring):
+                    v = v.strip()
+                    if not v: continue
+                    v = [v]
+                vv.update( v)
+            assert not ka, ka.keys()
+
+        def __init__( me, name= 'ccvalidity/v', func =None, **ka):
+            ValidatorDefinition.__init__( me, name= name, func= func, **ka)
+            me._validators = DictAttr(
+                oldDoc  = set(),
+                newDoc  = set(),
+                tools   = set(),
+                unchanged_at_upd_del = set( ['type'])
+                )
+
+        def prepare( me):   #lazy at usage
+            if me.validator is not None: return
+            tools = {}
+            oldDoc = '\n'.join( sorted( me._validators.oldDoc))
+            newDoc = '\n'.join( sorted( me._validators.newDoc))
+            unchanged_at_upd_del = sorted( me._validators.unchanged_at_upd_del)
+
+            me.validator = ('''
+    if (_user_is_admin()) return;
+    if (oldDoc) {
+        ''' + oldDoc + '''
+        if (oldDoc._deleted) _forbidden_non_admin();    //no updating a deleted one
+        else if (!newDoc._deleted) {
+            ''' + ' '.join( '_unchanged( "'+u+'");' for u in unchanged_at_upd_del) + '''
+        } //!oldDoc._deleted && !newDoc._deleted
+    } //oldDoc
+    ''' + newDoc
+            )
+
+            for k,t in ValidatorDefinition.tools.tools().items():
+                if k+'(' in me.validator:
+                    tools[ k] = t
+            for t in me._validators.tools:
+                t = t.strip()
+                if not t: continue
+                if t in tools: continue
+                #assert t.startswith( 'function ')
+                #assert '(' in t and ')' in t
+                #assert '{' in t and '}' in t
+                tools[ t] = t
+            tools = '\n'.join( sorted( tools.values()))
+            me.validator = tools + me.validator
+
+            ValidatorDefinition.prepare( me)
+
+    validator = aValidatorDefinition( dbname= _KIND)
+    #usage: Channel4user.validator.add( oldDoc=, newDoc= ..) the things of _validators
+
+
 def itemset_mixin( type, dbkind):
 
     class itemset_mixin( object):

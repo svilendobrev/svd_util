@@ -21,11 +21,13 @@ class Proba( Base):
         return r
     _error_non_admin = 'users cannot update this'
     _valider = ValidatorDefinition( 'proba/v', dbname= DBNAME,
-                func = ValidatorDefinition._required + ValidatorDefinition._user_is_admin + ValidatorDefinition._forbidden + '''
+                func = (ValidatorDefinition.tools._required +
+                        ValidatorDefinition.tools._user_is_admin +
+                        ValidatorDefinition.tools._forbidden + '''
                     _required( "type" );
                     if (oldDoc && !_user_is_admin()) _forbidden( "%s");
                     ''' % _error_non_admin
-                )
+                ))
 class Mgr:
     def Proba( me, **ka):
         return Proba( me, **ka)

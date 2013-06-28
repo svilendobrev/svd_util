@@ -38,6 +38,9 @@ class DesignDefinition( design.ViewDefinition):
     def all_designdocs( db):
         return db.view( '_all_docs', startkey='_design', endkey= '_designz', include_docs=True)
 
+    _prepared = False
+    def prepare( me): pass
+
     class kind4sync( object):
         remove_missing = False
         section = 'views'
@@ -78,6 +81,10 @@ class DesignDefinition( design.ViewDefinition):
                 kind._get( doc)
 
             for view in views:
+                if not view._prepared:
+                    view.prepare()
+                    view._prepared = True
+
                 for kind in kinds:
                     value = kind._take( view)
                     if value: break
@@ -160,13 +167,16 @@ class UpdatorDefinition( DesignDefinition):
 
     def __init__( me, name, func, **ka):
         me._args = name
+        me.updator = func
+        DesignDefinition.__init__( me, name, map_fun= '', **ka)
+    def prepare( me):
+        func = str( me.updator)
         if not func.strip().startswith( 'function('):
             func = '\n'.join( [ 'function( doc, req) {', func, '}' ])
         me.updator = func
-        DesignDefinition.__init__( me, name, map_fun= '', **ka)
     def clone( me, **ka):
         name = me._args
-        return me.__class__( name, **dict( func= me.updator, **ka))
+        return me.__class__( name= name, **dict( func= me.updator, **ka))
     #TODO usage
     #def put    #update
     #def post   #create
@@ -186,42 +196,17 @@ class ValidatorDefinition( DesignDefinition):
 
     def __init__( me, name, func, **ka):
         me._args = name
+        me.validator = func
+        DesignDefinition.__init__( me, name, map_fun= '', **ka)
+    def prepare( me):
+        func = str( me.validator)
         if not func.strip().startswith( 'function('):
             func = '\n'.join( [ 'function( newDoc, oldDoc, userCtx, secObj) {', func, '}' ])
         me.validator = func
-        DesignDefinition.__init__( me, name, map_fun= '', **ka)
+
     def clone( me, **ka):
         name = me._args
-        return me.__class__( name, **dict( func= me.validator, **ka))
-
-    _required = '''\
-    function _required( field, message /* optional */) {
-        message = message || "Document must have field ." + field;
-        if (!newDoc[field]) throw( {forbidden : message});
-    }
-'''
-    _unchanged = '''\
-    function _unchanged( field) {
-        if (oldDoc && toJSON( oldDoc[ field]) != toJSON( newDoc[ field]))
-            throw( {forbidden : "Field cannot change: " + field});
-    }
-'''
-    _user_is_role = '''\
-    function _user_is_role( role) { return userCtx.roles.indexOf(role) >= 0; }
-'''
-    _user_is_admin = '''\
-    function _user_is_admin() { return userCtx.roles.indexOf( "_admin") >= 0; }
-'''
-    _forbidden    = '''\
-    function _forbidden( msg) { throw( { forbidden: msg}); }
-'''
-    _unauthorized = '''\
-    function _unauthorized( msg) { throw( { unauthorized: msg}); }
-'''
-    @classmethod
-    def forbidden( msg): return 'throw( { forbidden: "'+msg+'"});'
-    @classmethod
-    def unauthorized( msg): return 'throw( { unauthorized: "'+msg+'"});'
+        return me.__class__( name= name, **dict( func= me.validator, **ka))
 
     '''
 newDoc - The document to be created or used for update.
@@ -237,6 +222,46 @@ Thrown errors must be javascript objects with a key of either "forbidden" or "un
 or
  throw({unauthorized: 'Error message here.'});
 '''
+
+    class tools:
+        _required = '''\
+    function _required( field, message /* optional */) {
+        message = message || "Document must have field ." + field;
+        if (!newDoc[field]) throw( {forbidden : message});
+    }
+'''
+        _unchanged = '''\
+    function _unchanged( field) {
+        if (oldDoc && toJSON( oldDoc[ field]) != toJSON( newDoc[ field]))
+            throw( {forbidden : "Field cannot change: " + field});
+    }
+'''
+        _user_is_role = '''\
+    function _user_is_role( role) { return userCtx.roles.indexOf(role) >= 0; }
+'''
+        _user_is_admin = '''\
+    function _user_is_admin() { return userCtx.roles.indexOf( "_admin") >= 0; }
+'''
+        _forbidden    = '''\
+    function _forbidden( msg) { throw( { forbidden: msg}); }
+'''
+        _unauthorized = '''\
+    function _unauthorized( msg) { throw( { unauthorized: msg}); }
+'''
+        error_non_admin = 'users cannot update this'
+        _forbidden_non_admin  = '''\
+    function _forbidden_non_admin() { throw( { forbidden: "%(error_non_admin)s"} ); }
+''' % locals()
+
+        @staticmethod
+        def forbidden( msg): return 'throw( { forbidden: "'+msg+'"});'
+        @staticmethod
+        def unauthorized( msg): return 'throw( { unauthorized: "'+msg+'"});'
+
+        @classmethod
+        def tools( me):
+            return dict( (k,v) for k,v in me.__dict__.items()
+                                if k[0]=='_' and k[:2]!='__' and isinstance( v,basestring))
 
 
 class ViewDefinition( DesignDefinition):
@@ -299,7 +324,7 @@ class ViewDefinition( DesignDefinition):
 
     def clone( me, **ka):
         name, kargs = me._args
-        return me.__class__( name, **dict( kargs, **ka))
+        return me.__class__( name= name, **dict( kargs, **ka))
 
     def query( me, db, tmp= False, **ka):
         #print( 33333333333, me.name, tmp, ka)
