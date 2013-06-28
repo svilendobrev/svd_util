@@ -111,14 +111,22 @@ if 1*'Session.request: if body=basestring, cannot be json..':
 if 1*'verbose exceptions with call-args plz':
     #XXX TODO move this above inside Session
     from couchdb import http
+    import couchdb
+    class ForbiddenError( couchdb.ServerError): pass
+    couchdb.ForbiddenError = ForbiddenError
     #Resource. def _request(self, method, path=None, body=None, headers=None, **params):
     #Session. def request(self, method, url, body=None, headers=None, credentials=None, num_redirects=0):
     _srequest = http.Session.request
     def srequest( *a,**ka):
-        try: return _srequest( *a,**ka)
+        try:
+            try: return _srequest( *a,**ka)
+            except couchdb.ServerError as e:
+                if e.args[0][0]==403:
+                    raise ForbiddenError( e.args[0][1] )
         except Exception as e:
             e.request_args = a,ka
             s = ' --- *a,**ka: '+str(e.request_args)
+            e._message = getattr( e, 'message', None)
             e.message = str(getattr( e, 'message', '') or '') + s
             e.args = e.args + ( s,)
             raise
