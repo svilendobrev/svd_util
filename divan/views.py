@@ -152,14 +152,14 @@ class UpdatorDefinition( DesignDefinition):
     class kind4sync( DesignDefinition.kind4sync):
         remove_missing = True
         section = 'updates'
-        def _take( me, view): return view.get( 'updator')
+        def _take( me, view): return getattr( view, 'updator', None)
 
-    def __init__( me, name, func):
+    def __init__( me, name, func, **ka):
         me._args = name
         if not func.startswith( 'function'):
             func = '\n'.join( [ 'function( doc, req) {', func, '}' ])
         me.updator = func
-        DesignDefinition.__init__( me, name, map_fun= '')
+        DesignDefinition.__init__( me, name, map_fun= '', **ka)
     def clone( me, **ka):
         name = me._args
         return me.__class__( name, **dict( func= me.updator, **ka))
@@ -178,15 +178,17 @@ class ValidatorDefinition( DesignDefinition):
             doc[ me.section ] = value
             me.missing = ()
         def _del( me, doc, name): del doc[ me.section ]
-        def _take( me, view): return view.get( 'validator')
+        def _take( me, view): return getattr( view, 'validator', None)
 
-    def __init__( me, func):
+    def __init__( me, name, func, **ka):
+        me._args = name
         if not func.startswith( 'function'):
             func = '\n'.join( [ 'function( newDoc, oldDoc, userCtx, secObj) {', func, '}' ])
         me.validator = func
-        DesignDefinition.__init__( me, name, map_fun= '')
+        DesignDefinition.__init__( me, name, map_fun= '', **ka)
     def clone( me, **ka):
-        return me.__class__( **dict( func= me.validator, **ka))
+        name = me._args
+        return me.__class__( name, **dict( func= me.validator, **ka))
 
     '''
 newDoc - The document to be created or used for update.
@@ -206,6 +208,23 @@ available funcs
  required( field, message /* optional */): throws if field not available
  unchanged( field): throws if field has changed
  user_is( role): boolean
+'''
+    required = '''
+function required( field, message /* optional */) {
+    message = message || "Document must have field " + field;
+    if (!newDoc[field]) throw( {forbidden : message});
+  }
+'''
+    unchanged = '''
+  function unchanged( field) {
+    if (oldDoc && toJSON( oldDoc[ field]) != toJSON( newDoc[ field]))
+        throw( {forbidden : "Field can't be changed: " + field});
+  }
+'''
+    user_is_role = '''
+  function user_is( role) {
+    return userCtx.roles.indexOf(role) >= 0;
+  }
 '''
 
 class ViewDefinition( DesignDefinition):
