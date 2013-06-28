@@ -3,7 +3,7 @@
 
 from adb import *
 
-from data.cubase import Base, js_if_doc_type
+from data.cubase import Base, js_if_doc_type, user2url
 from data.views import ViewDefinition, ValidatorDefinition
 import couchdb
 
@@ -21,10 +21,9 @@ class Proba( Base):
         return r
     _error_non_admin = 'users cannot update this'
     _valider = ValidatorDefinition( 'proba/v', dbname= DBNAME,
-                func = ValidatorDefinition.required + ValidatorDefinition.user_is_role +
-                    '''
-                    required( "type" );
-                    if (oldDoc && !user_is("admin")) throw({forbidden: "%s"});
+                func = ValidatorDefinition._required + ValidatorDefinition._user_is_admin + ValidatorDefinition._forbidden + '''
+                    _required( "type" );
+                    if (oldDoc && !_user_is_admin()) _forbidden( "%s");
                     ''' % _error_non_admin
                 )
 class Mgr:
@@ -37,7 +36,6 @@ cudb.Mgr = Mgr
 class desdefs( test4db, TEST):
     DBNAME = Proba.DBNAME
     u = DictAttr( name= 'u', password= 'u')
-    u_url = u.name+':'+u.password
 
     def setup( me):
         me.unsetup_db( quiet= True)
@@ -68,20 +66,28 @@ class desdefs( test4db, TEST):
         #me.assert_eq( cm.exception.args[0][0], 403)
         #me.assertRaises( couchdb.ForbiddenError, me.p._save, t2)
 
-    def t_nonadmin( me):
+    def t_nonadmin_vs_admin( me):
         t1,t2 = me.t_valid()
         url = cudb.srv_args['url']
-        ss = url.split('@',1)
-        if len(ss)>1:
-            ss[0] = ss[0].split('://')[0]
-        else:
-            ss = url.split('://')
-        m2 = cudb.Mgr( url= ss[0] + '://'+me.u_url+'@'+ss[1] )
+        url = user2url( url, me.u.name+':'+me.u.password)
+        m2 = cudb.Mgr( url= url)
         q = m2.Proba()
         me.assert_eq_all( q.q_typ(), [ t1 ] )
+        x1 = dict( t1, a = 5)
         with me.assertRaises( couchdb.ForbiddenError) as cm:    #ServerError/403
-            me.p._save( t1)
+            q._save( x1)
         me.assertTrue( Proba._error_non_admin in cm.exception.message)
+        me.assert_eq_all( q.q_typ(), [ t1 ] )
+
+        me.p._save( x1)
+        me.assert_eq_all( q.q_typ(), [ x1 ] )
+
+    def t_del( me):
+        t1,t2 = me.t_valid()
+        with me.assertRaises( couchdb.ForbiddenError) as cm:    #ServerError/403
+            me.p._delete( t1['_id'])
+        me.assertTrue( 'must have' in cm.exception.message)
+        #me.assert_eq_set( me._all_docs(), [ t2 ] )
 
 if __name__ == '__main__':
     main_no_users()

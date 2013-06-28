@@ -18,9 +18,10 @@ def uuid(): return uuid4().hex
 import time
 
 import couchdb_hacks
-from couchdb import Server, ResourceNotFound, ResourceConflict, PreconditionFailed
+from couchdb import Server, ResourceNotFound, ResourceConflict, PreconditionFailed, ServerError
+from couchdb import ForbiddenError  #couchdb_hacks
 from couchdb import client
-from views import ViewDefinition, DesignDefinition
+from views import ViewDefinition, DesignDefinition, ValidatorDefinition#, UpdatorDefinition
 
 
 #other special views Server.:

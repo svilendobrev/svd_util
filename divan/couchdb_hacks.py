@@ -123,6 +123,7 @@ if 1*'verbose exceptions with call-args plz':
             except couchdb.ServerError as e:
                 if e.args[0][0]==403:
                     raise ForbiddenError( e.args[0][1] )
+                raise
         except Exception as e:
             e.request_args = a,ka
             s = ' --- *a,**ka: '+str(e.request_args)

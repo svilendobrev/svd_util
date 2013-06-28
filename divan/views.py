@@ -104,7 +104,11 @@ class DesignDefinition( design.ViewDefinition):
                 docs.append(doc)
 
         if docs:
-            db.update( docs)
+            if 0:
+                db.update( docs)
+            else:
+                for d in docs:
+                    db.save(d)
 
         if remove_missing_docs and ddocs:
             for d in ddocs.values():
@@ -156,7 +160,7 @@ class UpdatorDefinition( DesignDefinition):
 
     def __init__( me, name, func, **ka):
         me._args = name
-        if not func.startswith( 'function'):
+        if not func.strip().startswith( 'function('):
             func = '\n'.join( [ 'function( doc, req) {', func, '}' ])
         me.updator = func
         DesignDefinition.__init__( me, name, map_fun= '', **ka)
@@ -182,13 +186,42 @@ class ValidatorDefinition( DesignDefinition):
 
     def __init__( me, name, func, **ka):
         me._args = name
-        if not func.startswith( 'function'):
+        if not func.strip().startswith( 'function('):
             func = '\n'.join( [ 'function( newDoc, oldDoc, userCtx, secObj) {', func, '}' ])
         me.validator = func
         DesignDefinition.__init__( me, name, map_fun= '', **ka)
     def clone( me, **ka):
         name = me._args
         return me.__class__( name, **dict( func= me.validator, **ka))
+
+    _required = '''\
+    function _required( field, message /* optional */) {
+        message = message || "Document must have field ." + field;
+        if (!newDoc[field]) throw( {forbidden : message});
+    }
+'''
+    _unchanged = '''\
+    function _unchanged( field) {
+        if (oldDoc && toJSON( oldDoc[ field]) != toJSON( newDoc[ field]))
+            throw( {forbidden : "Field cannot change: " + field});
+    }
+'''
+    _user_is_role = '''\
+    function _user_is_role( role) { return userCtx.roles.indexOf(role) >= 0; }
+'''
+    _user_is_admin = '''\
+    function _user_is_admin() { return userCtx.roles.indexOf( "_admin") >= 0; }
+'''
+    _forbidden    = '''\
+    function _forbidden( msg) { throw( { forbidden: msg}); }
+'''
+    _unauthorized = '''\
+    function _unauthorized( msg) { throw( { unauthorized: msg}); }
+'''
+    @classmethod
+    def forbidden( msg): return 'throw( { forbidden: "'+msg+'"});'
+    @classmethod
+    def unauthorized( msg): return 'throw( { unauthorized: "'+msg+'"});'
 
     '''
 newDoc - The document to be created or used for update.
@@ -203,29 +236,8 @@ Thrown errors must be javascript objects with a key of either "forbidden" or "un
  throw({forbidden: 'Error message here.'});
 or
  throw({unauthorized: 'Error message here.'});
+'''
 
-available funcs
- required( field, message /* optional */): throws if field not available
- unchanged( field): throws if field has changed
- user_is( role): boolean
-'''
-    required = '''
-function required( field, message /* optional */) {
-    message = message || "Document must have field " + field;
-    if (!newDoc[field]) throw( {forbidden : message});
-  }
-'''
-    unchanged = '''
-  function unchanged( field) {
-    if (oldDoc && toJSON( oldDoc[ field]) != toJSON( newDoc[ field]))
-        throw( {forbidden : "Field can't be changed: " + field});
-  }
-'''
-    user_is_role = '''
-  function user_is( role) {
-    return userCtx.roles.indexOf(role) >= 0;
-  }
-'''
 
 class ViewDefinition( DesignDefinition):
 
@@ -276,9 +288,9 @@ class ViewDefinition( DesignDefinition):
             seq_field_init = seq_field_init,
             )
 
-        if not map_fun.startswith( 'function'):
+        if not map_fun.startswith( 'function('):
             map_fun = '\n'.join( [ 'function(doc) {', map_fun, '}' ])
-        if reduce_fun and not reduce_fun.startswith( 'function') and not reduce_fun.startswith('_'):
+        if reduce_fun and not reduce_fun.startswith( 'function(') and not reduce_fun.startswith('_'):
             reduce_fun = '\n'.join( [ 'function( keys, values, rereduce) {', reduce_fun, '}' ])
 
         ka.update( map_fun= map_fun, reduce_fun= reduce_fun)
