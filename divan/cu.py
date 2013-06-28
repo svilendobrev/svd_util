@@ -65,6 +65,7 @@ class Users( Base):
         return me.get( id, **ka)
 
     def q_users( me, only_ids =False, **ka ):
+        return me._all_docs( only_ids= only_ids, include_docs= not only_ids, **ka)
         return [ DictAttr( u['doc']) if not only_ids else u['id']
             for u in me.db.view( '_all_docs', include_docs= not only_ids, **ka)
             if u.key.startswith( me.PFX4name)
@@ -309,9 +310,10 @@ class Channel4user( Base):
         def prepare( me):   #lazy at usage
             if me.validator is not None: return
             tools = {}
-            oldDoc = '\n'.join( sorted( me._validators.oldDoc))
-            newDoc = '\n'.join( sorted( me._validators.newDoc))
-            unchanged_at_upd_del = sorted( me._validators.unchanged_at_upd_del)
+            TAB=4*' '
+            oldDoc = ('\n'+2*TAB).join( t.strip() for t in sorted( me._validators.oldDoc))
+            newDoc = ('\n'+TAB  ).join( t.strip() for t in sorted( me._validators.newDoc))
+            unchanged_at_upd_del = sorted( t.strip() for t in me._validators.unchanged_at_upd_del)
 
             me.validator = ('''
     if (_user_is_admin()) return;
@@ -336,7 +338,7 @@ class Channel4user( Base):
                 #assert '(' in t and ')' in t
                 #assert '{' in t and '}' in t
                 tools[ t] = t
-            tools = '\n'.join( sorted( tools.values()))
+            tools = '\n'.join( TAB+t.strip() for t in sorted( tools.values()))
             me.validator = tools + me.validator
 
             ValidatorDefinition.prepare( me)
