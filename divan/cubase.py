@@ -180,7 +180,7 @@ class Storage( object):
         if raw: r = db.view( '_all_docs', include_docs= include_docs, **ka)
         else: r = me.q_doc( db= db, view= '_all_docs', include_docs= include_docs, **ka)
         if all: return r
-        return [ x for x in r if x.get('_id','')[:1]!='_' ]
+        return [ x for x in r if (x.get('_id','') if include_docs else x)[:1]!='_' ]
 
 
     def list( me):
