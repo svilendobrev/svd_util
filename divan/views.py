@@ -111,11 +111,11 @@ class DesignDefinition( design.ViewDefinition):
                 docs.append(doc)
 
         if docs:
-            if 0:
-                db.update( docs)
-            else:
+            if 'DEBUG':
                 for d in docs:
                     db.save(d)
+            else:
+                db.update( docs)
 
         if remove_missing_docs and ddocs:
             for d in ddocs.values():
