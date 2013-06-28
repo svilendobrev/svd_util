@@ -139,12 +139,13 @@ class Storage( object):
             only_ids    =False,
             raw         =False,
             prn         =False,
+            errorer     =DictAttr,  #translator( row) ; row={ key=, error=})
             **ka ):
 
         ka = dict( (k,v) for k,v in ka.items() if v is not NOVALUE)
 
         include_docs = ka.get( 'include_docs')
-        if only_keys:
+        if only_keys or only_ids:
             assert not include_docs
             #ka[ 'include_docs'] = False
 
@@ -161,20 +162,25 @@ class Storage( object):
                 r = db.view( view, **ka)
         else:
             r = view.query( db, tmp= tmp, **ka)
-            include_docs = include_docs or view.defaults.get( 'include_docs')
+            if 'include_docs' not in ka:
+                include_docs = view.defaults.get( 'include_docs')
         avalue = only_keys and 'key' or only_ids and 'id' or include_docs and 'doc' or 'value'
         no_obj = no_obj or only_keys or only_ids
         for v in r:
             if prn: print( prn, v)
-            if not raw: v = v[ avalue]
+            if not raw:
+                if v.get( 'error'):  # keys=..some-missing-key.. -> key=id, error=not found
+                    v = errorer( v)
+                else:
+                    v = v[ avalue]
             yield v if no_obj else DictAttr( v)
 
     @classmethod
-    def all_docs( me, db, raw =False, all =False, **ka):
-        if raw: r = db.view( '_all_docs', include_docs= True, **ka)
-        else: r = me.q_doc( db= db, view= '_all_docs', include_docs= True, **ka)
+    def all_docs( me, db, raw =False, all =False, include_docs =True, **ka):
+        if raw: r = db.view( '_all_docs', include_docs= include_docs, **ka)
+        else: r = me.q_doc( db= db, view= '_all_docs', include_docs= include_docs, **ka)
         if all: return r
-        return [ x for x in r if x['_id'][0]!='_' ]
+        return [ x for x in r if x.get('_id','')[:1]!='_' ]
 
 
     def list( me):
