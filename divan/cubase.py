@@ -97,26 +97,30 @@ class Storage( object):
         #log()
         server = me.server
         assert dbname
-
-        if not new:
-            try:
-                return server[ dbname]
-            except ResourceNotFound, e:
-                if not maycreate:
-                    if ok_if_no_db: return None
-                    e.args = ( dbname,)
-                    raise
-
         try:
-            db = server.create( dbname)
-        except Exception as e:
-            emsg = str(e) + '; dbname='+dbname + ' @'+str(server)
-            if isinstance( e, PreconditionFailed):
-                if 'file_exists' in e.message:
-                    raise ResourceConflict( emsg)
-            import traceback
-            traceback.print_exc()
-            raise RuntimeError( emsg)
+            if not new:
+                try:
+                    return server[ dbname]
+                except ResourceNotFound, e:
+                    if not maycreate:
+                        if ok_if_no_db: return None
+                        e.args = ( dbname,)
+                        raise
+
+            try:
+                db = server.create( dbname)
+            except Exception as e:
+                emsg = str(e) + '; dbname='+dbname + ' @'+str(server)
+                if isinstance( e, PreconditionFailed):
+                    if 'file_exists' in e.message:
+                        raise ResourceConflict( emsg)
+                import traceback
+                traceback.print_exc()
+                raise RuntimeError( emsg)
+
+        except ValueError:
+            log( '?? ValueError')
+            raise
 
         db._just_created = True
         me.setup_if_templated( db= db, template= template)
