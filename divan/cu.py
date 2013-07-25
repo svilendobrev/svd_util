@@ -78,6 +78,7 @@ class Users( Base):
     def set_field( me, user, field, value):
         u = me._user( user)
         me._set_field( u, field, value)
+        return u
     def del_field( me, user, field, default =None):
         u = me._user( user)
         return me._del_field( u, field, default)
@@ -202,7 +203,9 @@ class Channel4user( Base):
     def __init__( me, storage, username =None, userid= None ):
         if not username:
             assert userid
-            username = Users._name( userid)
+        else:
+            userid = Users._id( username)
+        username = Users._name( userid)
         me.username = username
         me.storage = storage
 

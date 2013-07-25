@@ -448,6 +448,7 @@ class Base( object):
         if u.get( field) == value: return
         u[ field] = value
         if save: me.db.save( u)
+        return u
     def _del_field( me, u, field, default =None, save= True):
         if field not in u: return default
         r = u.pop( field)
