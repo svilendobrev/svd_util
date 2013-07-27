@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from cubase import *
+from views import CombinedValidatorDef
 
 # XXX if server  -> does ping !
 # XXX if db      -> does ping !
@@ -155,6 +156,7 @@ class Sec4db( Base):
                 while username in ns: ns.remove( username)
         if at_least_admin and not ns:
             rs = me.sec.setdefault( 'readers', {})
+            if at_least_admin is True: at_least_admin = me._admin
             rs[ 'names'] = [ at_least_admin ]
         #XXX without anything it becomes public!
         me._save()
@@ -173,6 +175,38 @@ class Sec4db( Base):
                 ]
 
     def __str__( me): return me.__class__.__name__ + '/' + me._dbname
+
+
+def itemset_mixin( type, dbkind):
+    'is this really common?'
+    class itemset_mixin( object):
+        TYPE = type
+
+        def add_item( me, item):
+            #XXX rename = add_discussion
+            #me._open( maycreate= True)  #may autocreate if valid user
+            try:
+                me.db[ item] = dict( type= me.TYPE)
+            except ResourceConflict: pass           #ok if already there
+
+        def del_item( me, item):
+            if me.db is None:
+                me._open( ok_if_no_db =True)
+            if me.db is not None:   #ok if no channel
+                me._delete( item, ok_if_missing= True)
+
+        def q_has_item( me, item):
+            return me.db is not None and item in me.db
+
+        def q_items( me, view =ViewDefinition( 'itemset/'+type,
+                db= dbkind,
+                map_fun = js_if_doc_type( type ) + 'emit( null, null ); ',
+                ) ):
+            r = me._q_doc( view, only_ids= True,)
+            return list( r)
+    itemset_mixin.__name__ += '4'+type
+    return itemset_mixin
+
 
 class Channel4user( Base):
     LOG_PFXS = '*'
@@ -289,96 +323,12 @@ class Channel4user( Base):
         return exists
 
 
-    class aValidatorDefinition( ValidatorDefinition):
-        def add( me, **ka):
-            for k,vv in me._validators.items():
-                v = ka.pop( k, None)
-                if not v: continue
-                if isinstance( v, basestring):
-                    v = v.strip()
-                    if not v: continue
-                    v = [v]
-                vv.update( v)
-            assert not ka, ka.keys()
-
-        def __init__( me, name= 'ccvalidity/v', func =None, **ka):
-            ValidatorDefinition.__init__( me, name= name, func= func, **ka)
-            me._validators = DictAttr(
-                oldDoc  = set(),
-                newDoc  = set(),
-                tools   = set(),
-                unchanged_at_upd_del = set( ['type'])
-                )
-
-        def prepare( me):   #lazy at usage
-            if me.validator is not None: return
-            tools = {}
-            TAB=4*' '
-            oldDoc = ('\n'+2*TAB).join( t.strip() for t in sorted( me._validators.oldDoc))
-            newDoc = ('\n'+TAB  ).join( t.strip() for t in sorted( me._validators.newDoc))
-            unchanged_at_upd_del = sorted( t.strip() for t in me._validators.unchanged_at_upd_del)
-
-            me.validator = ('''
-    if (_user_is_admin()) return;
-    if (oldDoc) {
-        ''' + oldDoc + '''
-        if (oldDoc._deleted) _forbidden_non_admin();    //no updating a deleted one
-        else if (!newDoc._deleted) {
-            ''' + ' '.join( '_unchanged( "'+u+'");' for u in unchanged_at_upd_del) + '''
-        } //!oldDoc._deleted && !newDoc._deleted
-    } //oldDoc
-    ''' + newDoc
-            )
-
-            for k,t in ValidatorDefinition.tools.tools().items():
-                if k+'(' in me.validator:
-                    tools[ k] = t
-            for t in me._validators.tools:
-                t = t.strip()
-                if not t: continue
-                if t in tools: continue
-                #assert t.startswith( 'function ')
-                #assert '(' in t and ')' in t
-                #assert '{' in t and '}' in t
-                tools[ t] = t
-            tools = '\n'.join( TAB+t.strip() for t in sorted( tools.values()))
-            me.validator = tools + me.validator
-
-            ValidatorDefinition.prepare( me)
-
-    validator = aValidatorDefinition( dbname= _KIND)
+    validator = CombinedValidatorDef(
+                    name= 'ccvalidity/v',
+                    unchanged_fields_at_upd_del = ['type'],
+                    dbname= _KIND )
     #usage: Channel4user.validator.add( oldDoc=, newDoc= ..) the things of _validators
 
-
-def itemset_mixin( type, dbkind):
-
-    class itemset_mixin( object):
-        TYPE = type
-
-        def add_item( me, item):
-            #XXX rename = add_discussion
-            #me._open( maycreate= True)  #may autocreate if valid user
-            try:
-                me.db[ item] = dict( type= me.TYPE)
-            except ResourceConflict: pass           #ok if already there
-
-        def del_item( me, item):
-            if me.db is None:
-                me._open( ok_if_no_db =True)
-            if me.db is not None:   #ok if no channel
-                me._delete( item, ok_if_missing= True)
-
-        def q_has_item( me, item):
-            return me.db is not None and item in me.db
-
-        def q_items( me, view =ViewDefinition( 'itemset/'+type,
-                db= dbkind,
-                map_fun = js_if_doc_type( type ) + 'emit( null, null ); ',
-                ) ):
-            r = me._q_doc( view, only_ids= True,)
-            return list( r)
-    itemset_mixin.__name__ += '4'+type
-    return itemset_mixin
 
 Storage.dbkind_by_name[ Channel4user._KIND ] = lambda dbname: dbname.startswith( Channel4user.PREFIX)
 

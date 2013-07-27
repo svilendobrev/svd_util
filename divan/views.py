@@ -264,12 +264,89 @@ or
                                 if k[0]=='_' and k[:2]!='__' and isinstance( v,basestring))
 
 
+class CombinedValidatorDef( ValidatorDefinition):
+    '''many validation rules into one doc. usage:
+    validator = CombinedValidatorDef(
+                    name= 'ccvalidity/v',
+                    unchanged_fields_at_upd_del = ['type'],
+                    dbname= _KIND )
+    and then validator.add( oldDoc=, newDoc= ..) - the things of _validators
+'''
+    def add( me, **ka):
+        for k,vv in me._validators.items():
+            v = ka.pop( k, None)
+            if not v: continue
+            if isinstance( v, basestring):
+                v = v.strip()
+                if not v: continue
+                v = [v]
+            vv.update( v)
+        assert not ka, ka.keys()
+
+    def __init__( me, name= 'validity/v',
+                    unchanged_fields_at_upd_del = ['type'],
+                    func =None,
+                    **ka ):
+        ValidatorDefinition.__init__( me, name= name, func= func, **ka)
+        me._validators = DictAttr(
+            oldDoc  = set(),
+            newDoc  = set(),
+            tools   = set(),
+            unchanged_fields_at_upd_del = set( unchanged_fields_at_upd_del)
+            )
+
+    def prepare( me):   #lazy at usage
+        if me.validator is not None: return
+        tools = {}
+        TAB=4*' '
+        oldDoc = ('\n'+2*TAB).join( t.strip() for t in sorted( me._validators.oldDoc))
+        newDoc = ('\n'+TAB  ).join( t.strip() for t in sorted( me._validators.newDoc))
+        unchanged_fields_at_upd_del = sorted( t.strip() for t in me._validators.unchanged_fields_at_upd_del)
+
+        me.validator = ('''
+if (_user_is_admin()) return;
+if (oldDoc) {
+    ''' + oldDoc + '''
+    if (oldDoc._deleted) _forbidden_non_admin();    //no updating a deleted one
+    else if (!newDoc._deleted) {
+        ''' + ' '.join( '_unchanged( "'+u+'");' for u in unchanged_fields_at_upd_del) + '''
+    } //!oldDoc._deleted && !newDoc._deleted
+} //oldDoc
+''' + newDoc
+        )
+
+        for k,t in ValidatorDefinition.tools.tools().items():
+            if k+'(' in me.validator:
+                tools[ k] = t
+        for t in me._validators.tools:
+            t = t.strip()
+            if not t: continue
+            if t in tools: continue
+            #assert t.startswith( 'function ')
+            #assert '(' in t and ')' in t
+            #assert '{' in t and '}' in t
+            tools[ t] = t
+        tools = '\n'.join( TAB+t.strip() for t in sorted( tools.values()))
+        me.validator = tools + me.validator
+
+        ValidatorDefinition.prepare( me)
+
 class ViewDefinition( DesignDefinition):
 
     #XXX include_docs=True saves index.space but is extra lookup per row (+race cond)
     #there is builtin log(x) func in javascript views
     #.ini: log_level = debug -> reduce calls go to log
     #most errors go only to log
+
+    '''
+    map_fun : autowraps into proper function(..) { }
+    reduce_fun: autowraps into proper function(..) { } unless the text starts with _
+    map_fun = 'if ... emit( %(SEQ)s, %(DOC)s ); '
+        autoreplaces SEQ with seq_field (single or list), and DOC with null or doc depending on include_docs
+    e.g.
+    seq_field = ('stamp', SEQ_FIELDNAME or client.TemporaryView.local_seq, )
+
+    '''
 
     def __init__( me, name, **ka):
         me._args = name, ka.copy()

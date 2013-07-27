@@ -3,7 +3,7 @@
 from adb import *
 from users import test4db_users
 #cudb.setup_extra = test4db_users._make_users
-from data.cu import Channel4user
+from data.divan.cu import Channel4user
 
 class cc( test4db_users, TEST):
 

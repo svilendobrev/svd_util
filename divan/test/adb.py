@@ -34,15 +34,15 @@ def uni2str4kv( x):
                 (str(k),str(v) if isinstance(v,basestring) else v)
                     for k,v in a.items())
                 for a in x]
-from data import cu
 
-from data.couchdb_hacks import put_json_always
+from data.divan import cu
+from data.divan.couchdb_hacks import put_json_always
 from couchdb import ResourceConflict, ResourceNotFound
 
 #silent
 cu.Base.__metaclass__.funcwrap.log = False
 cu.dbg.log_funcname.do_log = False
-from data.views import DesignDefinition
+from data.divan.views import DesignDefinition
 DesignDefinition.do_print = None
 
 ######
