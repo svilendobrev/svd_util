@@ -198,7 +198,16 @@ class test4db( test4me):
 TEST = unittest.TestCase
 class NTEST: pass
 
+def _check_single_import():
+    import sys
+    dv = []
+    for k,v in sys.modules.items():
+        if 'divan.views' in k: dv.append( (k,v) )
+    assert len(dv)==1, dv
+
+
 def main( users =True, db =True ):
+    _check_single_import()
     import sys
     try:
         i = sys.argv.index( '--url')

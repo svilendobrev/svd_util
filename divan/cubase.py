@@ -84,6 +84,7 @@ class Storage( object):
 
         if db is None: db = me.server[ dbname]
         views = DesignDefinition.designs4db.get( template)
+        log()
         if views:
             DesignDefinition.sync_one_db( db, views, remove_missing =False,)
         #XXX it can only remove stuff in known designdocs.. mentioned in views

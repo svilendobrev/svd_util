@@ -3,12 +3,11 @@
 from adb import *
 from users import test4db_users
 #cudb.setup_extra = test4db_users._make_users
-from data.divan.cu import Channel4user
 
 class cc( test4db_users, TEST):
 
     u = test4db_users.u3.name
-    DBNAME = Channel4user._cc_name( u)
+    DBNAME = cu.Channel4user._cc_name( u)
 
     do_unsetup = True
     def setup( me):
@@ -36,7 +35,7 @@ class cc( test4db_users, TEST):
 
     def user_from_name( me):
         me.create()
-        me.assert_eq( Channel4user._user_from_name( me.cc.dbname ), me.u )
+        me.assert_eq( cu.Channel4user._user_from_name( me.cc.dbname ), me.u )
 
     def lazy_db_no_autocreate( me):
         assert me.DBNAME not in me.mgr.server
