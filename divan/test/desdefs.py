@@ -3,8 +3,8 @@
 
 from adb import *
 
-from data.divan.cubase import Base, js_if_doc_type, user2url
-from data.divan.views import ViewDefinition, ValidatorDefinition
+from svd_util.divan.cubase import Base, js_if_doc_type, user2url
+from svd_util.divan.views import ViewDefinition, ValidatorDefinition
 import couchdb
 
 class Proba( Base):

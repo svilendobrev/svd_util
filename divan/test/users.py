@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#from data.divan import cu
+#from svd_util.divan import cu
 #from data import cuemail2user    #before import adb
 #class Users_email( cu.Users, cuemail2user.Users_email): pass
 #cu.Mgr._Users = Users_email

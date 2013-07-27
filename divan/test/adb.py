@@ -35,14 +35,14 @@ def uni2str4kv( x):
                     for k,v in a.items())
                 for a in x]
 
-from data.divan import cu
-from data.divan.couchdb_hacks import put_json_always
+from svd_util.divan import cu
+from svd_util.divan.couchdb_hacks import put_json_always
 from couchdb import ResourceConflict, ResourceNotFound
 
 #silent
 cu.Base.__metaclass__.funcwrap.log = False
 cu.dbg.log_funcname.do_log = False
-from data.divan.views import DesignDefinition
+from svd_util.divan.views import DesignDefinition
 DesignDefinition.do_print = None
 
 ######
