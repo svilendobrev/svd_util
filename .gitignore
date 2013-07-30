@@ -1,1 +1,3 @@
 *.pyc
+_couchdb
+_couchdb.ini
