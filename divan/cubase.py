@@ -102,7 +102,7 @@ class Storage( object):
             if not new:
                 try:
                     return server[ dbname]
-                except ResourceNotFound, e:
+                except ResourceNotFound as e:
                     if not maycreate:
                         if ok_if_no_db: return None
                         e.args = ( dbname,)
@@ -406,7 +406,7 @@ class Base( object):
         assert isinstance( id, basestring)
         try:
             del me.db[ id]  #dontconflict, del last one
-        except ResourceNotFound, e:
+        except ResourceNotFound as e:
             if not ok_if_missing:
                 e.args = ( id,)
                 raise
@@ -415,7 +415,7 @@ class Base( object):
         assert isinstance( id, basestring)
         try:
             return DictAttr( me.db[ id])
-        except ResourceNotFound, e:
+        except ResourceNotFound as e:
             if not ok_if_missing:
                 e.args = ( id,)
                 raise
