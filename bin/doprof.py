@@ -2,8 +2,14 @@
 #svd'2k2-7
 'better view onto python profiler results'
 #XXX BEWARE That 2.4 - 2.5 - 2.6 have diff.file-format
+try:
+    from svd_util import optz
+except:
+    import os.path, sys
+    p = os.path.realpath( __file__).split('/')
+    sys.path.insert( 0, '/'.join( p[:-2]) )
+    import optz #hope it lives in ..
 
-from svd_util import optz
 optz.help( '%prog [options] [numberlines] infile')
 
 optz.bool( 'hotshot',   help= 'load data as hotshot')

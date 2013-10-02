@@ -6,7 +6,14 @@ autoconvert (source-files) from cp1251 to utf AND fix the "coding" line
 
 преобразува (файлове) от 1251 в УТФ и оправя реда за "coding"
 '''
-from svd_util import eutf, optz
+try:
+    from svd_util import eutf, optz
+except:
+    import os.path, sys
+    p = os.path.realpath( __file__).split('/')
+    sys.path.insert( 0, '/'.join( p[:-2]) )
+    import eutf,optz #hope it lives in ..
+
 import os, sys, re
 
 optz.bool( 'keeputf',   help= 'keep "coding utf" line even if file is ascii')
