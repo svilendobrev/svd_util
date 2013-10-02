@@ -61,22 +61,32 @@ class Dumper_PreferBlock_for_Multiline( object):
       c
     x: 2
     '''
+    force_block = False #'|' or '>' : for anything that needs quotes, or longer than 1 line, or mutiline
+    shorten_width = 0
+
     #Emitter
     def analyze_scalar( self, scalar):
         r = super( Dumper_PreferBlock_for_Multiline, self).analyze_scalar( scalar)
-        if r.multiline:
+        if r.multiline or self.force_block:
             r.lines = [len(l) for l in scalar.splitlines()]
         return r
     #Emitter
     def choose_scalar_style( self):
         r = super( Dumper_PreferBlock_for_Multiline, self).choose_scalar_style()
-        if not self.event.style and self.analysis.multiline and r in ( "'", '"' ):
-            #it autoguessed ' for multiline
-            if (not self.flow_level and not self.simple_key_context
-                    and self.analysis.allow_block):     #the original condition for |>
-                lmax = max( self.analysis.lines)
-                prefer_style = lmax > self.best_width and '>' or '|'
-                return prefer_style
+        if not self.event.style:
+            if self.force_block:
+                lmax = self.analysis.lines and max( self.analysis.lines) or 0
+                if r in ( "'", '"' ) or lmax > self.best_width - self.shorten_width :
+                    return self.force_block
+                    return lmax > self.best_width - self.shorten_width and '>' or '|'
+
+            if self.analysis.multiline and r in ( "'", '"' ):
+                #it autoguessed ' for multiline
+                if (not self.flow_level and not self.simple_key_context
+                        and self.analysis.allow_block):     #the original condition for |>
+                    lmax = max( self.analysis.lines)
+                    prefer_style = lmax > self.best_width and '>' or '|'
+                    return prefer_style
         return r
 
 

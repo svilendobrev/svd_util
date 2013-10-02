@@ -6,7 +6,9 @@ v3 = sys.version_info[0]>=3
 if v3:
     from collections import OrderedDict as dictOrder
     import collections
-    def callable(x): return isinstance( x, collections.Callable)
+    #import __builtins__    #always there
+    if not hasattr( __builtins__, 'callable'):  #again in 3.3
+        def callable(x): return isinstance( x, collections.Callable)
 
     #if not hasattr( __builtins__, 'unicode'):
     unicode=str
@@ -20,6 +22,10 @@ if v3:
     #diff = difflib
     #module.import_fullname ~= import_lib.import_module
 else:
+    import __builtin__
+    basestring= __builtin__.basestring
+    unicode   = __builtin__.unicode
+    file      = __builtin__.file
     try:
         from collections import OrderedDict as dictOrder
     except:

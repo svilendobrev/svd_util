@@ -223,20 +223,24 @@ if __name__ == '__main__':
     convert = getattr( map, l2c and 'lat2cyr' or 'cyr2lat' )
 
     for l in (sys.argv if rename else sys.stdin):
-        l = l.rstrip()
-        if iutf: l = l.decode('utf8')
-        r = convert(l)
-        if outf: r = r.encode('utf8')
-        elif o1251: r = r.encode('cp1251')
-        if not rename or l!=r:
-            if org: sys.stdout.write( l +' = ')
-            sys.stdout.write( r+'\n')
-        if rename and l!=r:
-            import os
-            try:
-                os.rename( l, r)
-            except:
-                print( '?', l, '-->', r)
-                raise
+        try:
+            l = l.rstrip()
+            if iutf: l = l.decode('utf8')
+            r = convert(l)
+            if outf: r = r.encode('utf8')
+            elif o1251: r = r.encode('cp1251')
+            if not rename or l!=r:
+                if org: sys.stdout.write( l +' = ')
+                sys.stdout.write( r+'\n')
+            if rename and l!=r:
+                import os
+                try:
+                    os.rename( l, r)
+                except:
+                    print( '?', l, '-->', r)
+                    raise
+        except:
+            print( '????????', l.encode( 'utf8', errors='backslashreplace'))
+            raise
 
 # vim:ts=4:sw=4:expandtab

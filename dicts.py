@@ -63,8 +63,9 @@ def make_dict_trans( base =dict):
             r = az.get( az._prevodach[k], *defa )
             if r is None: r = az._stojnost
             return r
-        def __delitem__( az, k):
-            return az.pop( az._prevod( k), None )
+        def pop( az, k, deflt =None):
+            return super().pop( az._prevod( k), deflt)
+        __delitem__ = pop
         def __setitem__( az, k, v):
             assert k not in az._bez_prevod, k
             return super().__setitem__( az._prevod( k ), v)

@@ -26,7 +26,11 @@ def dump( d, **kargs):
     return yaml.dump( d, allow_unicode= True, default_flow_style= False, Dumper= Dumper, **kargs)
         #width=90,
 
-def load( f, **kargs):
+def load( f, retab =4, **kargs):
+    if retab:
+        if not isinstance( f, str):
+            f = f.read()
+        f = f.expandtabs( retab)
     return yaml.load( f, Loader= Loader, **kargs)
 
 #yaml_anydict.dump_anydict_as_map_inheriting( dictOrder)

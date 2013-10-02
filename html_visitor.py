@@ -3,43 +3,90 @@
 'html structural visitor/extractor'
 
 from .struct import DictAttr
+from .py3 import callable
 dbg = 0
 
 class HT4stack:
     #defstack = [ grammar_root]     see example at end
     stack = []
-    cstack = {}
+    tstack = [] #last-to-first
 
     BR_as_data = None
     nonclosables = 'br img'.split()
+
+    def check( me, dattrs, attrs):
+        for k,v in dattrs.items():
+            if v is False:
+                if k in attrs:
+                    return 201,k
+                continue
+            if v is True:
+                if k not in attrs:
+                    return 202,k
+                continue
+            if callable( v):
+                if not v( attrs.get(k)):
+                    return 203,k
+            else:
+                if k not in attrs:
+                    return 204,k
+                if v != attrs[k]:
+                    return 205,k
+
     #XXX not correct for tracking non-closables e.g. p or br or img, or unclosed closables e.g. div table /div
+    autoclosables = dict(
+        td = 'table tr'.split(),
+        tr = 'table'.split(),
+        a = 'table tr td div'.split(),
+    )
+
+    #nonstructural = 'b i font strong'.split()  #closing these doesnt close open structurals e.g.  b a /b
+
     def handle_starttag( me, tag, attrs):
-        if dbg: print("11111 {tag} {attrs}".format_map( locals() ))
+        if dbg: print("11111 {tag} {attrs} {me.tstack}".format_map( locals() ))
         if me.BR_as_data and tag =='br':
             me.handle_data( me.BR_as_data )
             return
-        attrs = dict( attrs)
-        if tag in me.cstack:
-            me.cstack[tag].append( attrs )
+
+        if tag in me.autoclosables:
+            parents = me.autoclosables[ tag]
+            found = None
+            for i,t in enumerate( me.tstack):
+                if t == tag:
+                    found = i
+                    break
+                if t in parents:
+                    found = True
+                    break
+            if found not in (None, True):
+                if dbg: print("11112 {tag} replace".format_map( locals() ))
+                me.handle_endtag( tag)
+        me.tstack.insert( 0,tag)
+
+        attrs = dict( (k,v if not v else v.strip()) for k,v in attrs )  #no hanging spaces plz
 
         for d in me.defstack[-1]:
             if d.tag != tag:
                 if dbg: print( 11222, 'adio', d.tag)
                 continue
-            dattrs = dict( (k[1:],v) for k,v in d.items() if k.startswith( '_') and v is not False)
-            cattrs = dict( (k, v if v is True else attrs[k])
-                                    for k,v in dattrs.items() if k in attrs)
-            if dattrs != cattrs:
-                if dbg: print( 11333, 'adio', d.tag, dattrs, cattrs)
+
+            dattrs = dict( (k[1:],v) for k,v in d.items() if k[0]== '_')
+            c = me.check( dattrs, attrs)
+            if c:
+                if dbg: print( c[0], 'adio', d.tag, c[1], dattrs, attrs)
                 continue
-            me.cstack.setdefault( tag, [ attrs ])
-            depth = len( me.cstack[tag])
+
+            depth = len( me.tstack)
             if dbg: print( 'open', tag, dattrs, depth)
             run = d.get( 'run')
-            if run: run()
+            if run:
+                if dbg: print( 'run', tag, attrs, depth)
+                run()
             else:
                 run = d.get( 'run3')
-                if run: run( me, tag, attrs)
+                if run:
+                    if dbg: print( 'run3', tag, attrs, depth)
+                    run( me, tag, attrs)
             items = d.get( 'subitems')
             if items: me.defstack.append( items)
             me.stack.append( DictAttr( org=d, attrs=attrs, data='', depth= depth))
@@ -50,13 +97,21 @@ class HT4stack:
     def data2text( me, x): return x.strip()
 
     def handle_endtag( me, tag):
-        if dbg: print("{tag} end".format_map( locals() ), len( me.cstack.get( tag,[])) )
-        if tag in me.cstack:
-            if me.cstack[tag]:
-                me.cstack[ tag].pop()
+        if dbg: print("{tag} end {me.tstack} {me.stack}".format_map( locals() ) )
+
+        len_tstack = len( me.tstack)
+        if tag in me.tstack:
+            ix = me.tstack.index( tag)
+            for t in me.tstack[:ix]:
+                me.handle_endtag( t)
+            assert len( me.tstack)+ix == len_tstack
+            assert me.tstack[0] == tag
+            me.tstack.remove( tag)#[:me.tstack.index(tag)+1] = []  #...first (=last)
+
         if not me.stack: return
         cur = me.stack[-1]
-        if tag != cur.org.tag or len( me.cstack[tag])+1 != cur.depth: return
+        if dbg: print("3333 {tag} {len_tstack} {cur} ".format_map( locals() ) )
+        if tag != cur.org.tag or len_tstack != cur.depth: return
         if dbg: print( 'close', tag, cur.attrs)
 
         if cur.org.get( 'data'):

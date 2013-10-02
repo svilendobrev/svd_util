@@ -46,19 +46,27 @@ _None = object()  #anything uniq
 
 class attr2item( object):
     'convert getattr/setattr to getitem/setitem'
-    __slots__ = [ '_r_' ]
-    def __init__( me, r =None):
+    __slots__ = [ '_r_', '_default_' ]
+    def __init__( me, r =None, default =_None):
         if r is None: r = {}
         me._r_ = r
+        me._default_ = default
     def __getattr__( me, k):
         v = getattr( me._r_, k, _None)
         if v is not _None: return v
         #if k in me.__slots__: return me.__getattribute__( k)
-        try: return me._r_[k]
-        except KeyError: raise AttributeError( k)
+        if k in me._r_: return me._r_[k]
+        if me._default_ is not _None: return me._default_
+        raise AttributeError( k)
+        #try: return me._r_[k]
+        #except KeyError: raise AttributeError( k)
     def __setattr__( me, k,v):
         if k in me.__slots__: return object.__setattr__( me, k, v)
         return me._r_.__setitem__( k,v)
+
+    def __getitem__( me, k): return me._r_[k]
+    def __setitem__( me, k, v): return me._r_.__setitem__( k,v)
+    def __delitem__( me, k): return me._r_.__delitem__( k)
 ##########
 
 class ExtraAttribute(   AttributeError): pass
