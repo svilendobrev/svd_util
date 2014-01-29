@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # Svilen Dobrev, 2014
+
+# why? tried clitools, quicli, manage, opster, clik, ... none does it properly/consistently
 
 import argparse, inspect
 
@@ -8,10 +9,12 @@ def _get_subactions_sorted( me):
     return sorted( me._choices_actions, key= lambda x: x.dest)
 argparse._SubParsersAction._get_subactions = _get_subactions_sorted
 
-class CLI(object):
-    '''wrap plain python funcs into command-line-interface of subcommands, with arguments.
-        infer the arguments position-or-option/type/optionality/varargs from plain default values, and/or extra description.
-        functions are untouched, i.e. usable from inside python.
+class CLI( object):
+    '''
+    wrap plain python funcs into command-line-interface of subcommands with arguments.
+    infer the arguments position-or-option/type/optionality/varargs from plain default values, and/or extra description.
+    functions/args are untouched, i.e. usable from inside python.
+    arguments starting with _ are not exposed.
     '''
     def __init__( me, **ka):
         me.parser = argparse.ArgumentParser( **ka)
@@ -22,7 +25,7 @@ class CLI(object):
             )
 
     def infer( me, func, common_args ={} ):
-        'args = dict( argpyname : dict( arg-attributes ) )'
+        'common_args = dict( argpyname : dict( arg-attributes ) )'
         common_args = common_args or {}
         spec = inspect.getargspec( func)
         defaults = dict( zip( *[reversed(a) for a in ( spec.args, spec.defaults or ())] ))
@@ -30,7 +33,7 @@ class CLI(object):
         result = []
         #optpos = {}
         def add_arg( name, positional =False, **ka):
-            #cant have non-optional positional after optional, or any after */+ TODO
+            #TODO assert: positionals: cant have non-optional (or +) after optional, or any after */+
             #nargs = ka.get('nargs')
             #previous = list( optpos.items()) #get( '*') or optpos.get( '?'
             #if previous:
@@ -63,7 +66,6 @@ class CLI(object):
                 choices = ka.get( 'choices')
                 if choices:     #fix argparse: it loses the choices in help with metavar
                     ka.update( help= (ka.get('help') or '') + '; one of '+','.join( choices))
-            print 444, spec.varargs, ka
             add_arg( spec.varargs, positional= True, **ka)
 
         return result
@@ -100,6 +102,10 @@ class CLI(object):
         for a,kw in args:
             subp.add_argument( *a,**kw)
 
+    def add_command_auto( me, func, common_args ={}, **ka):
+        'common_args = dict( argpyname : dict( arg-attributes ) )'
+        args = me.infer( func, common_args= common_args)
+        me.command( func, args= args, **ka)
 
     def command( me, func =None, args =(), **ka):
         'decorator; args = [ (a,ka) ] for add_argument( *a, **ka) direct'
@@ -112,8 +118,7 @@ class CLI(object):
     def command_auto( me, func =None, common_args ={}, **ka):
         'decorator; common_args = dict( argpyname : dict( arg-attributes ) )'
         def wrapper( func ):
-            args = me.infer( func, common_args= common_args)
-            me.add_command( func, args= args, **ka)
+            me.add_command_auto( func, common_args= common_args, **ka)
             return func
         if not func: return wrapper
         return wrapper( func)
@@ -143,24 +148,33 @@ class CLI(object):
     debug = False
 
 if __name__ == '__main__':
-    m = Cli()
+    m = CLI()
     m.debug = 1
 
     @m.command_auto
-    def b( pos1, opt_None =None, opt_str ='', opt_false =False, opt_true =True, *pos_varargs):
+    def b( pos1, opt_none =None, opt_str ='', opt_int =2, opt_false =False, opt_true =True, *pos_varargs):
+        print dict( locals())
+
+    @m.command_auto( common_args= dict(
+        opt_int_none= dict( type=int),
+        ))
+    def c( opt_int_none =None, *pos_varargs):
         print dict( locals())
 
     @m.command_auto( common_args= dict(
         pos1_opt= dict( positional=True),
         pos2_opt= dict( positional=True),
         ))
-    def c( pos1_opt =None, pos2_opt =None):
+    def d( pos1_opt =None, pos2_opt =None):
         print dict( locals())
 
-    @m.command_auto
-    def d( pos_opt =None, *pos_varargs):
+    @m.command_auto( common_args= dict(
+        pos_opt= dict( positional=True),
+        ))
+    def e( pos_opt =None, *pos_varargs):
         print dict( locals())
 
     #r = m.run( 'f'
     m.run()
+
 # vim:ts=4:sw=4:expandtab
