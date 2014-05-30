@@ -1,7 +1,10 @@
 #s.dobrev 2k3-4
 'symmetrical url-to/from-dict conversions'
 
-from urllib import unquote, quote, unquote_plus
+try:
+    from urllib import unquote, quote, unquote_plus
+except:
+    from urllib.parse import unquote, quote, unquote_plus
 
 def query2dict( query, dict= dict, unquote =unquote, unquote_value =unquote_plus):
     querymap = dict()

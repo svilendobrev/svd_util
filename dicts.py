@@ -101,9 +101,9 @@ def dictOrder_fromstr( txt, dictOrder =dict):
         key1 = value 1
         key2 = value 2
     '''
-    return dictOrder( #dict
+    return dictOrder(
         (
-        (a.strip() for a in kv.split('='))
+        (a.strip() for a in kv.split('=',1))
         for kv in txt.strip().split('\n') ))
 
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
+from __future__ import print_function
 'guess utf or byte-encoding, and (on-the-fly) conversion, on text or files. python2 + python3'
 
 import re

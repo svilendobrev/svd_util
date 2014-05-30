@@ -102,6 +102,22 @@ def grouparg( name, **k):
 
 def iter_opt_defs(): return oparser._get_all_options()
 
+
+def _allow_textfile():
+    if 'textfile' not in optparse.Option.TYPES:
+        optparse.Option.TYPES += ( 'textfile', )
+        optparse.Option.TYPE_CHECKER.update( textfile = _check_textfile)
+def _check_textfile( option, opt, value):
+    try:
+        return open( value ).read()
+    except Exception as e:
+        raise optparse.OptionValueError( 'option %(opt)s: error reading %(value)r: %(e)s' % locals())
+def opttextfile( name, *short, **k):
+    _allow_textfile()
+    return optany( name, type= 'textfile', *short, **k)
+textfile = opttextfile
+
+
 if 0:
     import optz
     optz.bool( 'simvolni',  '-L',   help= 'обхожда и символни връзки')

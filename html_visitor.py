@@ -70,6 +70,7 @@ class HT4stack:
                 if dbg: print( 11222, 'adio', d.tag)
                 continue
 
+            #'prepend any attr for filtering with _'
             dattrs = dict( (k[1:],v) for k,v in d.items() if k[0]== '_')
             c = me.check( dattrs, attrs)
             if c:
@@ -138,8 +139,10 @@ class HT4stack:
 try: from urllib.request import urlopen #p3
 except: from urllib import urlopen #p2
 
-def visit( url, stack_grammar, ienc =None, html_notfixed =False, html_strict =False, **kargs ):
-
+def visit( url, stack_grammar, ienc =None, html_notfixed =False, html_strict =False,
+            return_also_headers =False,
+            **kargs ):
+    u = None
     if url.startswith( 'http:'):
         u = urlopen( url)
         d = u.read()
@@ -166,6 +169,7 @@ def visit( url, stack_grammar, ienc =None, html_notfixed =False, html_strict =Fa
     d = d.decode( ienc )
     h.feed( d )
     h.close()
+    if return_also_headers: return d, u and u.get_headers()
     return d
 
 
