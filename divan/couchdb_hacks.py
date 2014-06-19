@@ -30,11 +30,16 @@ if 1*'_replicator':
 
 #####################
 
-def session( server, username, password):
+def session( server, username, password, tmp_session =False):
     '_session itself can also be used via cookie without name/password - to logout/renew?'
+    #may raise Unauthorized
     data = dict( name= username, password= password)
-    status, headers, data = server.resource.post_json( '_session', data)
-#    print( status, headers, data)
+    rs = server.resource
+    if tmp_session:
+        rs = rs()   #copy
+        rs.session = rs.session.__class__()
+    r = status, headers, data = rs.post_json( '_session', data)
+    #print( 1111111112, r)
     if not data.get('ok'): return   #err
     name = data['name']
     if not name: return     #expired/logout

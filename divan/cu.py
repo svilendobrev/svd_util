@@ -3,12 +3,12 @@
 
 from cubase import *
 from views import CombinedValidatorDef
+import couchdb
 
 # XXX if server  -> does ping !
 # XXX if db      -> does ping !
 # XXX use .. is None
 
-import hashlib
 
 class Users( Base):
     LOG_PFXS = 'user_'
@@ -34,8 +34,24 @@ class Users( Base):
         me._open( storage, dbname= me.DBNAME)
         #me.setup_if_templated()
 
-    @classmethod
+    def valid_user( me, username, password):
+        try:
+            return bool( couchdb_hacks.session( me.storage.server, username, password, tmp_session=True))
+        except couchdb.Unauthorized: return False
+        #me.Server( user2url( me.storage.server. user+':'+password ) )
+
     def match_password( me, user, password):
+        return me.valid_user( user.name, password)
+
+    @classmethod
+    def match_password0( me, user, password):
+        #weak ... unknown future schemes
+        if user.get('password_scheme') == 'pbkdf2':
+            import pbkdf2
+            p = pbkdf2.PBKDF2( password, salt= user.salt, iterations= user.get('iterations'))
+            return p.hexread( 20) == user.derived_key
+        #else:
+        import hashlib
         h = hashlib.sha1()
         h.update( password)
         h.update( user.salt)
@@ -90,7 +106,7 @@ class Users( Base):
         u = me._user( user)
         me._del_from_field( u, field, value)
 
-    _auths = 'password_sha salt auth password'.split()
+    _auths = 'password_sha salt auth password password_scheme derived_key iterations'.split()
     def disable_user( me, user):
         u = me._user( user)
         uu = dict(u)
@@ -101,7 +117,8 @@ class Users( Base):
 
     @classmethod
     def is_disabled( me, user):
-        return not user.get('auth') and not (user.get('password_sha') or user.get('password'))
+        #TODO weak ... unknown future schemes / errorprone
+        return not any( user.get( k) for k in me._auths if k != 'salt')
 
 class Sec4db( Base):
     LOG_PFXS = '*'

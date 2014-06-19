@@ -2,13 +2,14 @@ SVD_UTIL	?=../../..
 #DIVAN    	?=../..
 DIVANTEST	?=.
 PYTHONPATH = .:..:$(SVD_UTIL)
+PYTHON ?= python
 #$(DIVAN):
 export PYTHONPATH
 
 MAKEFLAGS=j1
 
 %.t: %.py db
-	python $< --url http://tt:tt@localhost:55984
+	$(PYTHON) $< --url http://tt:tt@localhost:55984
 #	--nousers
 
 #z: map_d2u.t

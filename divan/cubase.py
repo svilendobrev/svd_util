@@ -554,6 +554,6 @@ def optz_url_usr( optz):
 def optz_url_usr_fix( optz):
     if optz.userpsw:
         optz.couchdb = user2url( optz.couchdb, optz.userpsw)
-    print( '.. url=', optz.couchdb)
+    print( '.. url=....' + optz.couchdb.split('@')[-1] )
 
 # vim:ts=4:sw=4:expandtab
