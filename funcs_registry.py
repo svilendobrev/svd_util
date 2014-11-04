@@ -5,14 +5,11 @@ from __future__ import print_function
 support of functions with default and overridable kind=error/warning/off and args
 '''
 
-from struct import DictAttr
-
 #machinery for management
 
-_kind = DictAttr(
-    warning = 'warning',
-    error   = 'error',
-    )
+class _kind:
+    warning = 'warning'
+    error   = 'error'
 
 import inspect
 import functools
