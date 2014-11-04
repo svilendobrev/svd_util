@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 def args_as_multiattr( args, all_attrs, trigger_attr):
     all = []
@@ -42,7 +43,6 @@ one or multiple of: %(orred)s ;
 '''.strip() % locals()
 
 if __name__ == '__main__':
-    from __future__ import print_function
     #use as argparse/nargs=* or else
     attrs = 'klas file level'.split()
     trigger_attr = attrs[1]
