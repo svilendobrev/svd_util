@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
-def args_as_multiattr( args, all_attrs, trigger_attr):
+def args_as_multiattr( args, all_attrs, trigger_attr =None):
+    if not trigger_attr: trigger_attr = all_attrs[-1]
     all = []
     errors = []
     d = dict.fromkeys( all_attrs)
@@ -27,10 +28,12 @@ def args_as_multiattr( args, all_attrs, trigger_attr):
         errors.append( ('wrong arg-order at end',))
     return all,errors
 
-def help( attrs, trigger_attr ):
+def help( attrs, trigger_attr =None):
     attrs = list( attrs)
-    attrs.remove( trigger_attr)
-    attrs.append( trigger_attr)
+    if not trigger_attr: trigger_attr = attrs[-1]
+    else:
+        attrs.remove( trigger_attr)
+        attrs.append( trigger_attr)
     orred = '=.. or '.join( attrs) + '=..'
     a = 'a'
     b = 'b'
