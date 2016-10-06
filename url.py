@@ -6,6 +6,7 @@ try:
 except:
     from urllib.parse import unquote, quote, unquote_plus
 
+#urllib.parse.parse_qs parse_qsl
 def query2dict( query, dict= dict, unquote =unquote, unquote_value =unquote_plus):
     querymap = dict()
     if query:
@@ -21,6 +22,7 @@ def query2dict( query, dict= dict, unquote =unquote, unquote_value =unquote_plus
             querymap[ key] = value
     return querymap
 
+#urllib.parse.urlencode
 def dict2query( querymap, quote =quote, amp ='&', equ ='=' ):
     r = ''
     dlm = ''

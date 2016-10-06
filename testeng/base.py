@@ -44,13 +44,13 @@ class BaseTestCase( object):
 
     initial_sortkey = None
     def setup( me):
-        if me.verbosity>2: print
+        if me.verbosity>2: print()
         initialState = me.initialState
         if me.initial_sortkey:
             initialState = sorted( initialState, key=me.initial_sortkey)
         for f in initialState:
             me.setupEach( f)
-            if me.verbosity>2: print f
+            if me.verbosity>2: print(f)
 
     def test( me):
         first = True
@@ -59,9 +59,9 @@ class BaseTestCase( object):
             me.currentSample = copy.copy( t)
             if me.verbosity:
                 if first:
-                    print
+                    print()
                     first = False
-                print SUBSEP, 'TEST', t.name,
+                print(SUBSEP, 'TEST', t.name, end=' ')
             #expected = t.expected
 #            mustNotTest = issubclass( expected.__class__, Exception)
 #            if mustNotTest:
@@ -69,15 +69,15 @@ class BaseTestCase( object):
 #            else:
             me.currentRes = result = me.testEach( me.currentSample)
             expected = me.currentSample.expected    #see test_timed many objids case - why this is moved here
-            if me.verbosity:    print result == expected and 'OK' or 'FAILED'
+            if me.verbosity:    print(result == expected and 'OK' or 'FAILED')
             if me.verbosity>1:
                 a = getattr( t, 'testResult', None)
                 if a: x = a( result) # result printing implemented in the sample
                 else: x = 'Result: %(result)s ; Expected: %(expected)s'% vars()
-                print t.testData(), x
-                print me
+                print(t.testData(), x)
+                print(me)
 #            if not mustNotTest:
-            me.assertEquals( result, expected)
+            me.assertEqual( result, expected)
 
     currentRes = None   #always existing
     systemState = None

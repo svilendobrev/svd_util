@@ -38,12 +38,12 @@ class AppTestCase( unittest.TestCase):
     def diff( me, result, expected, result_name ='result', expected_name ='expect', ):
         if result == expected: return False
         if isinstance( result, (tuple,list)) and isinstance( expected, (tuple,list)):
-            keys = range( len(expected))
+            keys = list(range( len(expected)))
         elif isinstance( result, dict) and isinstance( expected, dict):
-            keys = expected.iterkeys()
+            keys = iter(expected.keys())
         else: return True
         err=0
-        print 'diffing by items...'
+        print('diffing by items...')
         for k in keys:
             v = expected[k]
             try:
@@ -54,18 +54,18 @@ class AppTestCase( unittest.TestCase):
             else:
                 ok = me.diff( rv, v)
             if not ok:
-                print 'key', k,':\n', result_name,':',rv, '\n', expected_name,':', v
+                print('key', k,':\n', result_name,':',rv, '\n', expected_name,':', v)
                 err +=1
         if not err:
-            print ' WARNING: diff as whole, no diff piece-by-piece ??!!'
+            print(' WARNING: diff as whole, no diff piece-by-piece ??!!')
         return True
 
     def assertEquals( me, a,b, **kargs):
         try:
-            unittest.TestCase.assertEquals( me, a,b)
+            unittest.TestCase.assertEqual( me, a,b)
         except me.failureException:
             if not me.diff( a,b, **kargs):
-                print ' WARNING: second diff gives no diff ??!!'
+                print(' WARNING: second diff gives no diff ??!!')
             raise
 
 def testMain( testcases, verbosity =0, exit_on_error =True, no_stderr =False):

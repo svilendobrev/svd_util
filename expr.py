@@ -46,7 +46,10 @@ __r/rshift__
 __r/truediv__
 '''
 
-
+def walk( e, visitor):
+    if isinstance( e, Var): return visitor.var( e)
+    elif isinstance( e, _Expr): return e.walk( visitor)
+    return e
 
 class Expr( _Expr):
     class Visitor: pass
@@ -64,11 +67,12 @@ class Expr( _Expr):
             if not op:
                 assert len(args) == 1
                 return Const( args[0] )
-        return object.__new__( klas, op, *args, **kargs)
+        #return object.__new__( klas, op, *args, **kargs)
+        return object.__new__( klas)
 
     def __init__( me, op, *args, **kargs):
         assert op
-        assert args
+        assert args or kargs
         #assert len(args) <= 2
         me.op = op
         me.args = args
@@ -76,7 +80,7 @@ class Expr( _Expr):
 
     def _arg( me, a, visitor, level=0, stack =()):
         if isinstance( a, Var):
-            r = visitor.var( a._name___)
+            r = visitor.var( a)
         elif isinstance( a, _Expr):
             r = a.walk( visitor, level=level, stack=stack)
         elif isinstance( a, (list,tuple)):
@@ -86,16 +90,13 @@ class Expr( _Expr):
         return r
 
     def walk( me, visitor, level=0, stack=()):
-        args = me.args
-        kargs = me.kargs
         op = me.op
         stack = stack+(me,)
-        bargs = []
-        for a in args:
-            r = me._arg( a, visitor, level+1, stack= stack )
-            bargs.append( r)
-#        print level, op, visitor
-        return visitor( level, op, stack=stack, *bargs, **kargs)
+        nargs = [ me._arg( a, visitor, level+1, stack= stack )
+                    for a in me.args ]
+        nkargs = dict( (k,me._arg( a, visitor, level+1, stack= stack ))
+                        for k,a in me.kargs.items() )
+        return visitor( level, op, stack=stack, args=nargs, kargs=nkargs)
 
     pfx = 0     #set to 1 for hierarchical str()
     tab = '   '
@@ -124,9 +125,13 @@ class Function( Expr):
 
 
 class Const( _Expr):
+    try:
+        _types = (int, float, str, long)    #v2
+    except NameError:
+        _types = (int, float, str)    #v3
     __slots__ = [ 'value' ]
     def __init__( me, value):
-        assert isinstance( value, (int, float, long, str) )
+        assert isinstance( value, me._types), repr(value)
         me.value = value
     def walk( me, visitor, level ='ignored', stack ='ignored'):
         return visitor.const( me.value )
@@ -140,7 +145,7 @@ class Var( _Expr):
     hence .walk and _Expr.walk go expanded in Expr.walk'''
     __slots__ = [ '_name___' ]
     def __init__( me, name):
-        assert isinstance( name, str), `name`
+        assert isinstance( name, str), repr( name)
         assert name
         me._name___ = name
     def __getattr__( me, k):
@@ -161,6 +166,11 @@ class Var( _Expr):
             is_method = True
         return Function( name, is_method, *args, **kargs)
 
+try:
+    from types import ClassType     #v2
+    _classtypes = (type,ClassType)
+except ImportError: _classtypes = (type,)   #v3
+
 class Subclass( _Expr):
     '''
     eval1:    isinstance( x, B1)  #C,D,F
@@ -169,9 +179,8 @@ class Subclass( _Expr):
     '''
     __slots__ = [ 'varname', 'typ' ]
     def __init__( me, var, typ):
-        assert isinstance( var, Var)
-        from types import ClassType
-        assert isinstance( typ, (type, ClassType))
+        assert isinstance( var, Var), repr(var)
+        assert isinstance( typ, _classtypes)
         me.varname = var._name___
         me.typ = typ
     def walk( me, visitor, level ='ignored', stack ='ignored'):
@@ -184,24 +193,26 @@ class Subclass( _Expr):
 ############# interpreters
 
 class as_text_expr( Expr.Visitor):
-    def var( me, name): return 'var:'+name
+    cmp_op = dict( gt= '>', lt= '<', ge= '>=', le= '<=', eq= '==', ne= '!=', )
+
+    def var( me, var): return 'var:' + var._name___
     def subclass( me, name, typ):
         return ' '.join( [ 'issubclass(', name, ',', typ.__name__, ')' ] )
     def const( me, value): return repr( value)
-    def __call__( me, level, op, *args, **kargs_ignore):
+    def __call__( me, level, op, args =(), kargs ='ignore', stack ='ignore', ):
         is_func = op.startswith('F-')
         is_method = op.startswith('M-')
         if is_func or is_method:
             op = op[2:]
         else:
-            op = {'gt':'>', 'lt':'<', 'ge':'>=', 'le':'<=', 'eq':'==', 'ne':'!=', }.get(op,op)
+            op = me.cmp_op.get(op,op)
         if is_method:
-            r = args[0] + '.' + op + '( ' + ', '.join(args[1:]) + ' )'
+            r = args[0] + '.' + op + '( ' + ', '.join( str(x) for x in args[1:]) + ' )'
         elif len(args)==1 or is_func:
             r = op + '( ' + ', '.join( str(x) for x in args) + ' )'
         else:
-            assert len(args)==2
-            r = ' '.join( [ '(', args[0], op, args[1], ')' ] )
+            assert len(args)==2, args
+            r = ' '.join( [ '(', args[0], op, str(args[1]), ')' ] )
         return r
 
 as_expr = as_text_expr()
@@ -219,9 +230,9 @@ class as_text_sql( Expr.Visitor):
                             ['code-generated-names-of-all-subclasses-of-',  typ.__name__ ] )
                     ),
              ')' ] )
-    def var( me, name): return 'var:'+name.upper()
+    def var( me, var): return 'var:'+var._name___.upper()
     def const( me, value): return repr( value)
-    def __call__( me, level, op, *args, **kargs_ignore):
+    def __call__( me, level, op, args, kargs ='ignore', stack ='ignore', ):
         op = {'gt':'>', 'lt':'<', 'ge':'>=', 'le':'<=', 'eq':'=', 'ne':'<>',
                 'xor':'<>', }.get(op,op)
         if len(args)==1:
@@ -235,7 +246,7 @@ as_sql = as_text_sql()
 class Eval( Expr.Visitor):
     def __init__( me, context):
         me.context = context
-    def var( me, name): return me.context[ name ]
+    def var( me, var): return me.context[ var._name___ ]
 
     def subclass1( me, name, typ):
         return isinstance( me.context[ name ], typ )
@@ -245,9 +256,9 @@ class Eval( Expr.Visitor):
     def subclass2( me, name, typ):
         try:
             subclasses = typ.subclasses
-        except AttributeError, e:
-            print e.__class__.__name__, e
-            print ' !!expects .subclasses to contain all subclasses of interest'
+        except AttributeError as e:
+            print( e.__class__.__name__, e)
+            print( ' !!expects .subclasses to contain all subclasses of interest')
             subclasses = ()
             #e.args = (e.args[0]+'\nexpects .subclasses to contain all subclasses of interest' ,)
             #raise
@@ -278,7 +289,8 @@ class Eval( Expr.Visitor):
                 'and': 'and_',
                 'not': 'not_',
             }
-    def __call__( me, level, op, *args, **kargs_ignore):
+    none_op = 'like between in_ max endswith'.split()
+    def __call__( me, level, op, args, kargs ='ignore', stack ='ignore'):
         #print 'evalcal', level, op, args
         if op in me.arithm_op:
             return getattr( operator, me.arithm_op[op] or op ) ( *args)
@@ -292,7 +304,7 @@ class Eval( Expr.Visitor):
             f,funcname = op.split('.')
             return getattr( me.context[ f], funcname)( *args)
 
-        if op in [ 'like', 'between', 'in_', 'max', 'endswith' ]:
+        if op in me.none_op:
             return None #op
 
         assert 0, (op, args)
@@ -346,68 +358,68 @@ class GluerOR( GluerOP):
 if __name__ == '__main__':
     if 10:
         a = Var('a')
-        print a
-        print Expr(1)
+        print(a)
+        print(Expr(1))
         b = Var('b')
         c = Expr('c')
         d = Var('d')
         n5 = Expr(5)
 
-        print 1
+        print(1)
         z = a or b and c
-        print z
-        print 2
-        print (a>1)
+        print(z)
+        print(2)
+        print((a>1))
         p = (1 > a) | (b ==2)
-        print p
+        print(p)
         p = (a>0) & ~ (c == 'aa')
-        print p
+        print(p)
         p = (d > n5)
-        print p
+        print(p)
         p = (a>3) ^ p
-        print p
+        print(p)
 
     ##### hierarchical print
         Expr.pfx = 1
-        print p
+        print(p)
         Expr.pfx = 0
 
-        print 'expr:'
-        print p.walk( as_expr)
+        print('expr:')
+        print(p.walk( as_expr))
     ######
-        print 'eval:'
+        print('eval:')
         ev = Eval( dict( a=4, d=7, ) )
-        print ev.context
-        print p.walk( ev)
+        print(ev.context)
+        print(p.walk( ev))
     ######
-        print 'sql:', p.walk( as_sql)
+        print('sql:', p.walk( as_sql))
 
     ######
         def f(a,c):
             return (a >3) | (c >1)
-        print 'functor:', makeExpresion(f).walk(as_expr)
+        print('functor:', makeExpresion(f).walk(as_expr))
 
 ####
     class B1: pass
     class B2(B1): pass
     s = Subclass( a, B1)
-    print s
-    print 'expr:', s.walk( as_expr)
+    print(s)
+    print('expr:', s.walk( as_expr))
 
     ev.context['a'] = B2()
-    print 'eval:', s.walk( ev)
+    print('eval:', s.walk( ev))
 
     B1.subclasses = [f.__name__ for f in (B1,B2)]
 
-    print 'sql:', s.walk( as_sql)
+    print('sql:', s.walk( as_sql))
 
 ######
     def f(d,x):
         return Subclass( x, B1) & (x.a >3) | (d !=1)
     e = makeExpresion(f)
-    print 'functor:', e
-    print '/expr:', e.walk( as_expr)
-    print '/sql :', e.walk( as_sql)
+    print('functor:', e)
+    print('/expr:', e.walk( as_expr))
+    print('/sql :', e.walk( as_sql))
 ######
 
     class ListChk:
@@ -431,13 +443,13 @@ if __name__ == '__main__':
                 same = me.__class__ is other.__class__
                 if not same: return same
                 empty=1
-                for k,v in me.__dict__.iteritems():
+                for k,v in me.__dict__.items():
                     empty=0
                     ov = getattr( other, k, None)
                     if not (ov == v):
                         return False
                 if empty:
-                    for k,v in other.__dict__.iteritems():
+                    for k,v in other.__dict__.items():
                         if v is not None:
                             return False        #not empty -> not same
                     #not entered -> empty -> same

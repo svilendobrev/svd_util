@@ -3,12 +3,19 @@ import yaml
 from yaml.representer import Representer
 from yaml.constructor import Constructor, MappingNode, ConstructorError
 
+
 def dump_anydict_as_map( anydict):
     yaml.add_representer( anydict, _represent_dictorder)
 def dump_anydict_as_map_inheriting( anydict):
     yaml.add_multi_representer( anydict, _represent_dictorder)
 def _represent_dictorder( self, data):
     return self.represent_mapping( 'tag:yaml.org,2002:map', data.items() )
+
+# for v3.12 from 8.2016 adds explicit OrderedDict...
+# so Do this before any inheritance of Representer XXX like Dumper
+import collections
+#yaml.representer.Representer.yaml_representers.pop( collections.OrderedDict, None)
+yaml.representer.Representer.yaml_representers[ collections.OrderedDict] = _represent_dictorder
 
 def dump_seq_as_list( seq, Base= Representer):
     yaml.add_representer( seq, Base.represent_list)

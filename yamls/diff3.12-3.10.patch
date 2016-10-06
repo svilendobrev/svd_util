@@ -1,0 +1,51 @@
+diff  ./__init__.py /usr/lib/python3.5/site-packages/yaml/__init__.py
+11c11
+< __version__ = '3.10'
+---
+> __version__ = '3.12'
+diff  ./representer.py /usr/lib/python3.5/site-packages/yaml/representer.py
+8c8
+< import datetime, sys, copyreg, types, base64
+---
+> import datetime, sys, copyreg, types, base64, collections
+135c135,137
+<         if data in [None, ()]:
+---
+>         if data is None:
+>             return True
+>         if isinstance(data, tuple) and data == ():
+353a356,363
+>     def represent_ordered_dict(self, data):
+>         # Provide uniform representation across different Python versions.
+>         data_type = type(data)
+>         tag = 'tag:yaml.org,2002:python/object/apply:%s.%s' \
+>                 % (data_type.__module__, data_type.__name__)
+>         items = [[key, value] for key, value in data.items()]
+>         return self.represent_sequence(tag, [items])
+> 
+361a372,374
+> 
+> Representer.add_representer(collections.OrderedDict,
+>         Representer.represent_ordered_dict)
+diff  ./resolver.py /usr/lib/python3.5/site-packages/yaml/resolver.py
+28c28,31
+<             cls.yaml_implicit_resolvers = cls.yaml_implicit_resolvers.copy()
+---
+>             implicit_resolvers = {}
+>             for key in cls.yaml_implicit_resolvers:
+>                 implicit_resolvers[key] = cls.yaml_implicit_resolvers[key][:]
+>             cls.yaml_implicit_resolvers = implicit_resolvers
+diff  ./scanner.py /usr/lib/python3.5/site-packages/yaml/scanner.py
+289c289
+<                             "could not found expected ':'", self.get_mark())
+---
+>                             "could not find expected ':'", self.get_mark())
+300,303d299
+<         # A simple key is required only if it is the first token in the current
+<         # line. Therefore it is always allowed.
+<         assert self.allow_simple_key or not required
+< 
+320c316
+<                         "could not found expected ':'", self.get_mark())
+---
+>                         "could not find expected ':'", self.get_mark())

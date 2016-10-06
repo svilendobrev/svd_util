@@ -33,7 +33,7 @@ class SampleBase( object):
     'Базов клас за Примери'
     ENGINE_ARGS = 'expect info name'.split()
     def __init__( me, **kargs):
-        for k,v in kargs.iteritems():
+        for k,v in kargs.items():
             if k in me.ENGINE_ARGS:
                 setattr(me, k, v)
 
@@ -46,7 +46,7 @@ class TestBase( unittest.TestCase):
     def test_me( me): pass
     def __call__( me, resulter):
         for test in me.TESTOVE:
-            value = DictAttr( (k,v) for k,v in test.__dict__.iteritems() if k not in SampleBase.ENGINE_ARGS)
+            value = DictAttr( (k,v) for k,v in test.__dict__.items() if k not in SampleBase.ENGINE_ARGS)
             me.case.setup( value, test.expect, test.info ).run( resulter)
 
 ############################
@@ -64,7 +64,7 @@ class TestMainframe( unittest.TestLoader):
     def _importFromFile( me, name):
         assert name
         module = __import__( name)
-        for k, v in vars( module).iteritems():
+        for k, v in vars( module).items():
             if issubclass( v, TestBase):
                 try:
                     n= v.__name__.split('_', 1)[1]
@@ -95,8 +95,8 @@ class TestMainframe( unittest.TestLoader):
                         if ( s not in err) and ( s not in [ m.name for m in testove]):
                             err.append(s)
         if err:
-            print 40*'-'
-            for e in err: print '\nНе е намерен пример: %(e)s '%locals()
+            print(40*'-')
+            for e in err: print('\nНе е намерен пример: %(e)s '%locals())
         return gotovi_primeri
 
     def groupTests( me, module):
@@ -117,14 +117,14 @@ class TestMainframe( unittest.TestLoader):
         try:
             k = me._importFromFile( me.module_name)
             if config.all_cases:
-                print me.translator.keys()
+                print(list(me.translator.keys()))
                 raise SystemExit
             suite = me.groupTests( k)
             success = unittest.TextTestRunner( verbosity= 2).run( suite).wasSuccessful()
         except Exception:
             raise
         if exit_on_error and not success:
-            raise SystemExit, not success
+            raise SystemExit(not success)
         return success
 
 if __name__ == '__main__':

@@ -1,6 +1,12 @@
 # sdobrev 2011
 # -*- coding: utf-8 -*-
-'key-translating dictionaries - lowercase, map; dictOrder_fromstr'
+'dictionaries - attr, key-translating lowercase, map; dictOrder_fromstr'
+
+class DictAttr( dict):
+    'getitem == getattr ; like Struct'
+    def __init__( me, *a, **k):
+        dict.__init__( me, *a, **k)
+        me.__dict__ = me
 
 def make_dict_lower( base):
     class dict_lower( base):
@@ -24,7 +30,11 @@ def make_dict_lower( base):
     dict_lower.__name__ = base.__name__ + '_lower'
     return dict_lower
 
+
+
 dict_lower = make_dict_lower( dict)
+#from collections import OrderedDict
+#dict_lower_ordered = make_dict_lower( OrderedDict)
 
 ############## like struct.DictAttr
 class DictAttr_lower( dict_lower):

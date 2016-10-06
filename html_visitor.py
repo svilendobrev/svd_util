@@ -144,8 +144,12 @@ def visit( url, stack_grammar, ienc =None, html_notfixed =False, html_strict =Fa
             **kargs ):
     u = None
     if url.startswith( 'http:'):
-        u = urlopen( url)
-        d = u.read()
+        try:
+            u = urlopen( url)
+            d = u.read()
+        except:
+            print( '????:', url)
+            raise
     else:
         import io
         d = io.open( url, 'rb').read()

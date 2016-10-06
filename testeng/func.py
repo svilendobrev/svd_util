@@ -42,7 +42,7 @@ class myTestCase4Function4many( myTestCase4Function):#( unittest.TestCase):
         me.name = asserttext
         return me
     def _runTest( me):                      #multiple: cases { value: expect }
-        for value,expect in me.cases.iteritems():
+        for value,expect in me.cases.items():
             me._do( value, expect)
 
 # vim:ts=4:sw=4:expandtab
