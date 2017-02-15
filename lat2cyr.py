@@ -216,6 +216,7 @@ if __name__ == '__main__':
     o1251= opt( '-1251', '--1251', '--cp1251', '-cp1251') and not _v3
     org = opt( '--org')
     rename = opt( '--rename')
+    import os
 
     if opt( '-special'): map = special2plain
     else: map = zvuchene
@@ -225,6 +226,8 @@ if __name__ == '__main__':
     for l in (sys.argv if rename else sys.stdin):
         try:
             l = l.rstrip()
+            if rename: path,l = os.path.split( l )
+            else: path = None
             if iutf: l = l.decode('utf8')
             r = convert(l)
             if outf: r = r.encode('utf8')
@@ -233,7 +236,8 @@ if __name__ == '__main__':
                 if org: sys.stdout.write( l +' = ')
                 sys.stdout.write( r+'\n')
             if rename and l!=r:
-                import os
+                l = os.path.join( path,l)
+                r = os.path.join( path,r)
                 try:
                     os.rename( l, r)
                 except:

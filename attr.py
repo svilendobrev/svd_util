@@ -165,9 +165,13 @@ def flatten_vars( klas, ignore_hidden=True):
 
 
 # util/base.py
-def isclass( obj):
+try:
     from types import ClassType
-    return isinstance( obj, (type, ClassType))
+    _classtypes = (type, ClassType)
+except:
+    _classtypes = (type, )
+def isclass( obj):
+     return isinstance( obj, _classtypes)
 __issubclass = issubclass
 def issubclass( obj, klas):
     'fail/fool-proof issubclass() - works with ANY argument'

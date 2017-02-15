@@ -59,6 +59,13 @@ def makedirs( x, exist_ok =True):
     except OSError as e:
         if e.errno != errno.EEXIST or not exist_ok: raise
 
+def withoutext( fname, *exts, **kargs):
+    once = kargs.get('once', True)
+    for e in exts:
+        if fname.endswith( e):
+            fname = fname[:-len(e)]
+            if once: break
+    return fname
 
 #from distutils.dep_util import newer
 
