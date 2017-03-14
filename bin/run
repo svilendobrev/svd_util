@@ -1,0 +1,8 @@
+#!/bin/sh
+#when having relative imports, use $ run modul.py .. instead of $ python3 modul.py ..
+pwd=`pwd`
+src=$1
+shift
+PYTHONPATH=.. exec python -m `basename "$pwd"`.`basename -s .py $src` "$@"
+
+# vim:ts=4:sw=4:expandtab
