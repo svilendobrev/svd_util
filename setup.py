@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function #,unicode_literals
+import sys
+sys.path.pop(0)     #dont import my struct plz
+
 from setuptools import setup
 
+name = 'svd_util'
 setup(
-    name='svd_util',
+    name= name,
     version='123',
     description='python utility funcs, classes, small languages+frameworks, scripts.',
     url='https://github.com/svilendobrev/svd_util',
     author='svilen dobrev',
     license='MIT',
-    packages=[
-        'svd_util',
-    ],
+    packages= [ name ] + [ name+'.'+x for x in ''' divan ext javagen py testeng ui yamls '''.split() ],
+    package_dir= { 'svd_util': ''  },   #hack a little..
 )
+
 # vim:ts=4:sw=4:expandtab
