@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function #,unicode_literals
+
 import sys
-print( 777777, sys.path)
 sys.path.pop(0)     #dont import my struct plz
 sys.modules.pop('struct',None)
 
