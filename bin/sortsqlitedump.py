@@ -25,12 +25,12 @@ for line in sys.stdin:
     elif line.startswith( 'INSERT'):
         table.ins.append( line)
     else:
-        print 'unknown:', line
+        print('unknown:', line)
 
-for t in sorted( all.values(), key=lambda x:x.name):
+for t in sorted( list(all.values()), key=lambda x:x.name):
     t.decl.sort()
     t.decl = [ l.endswith(',') and l or l+','
             for l in t.decl ]
-    print '\n'.join( [ t.name ] + t.decl + t.ins )
+    print('\n'.join( [ t.name ] + t.decl + t.ins ))
 
 # vim:ts=4:sw=4:expandtab

@@ -213,7 +213,8 @@ def subclasses( klas):
         for k in klasi:
             x += k.__subclasses__()
         if not x: break
-        subklasi += x
+        for y in x:
+            if y not in subklasi: subklasi.append(y)
         klasi = x
     return subklasi
 

@@ -90,7 +90,7 @@ if __name__ == '__main__':
             r = '\n'.join( encs + lines[N:] ).encode( u8)
             if r == data:
                 continue    #nothing to do - dont touch
-            print fp, 'is:', enc, 'found:', found, encs==hdr and 'hdrsame' or 'hdrdiff', 'new:', encs
+            print(fp, 'is:', enc, 'found:', found, encs==hdr and 'hdrsame' or 'hdrdiff', 'new:', encs)
             if optz.doit:
                 with open( fp, 'w') as o:
                     o.write( r)

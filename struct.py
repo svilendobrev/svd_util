@@ -41,6 +41,7 @@ class DictAttr( dict):
     def __init__( me, *a, **k):
         dict.__init__( me, *a, **k)
         me.__dict__ = me
+dictAttr = DictAttr
 
 _None = object()  #anything uniq
 

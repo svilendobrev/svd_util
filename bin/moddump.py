@@ -8,38 +8,38 @@ import pprint
 def docdump(modname):
     mod = __import__( modname )
 
-    print "module:", modname
+    print("module:", modname)
     try:
-        print modname+".__file__:", mod.__file__
-    except AttributeError: print "undefined, probably built-in"
+        print(modname+".__file__:", mod.__file__)
+    except AttributeError: print("undefined, probably built-in")
 
-    print "\n-----------", modname+ ".__doc__: -------------"
-    print mod.__doc__
+    print("\n-----------", modname+ ".__doc__: -------------")
+    print(mod.__doc__)
 
-    print "\n-----------", modname+ ".__dict__: -------------"
+    print("\n-----------", modname+ ".__dict__: -------------")
     pprint.pprint( mod.__dict__ )
 
-    print "\n-----------", modname+ ".item's __doc__s: -------------"
+    print("\n-----------", modname+ ".item's __doc__s: -------------")
     dic = mod.__dict__
-    items = dic.keys()
+    items = list(dic.keys())
     items.sort()
     for k in items:
         try:
             doc = dic[k].__doc__
-            print "-----", k
-            print doc
+            print("-----", k)
+            print(doc)
         except AttributeError:
             pass
-    print "=================="
+    print("==================")
 
 sys.path.insert( 0, '.')
-print "module-search-path:"
+print("module-search-path:")
 pprint.pprint( sys.path )
 
 try:
     modname = sys.argv[1]
     docdump( modname )
 except IndexError:
-    print "use:", sys.argv[0], "module_name"
+    print("use:", sys.argv[0], "module_name")
 
 # vim:ts=4:sw=4:expandtab

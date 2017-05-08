@@ -39,23 +39,23 @@ class mystats( Stats ):
         Stats.__init__( self, *args )
 
     def print_title(self):
-        print '  %',
+        print('  %', end=' ')
         Stats.print_title( self)
     def print_line(self, func):  # hack : should print percentages
         cc, nc, tt, ct, call_dict= self.stats[func]
-        print '%2d%%' % (100*tt/self.total_tt),
+        print('%2d%%' % (100*tt/self.total_tt), end=' ')
         Stats.print_line( self, func )
         if not self.withcalls: return
         name_size = 12 #9+8+8+8+8 +5 +1
         if not call_dict:
-            print "--"
+            print("--")
             return
-        clist = call_dict.keys()
+        clist = list(call_dict.keys())
         clist.sort()
         indent = " "*name_size
         for func in clist:
             name = pstats.func_std_string(func)
-            print indent + name + '('+ `call_dict[func]`+')'
+            print(indent + name + '('+ repr(call_dict[func])+')')
 #            print pstats.f8(self.stats[func][3])
 pstats.Stats = mystats
 

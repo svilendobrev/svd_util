@@ -46,7 +46,7 @@ for f in args:
             if not opened or not optz.para:
                 break
     else:
-        print >>sys.stderr, '? no description:', f
+        print('? no description:', f, file=sys.stderr)
 
 #print '\n'.join( k+': '+v for k,v in sorted( items.items()))
 for k,v in sorted( items.items()):
@@ -61,6 +61,6 @@ for k,v in sorted( items.items()):
     link = optz.base + k
     if optz.wikilink: link = '[['+k+'|'+link+']]'
     elif optz.mdlink: link = '['+k+']('+link+')'
-    print '*', link, ':', v
+    print('*', link, ':', v)
 
 # vim:ts=4:sw=4:expandtab

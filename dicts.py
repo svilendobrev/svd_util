@@ -1,12 +1,14 @@
 # sdobrev 2011
 # -*- coding: utf-8 -*-
 'dictionaries - attr, key-translating lowercase, map; dictOrder_fromstr'
+#all are named dict*
 
 class DictAttr( dict):
     'getitem == getattr ; like Struct'
     def __init__( me, *a, **k):
         dict.__init__( me, *a, **k)
         me.__dict__ = me
+dictAttr = DictAttr
 
 def make_dict_lower( base):
     class dict_lower( base):
@@ -30,18 +32,22 @@ def make_dict_lower( base):
     dict_lower.__name__ = base.__name__ + '_lower'
     return dict_lower
 
-
-
 dict_lower = make_dict_lower( dict)
-#from collections import OrderedDict
-#dict_lower_ordered = make_dict_lower( OrderedDict)
 
-############## like struct.DictAttr
+try:
+    from collections import OrderedDict as dictOrder
+except ImportError:
+    from dictOrder import dictOrder
+
+#dict_lower_ordered = make_dict_lower( dictOrder)
+
+############## like DictAttr
 class DictAttr_lower( dict_lower):
     'getitem == getattr; ignorecase'
     def __init__( me, *a, **k):
         dict_lower.__init__( me, *a, **k)
         me.__dict__ = me
+dictAttr_lower = DictAttr_lower
 
 #############
 
@@ -88,7 +94,7 @@ def make_dict_trans( base =dict):
 def make_dict_attr( base =dict):
     class dictAttr( base):
         #_stojnost = getattr( base, '_stojnost', '')
-        _bez_prevod = getattr( base, '_bez_prevod', '')
+        _bez_prevod = getattr( base, '_bez_prevod', ())
         def __getattr__( az, k):
             try: return az[ k]
             except KeyError: raise AttributeError( k)
@@ -106,16 +112,17 @@ def make_dict_attr( base =dict):
     return dictAttr
 
 #########
-def dictOrder_fromstr( txt, dictOrder =dict):
+def dict_fromstr( txt, dict =dict, ignore_comments =True):
     '''format:
         key1 = value 1
         key2 = value 2
     '''
-    return dictOrder(
-        (
+    return dict(
         (a.strip() for a in kv.split('=',1))
-        for kv in txt.strip().split('\n') ))
-
+        for kv in txt.strip().split('\n')
+        if kv.strip() and (not ignore_comments or not kv.strip().startswith('#'))
+        )
+dictOrder_fromstr = dict_fromstr
 
 
 if __name__ == '__main__':
@@ -123,50 +130,58 @@ if __name__ == '__main__':
     from struct import DictAttr
     def t0():
         e= DictAttr( a=2)
+        assert ( e['a'] == 2 ),e
+        assert ( e.a == 2 ) ,e
+        assert len(e) == 1  ,e
         e.c=4
-        print( 'c' in e)
-        print( 'd' in e)
+        assert ( 'c' in e)  ,e
+        assert ( 'd' not in e),e
+        assert len(e) == 2  ,e
+        assert ( e.c == 4 ) ,e
+        assert ( e['c'] == 4 ),e
         e['c']
         print( e)
         #e['d']
 
         e['c']=3
-        print( 'c' in e)
+        assert ( 'c' in e)  ,e
+        assert ( e.c == 3 ) ,e
         print( e)
 
         #e.update_pre( c=3)
         #print(object.__repr__( e))
         #print(object.__repr__( e.__dict__))
-        print(e.c)
-        print(e['c'])
+        #print(e.c)
+        #print(e['c'])
         #print(e['b'])
         #e.b
 
-    #t0()
+    t0()
+    ######
 
-def tDictAttrTrans( e):
-    assert e['a']==2
-    assert e.a==2
-    assert 'a' in e
-    assert 'aa' not in e
-    assert not hasattr( e, 'aaa')
-    e.c=4
-    assert e['c']==4
-    assert e.d==4
-    assert e.c==4
-    assert e['d']==4
-    assert 'd' in e
-    assert 'c' in e
-    e['c']=3
-    assert e.c==3
-    assert e.d==3
-    assert e['c']==3
-    assert e['d']==3
-    e.d=5
-    assert e.c==5
-    assert e.d==5
-    assert e['c']==5
-    assert e['d']==5
+    def tDictAttrTrans( e):
+        assert e['a']==2,e
+        assert e.a==2   ,e
+        assert 'a' in e ,e
+        assert 'aa' not in e ,e
+        assert not hasattr( e, 'aaa') ,e
+        e.c=4
+        assert e['c']==4,e
+        assert e.d==4   ,e
+        assert e.c==4   ,e
+        assert e['d']==4,e
+        assert 'd' in e ,e
+        assert 'c' in e ,e
+        e['c']=3
+        assert e.c==3   ,e
+        assert e.d==3   ,e
+        assert e['c']==3,e
+        assert e['d']==3,e
+        e.d=5
+        assert e.c==5   ,e
+        assert e.d==5   ,e
+        assert e['c']==5,e
+        assert e['d']==5,e
 
     DictAttrTrans = make_dict_attr( make_dict_trans() )
     e= DictAttrTrans( a=2, _prevodach= dict( c='d') )
@@ -176,8 +191,22 @@ def tDictAttrTrans( e):
     e= DictAttrTrans1( a=2, _prevodach= dict( c='d') )
     tDictAttrTrans( e)
 
-    DictAttrTrans2 = make_dict_trans( DictAttr)
-    e= DictAttrTrans2( a=2, _prevodach= dict( c='d') )
-    tDictAttrTrans( e)
+    if 0: #cyk
+        DictAttrTrans2 = make_dict_trans( DictAttr)
+        e= DictAttrTrans2( a=2, _prevodach= dict( c='d') )
+        tDictAttrTrans( e)
+
+    #########
+
+    txt = '''
+        a = 4
+
+        b = 5
+        #c =6 7
+        '''
+    d = dictOrder_fromstr( txt, dict= dictOrder)
+    assert d == dictOrder( [['a','4'], ['b','5']] ), d
+    d = dictOrder_fromstr( txt, dict= dictOrder, ignore_comments =False)
+    assert d == dictOrder( [['a','4'], ['b','5'], ['#c','6 7']] ), d
 
 # vim:ts=4:sw=4:expandtab

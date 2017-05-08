@@ -15,12 +15,16 @@ def do321( map, x):
         for l in 3,2,1:
             c= x[:l]
             m= map.get( c)
+            #print( 33, c, m)
             if m is None and l>1: continue
             x= x[l:]
             r+= m or c
+            break
     return r
 
 def dec(x): return x and x.decode( 'cp1251')
+#def low2up( k): return ''.join( chr(ord(kk)-32) for kk in k)
+def capital(v): return v and v[0].upper()+v[1:]
 
 def make( cyr =(), lat =(), cyr2lat ={} ):
     if 0 :#not _v3:
@@ -28,28 +32,22 @@ def make( cyr =(), lat =(), cyr2lat ={} ):
         lat = dec( lat)
         cyr2lat = dict( (dec(k), dec(v)) for k,v in cyr2lat.items())
 
-    c2l = cyr2lat.copy()
-    c2l.update( (k.upper(), capital(v)) for k,v in cyr2lat.items())
-
-    l2c = {}
-    for k,v in c2l.items():
-        if '|' in v:
-            vs = v.split('|')
-            c2l[k] = vs[0]
-            for vv in vs:
-                l2c[vv]=k
-        elif v:
-            l2c[v]=k
+    c2l = dict( (k, v.split('|')[0]) for k,v in cyr2lat.items())
+    l2c = dict( (vv,k)
+                for k,v in cyr2lat.items()
+                for vv in v.split('|')
+                if vv
+                )
+    c2l.update( [(capital(k), capital(v)) for k,v in c2l.items()])
+    l2c.update( [(capital(k), capital(v)) for k,v in l2c.items()])
 
     cl = dict( zip( cyr,lat ) )
-    cl.update( (k.upper(), capital(v)) for k,v in zip( cyr,lat ) )
+    cl.update( (capital(k), capital(v)) for k,v in zip( cyr,lat ) )
 
     c2l.update( cl )
     l2c.update( (v,k) for k,v in cl.items() if v )  #override
     return c2l,l2c
 
-#def low2up( k): return ''.join( chr(ord(kk)-32) for kk in k)
-def capital(v): return v and v[0].upper()+v[1:]
 
 class transliterator:
     @classmethod
@@ -70,13 +68,24 @@ class zvuchene( transliterator):
         'ч': 'ch',
         'ш': 'sh',
         'щ': 'sht',
-        'ьо': 'io|yo',
+        #'ьо': 'io|yo',
+        'ьо': 'yo',
+        #'ай': 'ay',
+        #'ей': 'ey',
+        #'ой': 'oy',
+        #'ий': 'iy',
+        #'уй': 'uy',
         'ь': '',
         'ъ': 'y',
-        'ю': 'iu|yu',
-        'я': 'ia|ya',
-        'э': 'e',
-        'ы': 'i',
+        'ю': 'yu',
+        'я': 'ya',
+        'ая': 'aia',
+        'ия': 'iia',
+        'eя': 'eia',
+        'oя': 'oia',
+        'уя': 'uia',
+        'э': 'ye',
+        'ы': 'yi',
         'в': 'w',
         })
 
@@ -226,7 +235,7 @@ if __name__ == '__main__':
     for l in (sys.argv if rename else sys.stdin):
         try:
             l = l.rstrip()
-            if rename: path,l = os.path.split( l )
+            if rename: path,l = os.path.split( l.rstrip('/') )
             else: path = None
             if iutf: l = l.decode('utf8')
             r = convert(l)

@@ -1,8 +1,28 @@
 #!/bin/sh
 #when having relative imports, use $ run modul.py .. instead of $ python3 modul.py ..
 pwd=`pwd`
-src=$1
+src=${1%.py}
 shift
-PYTHONPATH=.. exec python -m `basename "$pwd"`.`basename -s .py $src` "$@"
+#PYTHONPATH=.. exec python -m `basename "$pwd"`.`basename -s .py $src` "$@"
+PYTHONPATH=.. exec python -m `basename "$pwd"`.${src//\//.} "$@"
+
+#man bash
+#  ${parameter%word}
+#  ${parameter%%word}
+#       Remove matching suffix pattern.  The word is expanded to produce a pattern just as in pathname expansion.  If the pattern matches a  trailing
+#       portion  of  the  expanded value of parameter, then the result of the expansion is the expanded value of parameter with the shortest matching
+#       pattern (the ``%'' case) or the longest matching pattern (the ``%%'' case) deleted.  If parameter is @ or *, the pattern removal operation is
+#       applied  to each positional parameter in turn, and the expansion is the resultant list.  If parameter is an array variable subscripted with @
+#       or *, the pattern removal operation is applied to each member of the array in turn, and the expansion is the resultant list.
+#
+#  ${parameter/pattern/string}
+#       Pattern substitution.  The pattern is expanded to produce a pattern just as in pathname expansion.  Parameter is  expanded  and  the  longest
+#       match of pattern against its value is replaced with string.  If pattern begins with /, all matches of pattern are replaced with string.  Nor‐
+#       mally only the first match is replaced.  If pattern begins with #, it must match at the beginning of the expanded  value  of  parameter.   If
+#       pattern  begins  with  %, it must match at the end of the expanded value of parameter.  If string is null, matches of pattern are deleted and
+#       the / following pattern may be omitted.  If the nocasematch shell option is enabled, the match is performed without regard  to  the  case  of
+#       alphabetic characters.  If parameter is @ or *, the substitution operation is applied to each positional parameter in turn, and the expansion
+#       is the resultant list.  If parameter is an array variable subscripted with @ or *, the substitution operation is applied to  each  member  of
+#       the array in turn, and the expansion is the resultant list.
 
 # vim:ts=4:sw=4:expandtab
