@@ -83,7 +83,7 @@ for p in parsed[1:]:
         rs = r.req.specifier
         if not rs: continue
         if es == rs: continue
-        print( '..override:', r.name, es, 'with:', rs, file=sys.stderr)
+        print( '#..override:', r.name, es, 'with:', rs, file=sys.stderr)
         if existing.constraint and es and rs:
             raise RuntimeError( 'conflicting constraints: {r}, {existing}'.format( **locals()) )
         r_byname[ r.name ] = r
@@ -98,7 +98,7 @@ for n,r in sorted( r_byname.items()):
     #see piptools/utils.py format_requirement()
     if r.editable: line = '-e {r.link}'.format( **locals())
     else: line = str( r.req).lower()
-    if r.comes_from: line = line.ljust( 30) + '  # from {r.comes_from}'
+    if r.comes_from: line = line.ljust( 30) + '  # from '+ r.comes_from.split('(line')[0]
     if getattr( r, 'comment', ''):  line = line.ljust( 30) + '  #' + r.comment.strip()
     print( line.format( **locals()))
 
