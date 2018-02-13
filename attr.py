@@ -38,6 +38,20 @@ def get_attrib( self, name, *default_value, **kargs):
     #if name.find('.')>0: return eval( 'self.'+name )
     #return getattr( self, name)
 
+
+def get_item( d, name, *default_value, **kargs):
+    'get_attrib but for dict/indexable - full'
+    #from operator import getitem
+    kargs.setdefault( 'getattr', lambda d,k: d[k] )
+    kargs.setdefault( 'error', KeyError)
+    return get_attrib( d, name, *default_value, **kargs)
+
+def get_item_( d, kmulti):
+    'get_attrib but for dict/indexable - quick'
+    for a in kmulti.split('.'): d = d[a]
+    return d
+
+
 class get_itemer:
     '''dict simulator for hierarchical names/lookups:
        use: "%(a.b.c.d)s %(e)s" % get_itemer( locals() ) '''
