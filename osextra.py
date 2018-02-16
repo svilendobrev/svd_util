@@ -13,19 +13,6 @@ def touch( f):
     import os
     return os.utime( f, None)
 
-    import time
-    s = time.localtime()
-    tm_year = s.tm_year
-    tm_mon = tm_mday = 1
-    tm_hour= int(total/3600)
-    tm_min = int((total+29)/60)
-    tm_sec = 0#int(total-tm_min*60)
-    tm_wday= tm_yday= tm_isdst= -1
-
-    s = tm_year, tm_mon, tm_mday,  tm_hour, tm_min, tm_sec,  tm_wday,tm_yday,tm_isdst
-    tm = time.mktime(s)
-    os.utime( f, (tm,tm) )
-
 def save_if_different( filename, txt, makedirs =True,
         reader =lambda filename: open( filename).read(),
         writer =lambda filename,txt: open( filename, 'w').write( txt ),
@@ -61,8 +48,10 @@ def makedirs( x, exist_ok =True):
 
 def withoutext( fname, *exts, **kargs):
     once = kargs.get('once', True)
+    ignorecase = kargs.get('ignorecase', False)
     for e in exts:
-        if fname.endswith( e):
+        if ignorecase: e = e.lower()
+        if (fname.lower() if ignorecase else fname).endswith( e):
             fname = fname[:-len(e)]
             if once: break
     return fname
