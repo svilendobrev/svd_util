@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #sdobrev 2003-8
+from __future__ import print_function #,unicode_literals
 'hierarchical str()/print; notSetYet singleton'
 
 #######
@@ -9,7 +12,7 @@ class NotSetYet( object):
     def __new__( klas):     #singleton PLEASE - needs pickle.protocol >=2
         try:
             return notSetYet
-        except NameError,e :
+        except NameError as e:
             return object.__new__( klas)
 #    def __getnewargs__( me): return (True,) #something non empty to distinguish pickling
 notSetYet = NotSetYet()
@@ -19,12 +22,12 @@ def test_NotSetYet():
     assert i is notSetYet
     import pickle
     p = pickle.dumps( i, pickle.HIGHEST_PROTOCOL)
-    print repr(p)
+    print( repr(p))
     z = pickle.loads(p)
     assert type(z) is type(a)
     assert z is i, ( z,i, id(z), id(i) )
 
-from attr import get_attrib
+from .attr import get_attrib
 
 _level = 0
 _stack = []
@@ -75,7 +78,7 @@ def str_args_kargs( *args,**kargs):
 
     return delimiter.join(
         [ repr(a) for a in args ]
-        + [ '%s=%s' % (k,repr(v)) for k,v in kargs.iteritems() if filter( k,v) ])
+        + [ '%s=%s' % (k,repr(v)) for k,v in kargs.items() if filter( k,v) ])
 
 ####### debug/log
 
@@ -84,7 +87,7 @@ class printdbg:
     @classmethod
     def callfunc( klas, func, *args,**kargs):
         if 'call' in klas.debug:
-            print func, '(\n ', args, '\n  '+ '\n  '.join( '%s=%s' % kv for kv in kargs.iteritems()), '\n)'
+            print( func, '(\n ', args, '\n  '+ '\n  '.join( '%s=%s' % kv for kv in kargs.items()), '\n)')
         return func( *args, **kargs)
 
 # vim:ts=4:sw=4:expandtab

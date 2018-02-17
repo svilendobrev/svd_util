@@ -1,5 +1,6 @@
-# $Id: html.py,v 1.39 2007-07-12 16:25:20 niki Exp $
-#s.dobrev 2k3-4
+#!/usr/bin/env python
+#s.dobrev 2k3-16
+from __future__ import print_function #,unicode_literals
 
 _USE_HIDDEN_address = 1
 _USE_HIDDEN_method  = 2
@@ -48,7 +49,7 @@ def uri2fieldMethod( uri, use_separate =None, urlparse =urlparse):
         try:
             method, address = pathsplit[:2]
         except ValueError:  #not found -> single result returned
-            raise KeyError, (path,'',querymap)
+            raise KeyError(path,'',querymap)
         else: del pathsplit[:2]
     path = '/'.join( pathsplit)
     return path, address, method, querymap
@@ -188,7 +189,7 @@ def comment( s):
 onPFX = '\n      '
 #def onEvent( evt, x): return 'on'+evt+'="'+x+'"'
 for evt in ('onChange', 'onClick', 'onBlur', 'onFocus', 'onMouseOver', 'onMouseOut'):
-    exec """def %(evt)s(x, ret=True): return onPFX+'%(evt)s="'+x+'; return '+(ret and 'true' or 'false')+'"' """ % locals()
+    exec("""def %(evt)s(x, ret=True): return onPFX+'%(evt)s="'+x+'; return '+(ret and 'true' or 'false')+'"' """ % locals())
 
 
 def back2future( fdaddr =None):
@@ -211,14 +212,16 @@ def helpStatusLineMouse( fdhelp):
 
 def separatesAsHidden( separates):
     return ''.join( [ '\n   <input type=hidden name="%s" value="%s">' % keyvalue
-                    for keyvalue in separates.iteritems() ] )
+                    for keyvalue in separates.items() ] )
             #(separate_address and
             #    ' <input type=hidden name="fid" value="' +separate_address +'"> \n' or '') +
 
  #both div class=, form class=, assume whole_ table cell; so put style-class here:
 def labelWrapOpen( label, style):
-    return ( '\n   <nobr class="'+ style +'"> '+ label )
+    label = '<span class="labelopen">' + label + '</span>'
+    return ( '\n   <nobr class="'+ style +'">' + label )
 def labelWrapClose( label):
+    label = '<span class="labelclose">' + label + '</span>'
     return ( label + '\n   </nobr> ')
 
 #########
@@ -244,7 +247,7 @@ class formpack( formElement):
             '\n</form>\n'
             ) % me.__dict__
 
-from fielddata import FieldData #, ChooserFieldData, FieldUndefinedError
+from svd_util.ui.fielddata import FieldData #, ChooserFieldData, FieldUndefinedError
 
 def Button( fd):
     field = fd.name
@@ -401,7 +404,7 @@ class ChooserShort( formpack):  #( ChooserFieldData):      #known-size: drop-dow
                 )
         if not n_selected and current:
             if value_if_not_in_range is None or not valid_value_if_not_in_range:
-                print '! field', fd.name, ': value not in range: "%(current)s" not in %(value_range)s' % locals()
+                print('! field', fd.name, ': value not in range: "%(current)s" not in %(value_range)s' % locals())
         return r
 
     def __str__( me):
@@ -480,7 +483,7 @@ _factories[ 'Chooser']  = ChooserShort
 _factories[ 'Text']     = TextInput
 _factories[ 'Label']    = TextLabel
 _factories[ 'Outside']  = TextOutside
-for b,f in _factories.items():
+for b,f in list(_factories.items()):
     _factories[ b.lower() ] = f
 
 
@@ -520,7 +523,7 @@ class TableHTML:
         me._row = 0
 
         html = '\n'+ me.pfx_level() + '<table '
-        for k,v in me.headers.iteritems():
+        for k,v in me.headers.items():
             v = kargs_header.get( k,v )
             if v is not None:
                 html += ' %s="%s"' % (k,str(v))
@@ -552,7 +555,7 @@ class TableHTML:
         me._level = 2
         html = me.pfx_level() + '<td'
         if me.use_layout and me._row==1:
-            for key_value in me.layout[ col].iteritems():
+            for key_value in me.layout[ col].items():
                 html += ' %s=%s' % key_value
         if width:  html += ' width='+width
         if align:  html += ' align='+align
@@ -616,6 +619,12 @@ if __name__ == '__main__':
     class myTestCase4Function( myTestCase4Function, unittest.TestCase):
         def do( me, value, expect):
             return uri2fieldMethod( value, use_separate=me.use_separate )[1:]    #less url)
+        #FIXME:
+        #def _do( me, value, expect):
+        #    result = me.do( value, expect)
+        #    if result != expect:
+        #        ...
+
 
     class test_uri2fieldMethod( unittest.TestCase):
         def test_something( me): pass       #needed to get call()ed!
@@ -652,7 +661,7 @@ if __name__ == '__main__':
                         c(result)
 
     def test_htmlTable():
-        print 'htmlTable..'
+        print('htmlTable..')
         from sim.ui_html import console
         layout = console.html_layout_txt
         #h1 = html_table( layout)
@@ -660,8 +669,8 @@ if __name__ == '__main__':
         t = TableHTML()
         t.all( layout)
         h2 = t.out
-        print h2
-        print '---------'
+        print(h2)
+        print('---------')
         #from svd_util.diff import diff
         #diff( h1,h2, 'html_table', t.__class__.__name__)
 
@@ -669,4 +678,3 @@ if __name__ == '__main__':
     unittest.main()
 
 # vim:ts=4:sw=4:expandtab
-

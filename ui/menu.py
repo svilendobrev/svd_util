@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function #,unicode_literals
 'menu description (tree) '
 
 _TAB='  '
@@ -21,11 +24,11 @@ class MenuItem( object):
         me.menu = []
         if menu: me.parse( menu)
 
-        for k,v in kargs.iteritems():
+        for k,v in kargs.items():
             if k in me._aliases or k in me.__class__.__dict__ and not k.startswith('_'):
                 setattr( me, k, v)
             else:
-                print 'warning: invalid MenuItem arg:',k
+                print('warning: invalid MenuItem arg:',k)
 
     def append( me,v): me.menu.append( v)
 
@@ -34,7 +37,7 @@ class MenuItem( object):
         r = _level*_TAB + (me.menu and 'Menu' or 'Item')
         r += '( '+ ', '.join(
                         '%(k)s=%(v)r' % locals()
-                            for k,v in me.__dict__.iteritems()
+                            for k,v in me.__dict__.items()
                             if k !='menu' ) +')'
         if me.menu:
             _level+=1
@@ -56,7 +59,7 @@ class MenuItem( object):
                 "separator"
                 menu.append( me.Separator )
             else:
-                raise NotImplementedError, a
+                raise NotImplementedError(a)
         return menu
 
 Menu = Item = MenuItem
@@ -150,14 +153,14 @@ if __name__ == '__main__':
         aItem = Item
 
     m = Menu( _mainmenu)
-    print m
+    print(m)
 
     import sys
     if 'wx' in sys.argv:
         class Model:
             doc = 1
 
-        from layout import Panel
+        from .layout import Panel
         from myctl import MainController
         from wxmain import Frame
 
@@ -166,5 +169,4 @@ if __name__ == '__main__':
         ctl.layout = Panel('@ababa\n[ doc]')
         mainf = Frame(ctl=ctl)
 
-#    raise SystemExit,1
 # vim:ts=4:sw=4:expandtab

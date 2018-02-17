@@ -21,10 +21,11 @@ class myTestCase4Function:#( unittest.TestCase):
     str_result = repr
     def _do( me, value, expect):
         result = me.do( value, expect)
-        value = me.str_value( value)
-        expect= me.str_expect( expect)
-        result= me.str_result( result)
-        me.assertEqual( result, expect,
+        if result != expect:
+            value = me.str_value( value)
+            expect= me.str_expect( expect)
+            result= me.str_result( result)
+            me.assertEqual( result, expect,
                '''func( %(value)s ):
  result: %(result)s;
  expect: %(expect)s''' % locals() )

@@ -1,4 +1,5 @@
 #s.dobrev 2k4-2009
+# -*- coding: utf-8 -*-
 'language for dialog/form layout description - field meta-data'
 
 class FieldUndefinedError( LookupError): pass
@@ -41,7 +42,6 @@ class FieldData:
             name = me.name
             for k,v in me.__dict__.items():
                 if callable( v):
-                    #print k,v, 'callable'
                     setattr( me, k, v( model=_model_context, name=name ) )
 
     def __str__( me):
@@ -59,4 +59,3 @@ class ChooserFieldData( FieldData):
 #    width = 0          #default
 
 # vim:ts=4:sw=4:expandtab
-

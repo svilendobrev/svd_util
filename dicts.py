@@ -4,7 +4,7 @@
 #all are named dict*
 
 class DictAttr( dict):
-    'getitem == getattr ; like Struct'
+    '''attr-access == item-access ; i.e. self.a is self['a']'''
     def __init__( me, *a, **k):
         dict.__init__( me, *a, **k)
         me.__dict__ = me

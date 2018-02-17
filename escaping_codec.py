@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #s.dobrev '2k4
+from __future__ import print_function #,unicode_literals
 'escape/unescape strings'
 
 class Codec:
@@ -18,11 +21,9 @@ class Codec:
         rf = '(' + '|'.join( [ re.escape(e) for e in encoding ] ) + ')'
         me.rf = re.compile( rf )
 
-        decoding = {}
-        for k,v in encoding.iteritems(): decoding[v] = k
-        me.decoding = decoding
+        me.decoding = dict( (v,k) for k,v in encoding.items())
 
-        rb = '(' + '|'.join( [ re.escape(e) for e in decoding ] ) + ')'
+        rb = '(' + '|'.join( [ re.escape(e) for e in me.decoding ] ) + ')'
         me.rb = re.compile( rb )
 
 
@@ -32,7 +33,7 @@ class Codec:
             escaper = me.escaper
             encoding = me.encoding
             s = s.replace( escaper, encoding[ escaper ])     #first
-            for k,v in encoding.iteritems():
+            for k,v in encoding.items():
                 if k != escaper:
                     s = s.replace(k,v)
             return s
@@ -40,7 +41,7 @@ class Codec:
             ' unescape back chars like like \n, | '
             escaper = me.escaper
             encoding = me.encoding
-            for k,v in encoding.iteritems():
+            for k,v in encoding.items():
                 if k != escaper:
                     s = s.replace(v,k)
             s = s.replace( encoding[ escaper ], escaper)     #last
@@ -76,13 +77,12 @@ if __name__=='__main__':
         e = encode(a)
         d = decode(e)
         _verbose = verbose or d != a
-        if _verbose: print repr(a),
-        if _verbose: print '->', repr(e)
-        if _verbose: print repr(d), '<-'
+        if _verbose: print( repr(a),)
+        if _verbose: print( '->', repr(e))
+        if _verbose: print( repr(d), '<-')
         if d != a:
-            print '!!!error!'
+            print( '!!!error!')
 
     #enc.py `cat enc.py`    - space-delimited words by word
     #enc.py "`cat enc.py`"  - whole file at once
 # vim:ts=4:sw=4:expandtab
-

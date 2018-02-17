@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #s.dobrev 2k3-9
+from __future__ import print_function #,unicode_literals
 'language for dialog/form layout description - parser & tree-buider'
 
 import re
@@ -36,18 +39,18 @@ class TokenMap( Struct):
     def __init__( me, **k ):
         Struct.__init__( me, **k )
         d = {}
-        for key,v in k.iteritems():
+        for key,v in k.items():
             d[v] = key
         me._reversed= d
     def join_tokens( me, s):
-        return s.join( me.__dict__.itervalues() )
+        return s.join( me.__dict__.values() )
 
 field_types = [ '[input]', '<button>', '{label}', '#image#', '/treeview/']
 input_types = TokenMap( Checkbox= '_', Text ='', Chooser ='?', Radio = '&', Calendar='#' ) #'' is default
 flags = TokenMap( extend= '+', empty= '@' ) #mark= '!',
 
 
-from fielddata import FieldData, ChooserFieldData, FieldUndefinedError
+from .fielddata import FieldData, ChooserFieldData, FieldUndefinedError
 
 class Field:
     def __init__( me, name =None, typ =None,
@@ -152,8 +155,8 @@ class Panel( object):
         f = me.field_map
         for k in field_map:
             if prefix+k+suffix in f:
-                print """!Warning: %(me)s: field_map[%(k)s] / pfx=%(prefix)r / sfx=%(suffix)r
-                        overrides previous definition, maybe duplicated""" % locals()
+                print("""!Warning: %(me)s: field_map[%(k)s] / pfx=%(prefix)r / sfx=%(suffix)r
+                        overrides previous definition, maybe duplicated""" % locals())
             f[ prefix+k+suffix] = field_map[k]
         me.parse( txt, prefix=prefix, suffix=suffix, **kargs)
 
@@ -180,7 +183,7 @@ class Panel( object):
             me.add_txt( txt, field_map, start_new_row=False)
         else:
             if type(item) is type(''):
-                print '!Warning: cannot append row inline, wrapping in a panel'
+                print('!Warning: cannot append row inline, wrapping in a panel')
                 item = me.__class__( item)
             if isinstance( item, me.__class__):
                 me.panels.append( item)
@@ -222,7 +225,7 @@ class Panel( object):
                 for fmatch in me.field_re.finditer( line):
                     pos = fmatch.start()
                     #print pos,
-                    for typ,entry in fmatch.groupdict().iteritems():
+                    for typ,entry in fmatch.groupdict().items():
                         if entry is None: continue
                         if not entry:   #column delimiter
                             continue
@@ -250,9 +253,9 @@ class Panel( object):
                                             break
                             else:
                                 f.subtyp = '!Error'
-                                print '!Error in panel-parser at line', l, 'pos',pos,': "'+ entry +'"'  # in', line[fmatch.start():fmatch.end()]
-                                print line
-                                print ' '*pos+'^'
+                                print('!Error in panel-parser at line', l, 'pos',pos,': "'+ entry +'"')  # in', line[fmatch.start():fmatch.end()]
+                                print(line)
+                                print(' '*pos+'^')
                         fielddata = None
                         if ematch is None:
                             name = entry
@@ -281,7 +284,7 @@ class Panel( object):
         return '%s %s' % ( me.__class__.__name__, me.header)
 
     def _print( me, pfx ='', mode =None):
-        print pfx+str(me), me.max_columns, 'columns'
+        print(pfx+str(me), me.max_columns, 'columns')
         for row in me.rows:
             apfx = '+'
             if row:
@@ -291,13 +294,13 @@ class Panel( object):
                     else:
                         if mode != 'panels':
                             if not f or not f._extender:
-                                print pfx,apfx, f
+                                print(pfx,apfx, f)
                                 apfx = ' '
                                 if mode == 'map':
-                                    print pfx,apfx,'     ', f.fielddata
+                                    print(pfx,apfx,'     ', f.fielddata)
             else:
                 if mode!='panels':
-                    print pfx,apfx
+                    print(pfx,apfx)
         #for p in me.panels:
         #    p._print( pfx+'    ')
         #print pfx+'map', me.field_map
@@ -313,7 +316,7 @@ class Panel( object):
                  ]
 
         r.panels = [ f.clone( prefix=prefix, suffix=suffix, kargs_field=kargs_field) for f in me.panels]
-        r.field_map = dict( (prefix+k+suffix, v) for k,v in me.field_map.iteritems() )
+        r.field_map = dict( (prefix+k+suffix, v) for k,v in me.field_map.items() )
         return r
 
     def walk( me, visitor):
@@ -351,19 +354,19 @@ class Panel( object):
         def openPanel( me, panel):
             me.level += 1
             me.pfx = me._pfx * me.level
-            print me.pfx+'Panel', panel.header, panel.max_columns, 'columns'
+            print(me.pfx+'Panel', panel.header, panel.max_columns, 'columns')
             return panel
         def openRow( me, row):
             me.apfx = '+'
             return row
         def addField( me, field):
             if me.mode != 'panels':
-                print me.pfx, me.apfx, field
+                print(me.pfx, me.apfx, field)
             me.apfx = ' '
         def closeRow( me, row):
             if me.mode != 'panels':
                 if me.apfx == '+' and not row:    #empty - row with extenders is not considered empty
-                    print me.pfx, me.apfx
+                    print(me.pfx, me.apfx)
         def closePanel( me, panel):
             me.level -= 1
             me.pfx = me._pfx * me.level
@@ -381,7 +384,7 @@ class Panel( object):
                 except KeyError: pass
         def closePanel( me, panel):
             if me.field_map:
-                print '!%s: %s: unused fields in .field_map:\n  %s' % (me.message, me.panel, ', '.join( me.field_map.iterkeys() ) )
+                print('!%s: %s: unused fields in .field_map:\n  %s' % (me.message, me.panel, ', '.join( iter(me.field_map.keys()) ) ))
 
     def check( me, **k):
         me.walk( me.Checker( **k))
@@ -542,10 +545,10 @@ Panel {} 5 columns
             s.release()
             result = str(s)
             #print result
-            print result
+            print(result)
             if result != expect:
                 df = '\n'.join( diff( result, expect, 'result', 'expect') )
-                me.failUnless( result == expect, 'result != expect\n'+df)
+                me.assertTrue( result == expect, 'result != expect\n'+df)
 
 
         def compare( me, mode='panelsz'):
@@ -558,9 +561,9 @@ Panel {} 5 columns
             q = str(s)
             s.release()
             if p != q:
-                print q
+                print(q)
                 df = '\n'.join( diff( p,q, '_print recursive', 'Printer visitor'))
-                me.failUnless( p == q, '_print != visitor\n'+df)
+                me.assertTrue( p == q, '_print != visitor\n'+df)
 
         def test_compare_print_visitor_panels( me):
             me.compare( mode='panels')
@@ -574,4 +577,3 @@ Panel {} 5 columns
     unittest.main()
 
 # vim:ts=4:sw=4:expandtab
-

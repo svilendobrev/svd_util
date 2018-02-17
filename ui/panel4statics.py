@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #s.dobrev 2k4
+from __future__ import print_function #,unicode_literals
 'dialog/form layout auto-built from static_type'
 
-from layout import Panel
+from .layout import Panel
 from svd_util.attr import get_attrib, issubclass
 
 class _static_type:
@@ -106,7 +109,6 @@ def panel4StaticSeq( model, typ, fullname, name_leaf, readonly =False, **kargs):
         v_name = '[%(i)d]' % locals()
         v_fullname= '%(fullname)s.items.%(i)d' % locals()
         item_type = typ.item_type
-        print 11111111, item_type
         p = _panel4any( model=      v,
                         typ=        item_type,
                         name_leaf=  v_name,
@@ -204,7 +206,7 @@ def panel4Struct( panel, model, typ,
         if translator:
             if isinstance( p, tuple):
                 d = p[1]
-                d = d[ d.keys()[0] ]
+                d = d[ list(d.keys())[0] ]
                 l =  d.get('label')
                 if l: d['label'] = translator(l)
             elif isinstance( p, Panel):
@@ -249,14 +251,14 @@ if __name__ == "__main__":
 
     for d in ms:
         panel = make_panel4Struct( model=d, fullname='doc' )
-        print '======='
+        print('=======')
         panel._print()
 
     if 'wx' in sys.argv:
         master = panel #Panel('@Edit Person')
         class Model:
             doc = d
-        print d
+        print(d)
         from myctl import MainController
         from wxmain import Frame
         ctl = MainController(Model)

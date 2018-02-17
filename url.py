@@ -49,7 +49,7 @@ else:
     def urlparse( uri):
         m = _path_regex_match( uri)
         if not m or m.end() != len(uri):
-            raise ValueError, "Broken URI"
+            raise ValueError( "Broken URI")
         else:
             return m.groups()
 

@@ -1,8 +1,8 @@
-#$Id: panel2html.py,v 1.9 2006-07-07 13:16:37 sdobrev Exp $
 #s.dobrev 2k3-4
+from __future__ import print_function #,unicode_literals
 
-from layout import Panel
-import html
+from svd_util.ui.layout import Panel
+from . import html
 
 class BuilderHTML( Panel.Visitor):
     config__walk_extender = False
@@ -50,7 +50,7 @@ class BuilderHTML( Panel.Visitor):
                 txt_now = pfx+' <tr>\n'
                 txt_after = ''
 
-                ttl = ' <%s> %s </%s>\n' % (style, title, style)
+                ttl = ' <%s> %s </%s>\n' % (style, html.htmlize_br( title), style)
                 td_title = ''
                 td_table = ''
 
