@@ -1,7 +1,7 @@
 #sdobrev 2005
 'various html escapers'
 
-import escaping_codec
+from . import escaping_codec
 _escaper = '&'
 _encoding = {
     _escaper: '&amp;',

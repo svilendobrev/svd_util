@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function #,unicode_literals
 #$Id: test_http_medusa.py,v 1.9 2006-07-11 16:14:09 sdobrev Exp $
 
 from server.medusa_handler import Base_Handler#, HTTP_codes, htmlcodec, query2dict, dict2query
@@ -44,7 +47,7 @@ def run(
 
         help =False,
     ):
-    print 'use:', medusa_http.help_kargs( locals(), ignore=[ 'help', 'Config_Handler_Factory'] )
+    print('use:', medusa_http.help_kargs( locals(), ignore=[ 'help', 'Config_Handler_Factory'] ))
     if help: return
     ##for all booleans:
     #if isinstance( do_something, str): do_something= (do_something== 'True')

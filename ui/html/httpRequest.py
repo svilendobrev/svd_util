@@ -1,7 +1,8 @@
 # $Id: httpRequest.py,v 1.10 2006-07-12 11:20:43 sdobrev Exp $
 #s.dobrev 2k3-4
+from __future__ import print_function #,unicode_literals
 
-from ui.html import uri2fieldMethod, htmlize
+from svd_util.ui.html.html import uri2fieldMethod, htmlize
 from svd_util.fileCache import FileCache
 import socket, traceback, sys
 
@@ -16,14 +17,14 @@ class UI_HTTPRequestHandler:
        .req_get_info()              return uri, client_address, time, etc
     """
 
-    def __init__( me, request, uri_base =None ):
+    def __init__( me, request, uri_base =None, server =None ):
         me.request = request
         me.uri_base = uri_base
 
     def _print( me, *args):
-        print 'request', id( me), me.request.req_get_info(), ':',
-        for a in args: print a,
-        print
+        print('request', id( me), end=' ') #me.request.req_get_info(), ':',
+        for a in args: print(a, end=' ')
+        print()
     def _error( me, http_errno, *messages):
         me._print( *messages )
         me.request.req_send_error( http_errno, ' '.join( messages) )
@@ -40,7 +41,7 @@ class UI_HTTPRequestHandler:
     def copyfile( me, f_name):
         try:
             content = fileCacher.read( f_name)
-        except IOError, e:     #can't open / read error
+        except IOError as e:     #can't open / read error
             me._error( 404, 'File error: %r' % f_name, e.strerror )
             return -1
         #except: traceback.print_exc()
@@ -76,6 +77,7 @@ class UI_HTTPRequestHandler:
     # is it possible to do it ???
 
     def do_GET( me):
+        print('do_GET', me.request)
         try:
             uri = me.request.req_get_uri_maybesplit()
 
@@ -104,12 +106,13 @@ class UI_HTTPRequestHandler:
                 me._error( 404, 'File not found: %r' % path)
 
         except socket.error: me._print( 'connection closed by client')
-        except IOError, e: me._error( 500, 'File error:', e.strerror)
+        except IOError as e: me._error( 500, 'File error:', e.strerror)
         except:
             exc = ''.join( traceback.format_exception( *sys.exc_info() ) )
             me._error( 500, exc )
 
     def do_HEAD( me):
+        print('do_HEAD', me.request)
         try:
             me._send_head()
         except ( IOError, socket.error): me._print( 'connection closed by client')

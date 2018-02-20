@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function #,unicode_literals
 #s.dobrev 2004-2007
 
 """
@@ -59,7 +61,7 @@ class FORMAT_ISO8601:
 
     @classmethod
     def mkdatetime( klas, timestamp, local =False):  #ret datetime
-        if isinstance( timestamp, basestring):
+        if isinstance( timestamp, str): #basestring
             return _dt.datetime.strptime( timestamp, klas.format )
             #return _dt.datetime( *mktime_struct( timestamp)[:6])
         return timestamp2datetime( timestamp, local=local)
@@ -145,26 +147,26 @@ class time( _dt_base, _dt.time):
 if __name__ == '__main__':
     #test
     d = datetime( '2004-02-26 15:34:39' )
-    print d
+    print(d)
     dnow = datetime.now()
-    print str( dnow ), type(dnow), datetime.__name__
+    print(str( dnow ), type(dnow), datetime.__name__)
     assert dnow == datetime( str( dnow ) )
-    print isinstance( d, datetime.__bases__)
-    print issubclass( datetime, type(d))
+    print(isinstance( d, datetime.__bases__))
+    print(issubclass( datetime, type(d)))
 
     d = date( '2004-02-26' )
-    print d, repr(d)
+    print(d, repr(d))
 
-    print d.__class__
+    print(d.__class__)
     d1 = _dt.date.today()
-    print d1.__class__
+    print(d1.__class__)
     x = date( d1)
-    print x, x.__class__
+    print(x, x.__class__)
 
     class xdatetime( datetime):
         _re_delimiter = 'X'
         _re = None  #request full again
     d = xdatetime( '2004-02-26X15:34:39' )
-    print d
+    print(d)
 
 # vim:ts=4:sw=4:expandtab

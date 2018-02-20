@@ -4,7 +4,7 @@
 #all are named dict*
 
 class DictAttr( dict):
-    'getitem == getattr ; like Struct'
+    '''attr-access == item-access ; i.e. self.a is self['a']'''
     def __init__( me, *a, **k):
         dict.__init__( me, *a, **k)
         me.__dict__ = me
@@ -122,7 +122,16 @@ def dict_fromstr( txt, dict =dict, ignore_comments =True):
         for kv in txt.strip().split('\n')
         if kv.strip() and (not ignore_comments or not kv.strip().startswith('#'))
         )
-dictOrder_fromstr = dict_fromstr
+def dictOrder_fromstr( txt, dict =dictOrder, **ka):
+    return dict_fromstr( txt, dict=dict, **ka)
+
+#########
+def dict_without( d, *popthese):
+    popthese = set( popthese)
+    return dict( (k,v) for k,v in d.items() if k not in popthese)
+dict_pop = dict_without
+#def dict_with( d, **kargs): return dict( d, **kargs)
+dict_add = dict_with = dict
 
 
 if __name__ == '__main__':

@@ -6,10 +6,13 @@ from __future__ import print_function, unicode_literals
 
 re_nomer = '(\d+|[ivxIVX]+)'
 
-rim10 = dict( I=1, II=2, III=3, IV=4, V=5, VI=6, VII=7, VIII=8, IX=9, X=10)
+rim10 = dict( I=1, II=2, III=3, IV=4, V=5, VI=6, VII=7, VIII=8, IX=9, X=10, )
 rim = dict(rim10)
 rim.update( ('X'+k,10+v) for k,v in rim10.items() )
 rim.update( ('XX'+k,20+v) for k,v in rim10.items() )
+rim.update( ('XXX'+k,30+v) for k,v in rim10.items() )
+rim.update( ('XXXX'+k,40+v) for k,v in rim10.items() )
+rim.update( ('L'+k,50+v) for k,v in rim10.items() )
 
 extra = dict(
  I= '\u0406', # u'І'ne-lat ne-cyr

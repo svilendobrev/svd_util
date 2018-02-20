@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function #,unicode_literals
 'apply klas.UI_metadata to relevant panel-tree'
 
-import layout
+from . import layout
 
 class Visitor( layout.Panel.Visitor):
     '''for statictyped attributes of klas if they have UI_metadata,
@@ -13,7 +15,7 @@ class Visitor( layout.Panel.Visitor):
     def openPanel( me, panel):
         #print panel.header.get('title', 'nema')
         fmap = panel.field_map
-        for k,typ in me.klas.StaticType.iteritems():
+        for k,typ in me.klas.StaticType.items():
             for name in me.names:
                 value = typ.UI[ name ] #= typ.UI_label / getattr ??
                 if not value: continue

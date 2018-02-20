@@ -1,5 +1,7 @@
-# $Id: controller.py,v 1.33 2006-07-12 11:20:26 sdobrev Exp $
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #s.dobrev 2k3
+from __future__ import print_function #,unicode_literals
 
 #from fielddata import FieldUndefinedError
 from svd_util.attr import set_attrib, get_attrib, notSetYet
@@ -14,7 +16,7 @@ class UIController( object):
         me.focus = None
 
     def action( me, context, what, **k):
-        print 'action:', me.name, what
+        print('action:', me.name, what)
         #print me, k
 
     if 0:
@@ -24,7 +26,7 @@ class UIController( object):
             try:
                 actor = me.actors[ what]
             except KeyError:
-                print '! no actor for', what
+                print('! no actor for', what)
             else:
                 return actor( context, what )
             return None
@@ -37,35 +39,39 @@ class UIController( object):
     _DBG_set_value = 1
     def set_value( me, context, fieldname, value, do_get_check =True, next_adr =None, **kargs):
         #if fieldname not in me.field_map: return
-        if me._DBG_set_value: print '\n set %s ?= %r' % (fieldname, value)
+        if me._DBG_set_value: print('\n set %s ?= %r' % (fieldname, value))
         model = me.model
+        oldvalue = notSetYet
         if do_get_check:
             try:
                 oldvalue = get_attrib( model, fieldname)
             except AttributeError:
                 e = me.ERR_not_in_model % fieldname
-                print e
+                print(e, model)
                 return
 #        if next_adr: print 'focusto', next_adr
         me.focus = next_adr or fieldname        #before set - if exception, focus goes to error field
         set_attrib( model, fieldname, value)
-        if me._DBG_set_value: print ' --> %s == %r' % (fieldname, get_attrib( model, fieldname))
+        if me._DBG_set_value: print(' ..=', oldvalue, ' --> %s == %r' % (fieldname, get_attrib( model, fieldname)))
 
     _DEFAULT_get_value = None
+    _DBG_get_value = False
+
     def get_value( me, fieldname, err =None, do_err =True):
         model = me.model
-        #print ' get %s in %s' % (fieldname, model)
+        if me._DBG_get_value: print(' get %s in %s' % (fieldname, model))
         try:
             value = get_attrib( model, fieldname)
         except AttributeError:
             e = me.ERR_not_in_model % fieldname
             if do_err:
-                print e
+                print(e)
             if err is not None:
                 err.append( e)
             value = me._DEFAULT_get_value
         else:
             if value is notSetYet: value = me._DEFAULT_get_value
+        if me._DBG_get_value: print('   >>', value)
         return value
 
     field_map = {}
@@ -78,18 +84,19 @@ class UIController( object):
             e = me.ERR_not_in_fieldmap % fieldname
             err.append( e)
             if do_err:
-                print e
+                print(e)
             d = d_default
         value = me.get_value( fieldname, err, do_err)
         fielddata.setup( value= value, _model_context= me.model, **d)
         return err
 
-import html
-from svd_util.fileCache import Descriptor4FileCachedLazyAsText
+from . import html
 
 class UIController4HTML( UIController):
-    class Descriptor4FileCachedLazyAsText( Descriptor4FileCachedLazyAsText):
-        attrname = '_header_file'
+    if 0:
+        from svd_util.fileCache import Descriptor4FileCachedLazyAsText
+        class Descriptor4FileCachedLazyAsText( Descriptor4FileCachedLazyAsText):
+            attrname = '_header_file'
 
     #name = 'pagename'
     header = ''     #str-format( title=, head_suffix=, body_suffix=)
@@ -103,7 +110,7 @@ class UIController4HTML( UIController):
         UIController.__init__( me, *a,**k)
         me.header = html.Header( me.header, pagename= me.name )
 
-    def redraw( me, html_layout =None, context =None):
+    def redraw( me, html_layout =None, context =None, **ka_header):
         fieldDataGetter = me.getFieldData
         html_layout = html_layout or me.html_layout
         if callable( html_layout):
@@ -119,7 +126,8 @@ class UIController4HTML( UIController):
 
         h = me.header.redraw( focus=focus,
                 title= getattr( me.model, 'title',
-                            getattr( r, 'title', '' ))) #title, focus, ..
+                            getattr( r, 'title', '' )),
+                **ka_header) #title, focus, ..
 
         h = me.fix_uribase_address( h, context)
         return h + html.unescape_lf( str(r) )
@@ -140,8 +148,9 @@ class UIController4HTML( UIController):
             hdr = hdr.replace( '</head>', '<base href="%(uri_base)s%(uri)s"> </head>' % locals() )
         return hdr
 
+#.chooser, .text
     ui_css = """\
-.chooser, .checkbox, .button, .text
+.checkbox, .button,
 {
 	cursor: pointer;
 	cursor: hand;
@@ -168,7 +177,6 @@ class UIController4HTML( UIController):
 if __name__ == '__main__':
     import sim
     console = sim.ui_html.ConsoleUIController( model=sim.models.console)
-    print console.redraw()
+    print(console.redraw())
 
 # vim:ts=4:sw=4:expandtab
-

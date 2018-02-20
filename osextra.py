@@ -13,6 +13,7 @@ def touch( f):
     import os
     return os.utime( f, None)
 
+    total = f
     import time
     s = time.localtime()
     tm_year = s.tm_year
@@ -61,8 +62,10 @@ def makedirs( x, exist_ok =True):
 
 def withoutext( fname, *exts, **kargs):
     once = kargs.get('once', True)
+    ignorecase = kargs.get('ignorecase', False)
     for e in exts:
-        if fname.endswith( e):
+        if ignorecase: e = e.lower()
+        if (fname.lower() if ignorecase else fname).endswith( e):
             fname = fname[:-len(e)]
             if once: break
     return fname

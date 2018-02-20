@@ -78,7 +78,9 @@ class zvuchene( transliterator):
         'ь': '',
         'ъ': 'y',
         'ю': 'yu',
+        'ю': 'ju',
         'я': 'ya',
+        'я': 'ja',
         'ая': 'aia',
         'ия': 'iia',
         'eя': 'eia',
@@ -182,7 +184,7 @@ class qwerty_keyboard_yu( transliterator):   #fonetic
         'ы': '^',
         })
 
-class desi( transliterator):   #digito-fonetic
+class digito_fonetic( transliterator):
     _cyr2lat,_lat2cyr = make(
         cyr= 'абвгдежзийклмнопрстуфхц',
         lat= 'abvgdejziiklmnoprstufhc',
@@ -200,42 +202,53 @@ class desi( transliterator):   #digito-fonetic
 
 if __name__ == '__main__':
     import sys
-    nm = sys.argv.pop(0)
+    nm = sys.argv[0]
     l2c = 'lat2cyr' in nm
-    def opt(*xx):
-        for x in xx:
-            try: sys.argv.remove( x ); return True
-            except ValueError: continue
-        return None
-    if opt( '-h', '--help'):
-        print( '''\
--c2l -cyr2lat
--l2c -lat2cyr
--iutf
--outf
--org        org = new
--special    special2plain ; else zvuchene
-        ''')
-        raise SystemExit
-    if opt( '--cyr2lat', '--c2l', '-c2l'): l2c = 0
-    if opt( '--lat2cyr', '--l2c', '-l2c'): l2c = 1
-    utf = opt( '--utf') and not _v3
-    iutf = opt( '-iutf', '--iutf', '-i8', '--i8' ) and not _v3 or utf
-    outf = opt( '-outf', '--outf', '-o8', '--o8' ) and not _v3 or utf
-    o1251= opt( '-1251', '--1251', '--cp1251', '-cp1251') and not _v3
-    org = opt( '--org')
-    rename = opt( '--rename')
+    import optparse
+    oparser = optparse.OptionParser()
+    def optany( name, *short, **k):
+        return oparser.add_option( dest=name, *(list(short)+['--'+name.replace('_','-')] ), **k)
+    def optbool( name, *short, **k):
+        return optany( name, action='store_true', *short, **k)
+
+    optbool( 'cyr2lat', )
+    optbool( 'c2l', )
+    optbool( 'lat2cyr', )
+    optbool( 'l2c', )
+    optbool( 'utf', )
+    optbool( 'iutf', )
+    optbool( 'outf', )
+    optbool( 'o1251', )
+    optbool( 'cp1251', )
+    optbool( 'org', )
+    optbool( 'rename',      help='преименува файлове, запазва .ext')
+    optbool( 'extrename',   help='превежда и .ext -> .еьт')
+    tmap = dict( (c.__name__, c) for c in transliterator.__subclasses__() )
+    optany( 'map', type= 'choice', choices= sorted( tmap), default= zvuchene.__name__,
+                help='преводач: [%default] ; едно от: '+' '.join(sorted(tmap)))
+
+    opts,args = oparser.parse_args()
+    if opts.cyr2lat or opts.c2l: l2c=0
+    if opts.lat2cyr or opts.l2c: l2c=1
+    utf = opts.utf and not _v3
+    iutf = opts.iutf and not _v3 or utf
+    outf = opts.outf and not _v3 or utf
+    o1251= (opts.cp1251 or opts.o1251) and not _v3
+    org = opts.org
+    rename = opts.rename
+    renext = opts.extrename
+    map = tmap[ opts.map ]
+
     import os
-
-    if opt( '-special'): map = special2plain
-    else: map = zvuchene
-
     convert = getattr( map, l2c and 'lat2cyr' or 'cyr2lat' )
 
-    for l in (sys.argv if rename else sys.stdin):
+    for l in (args if rename else sys.stdin):
         try:
             l = l.rstrip()
-            if rename: path,l = os.path.split( l.rstrip('/') )
+            ext=''
+            if rename:
+                path,l = os.path.split( l.rstrip('/') )
+                if not renext: l,ext = os.path.splitext( l )
             else: path = None
             if iutf: l = l.decode('utf8')
             r = convert(l)
@@ -245,8 +258,8 @@ if __name__ == '__main__':
                 if org: sys.stdout.write( l +' = ')
                 sys.stdout.write( r+'\n')
             if rename and l!=r:
-                l = os.path.join( path,l)
-                r = os.path.join( path,r)
+                l = os.path.join( path,l)+ext
+                r = os.path.join( path,r)+ext
                 try:
                     os.rename( l, r)
                 except:

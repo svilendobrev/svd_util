@@ -18,8 +18,8 @@ def vimtail2line( items):    #e.g. dict/order
 def vimtail2items( line):   #stripped of #//comments
     #line = line.lstrip('# ')
     if not line.startswith('vim:'): return
-    vims = [ kv.split('=') for kv in line.split(':') ]
-    return [ (len(kv) == 2 and kv or (k,True)) for kv in vims ]
+    vims = [ kv.split('=',1) for kv in line.split(':') ]
+    return [ (len(kv) == 2 and kv or (kv,True)) for kv in vims ]
 
 _AUTOGEN_STAMP = """\
  %(filename)s: automaticaly generated file
@@ -76,12 +76,12 @@ def save_if_different( filename, txt, makedirs =True, print_at_write =print ):
         if fpath and not os.path.exists( fpath):
             os.makedirs( fpath )
     try:
-        old = file( filename).read()
+        old = open( filename).read()
     except IOError:
         old = None
     if txt != old:
         if print_at_write: print_at_write( filename)
-        file( filename, 'w').write( txt )
+        open( filename, 'w').write( txt )
         return True
 
 # vim:ts=4:sw=4:expandtab

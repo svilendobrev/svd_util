@@ -1,4 +1,7 @@
-#sdobrev 2009
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function #,unicode_literals
+#sdobrev 2006-2009-
 'time minutes-seconds-frames conversions/prettyprint'
 
 def sec2minsec( s):
@@ -31,10 +34,21 @@ def frame2minsec( args, FS =75):
     for a in args:
         f = int(a)
         f -= f0
-        if not f0: f0 = f
+        #if not f0: f0 = f  was this ???
+        f0 = f
         s = int(f/FS)
         ff = f-s*FS
         m,ss = sec2minsec(s)
         yield '%d:%02d.%02d' % (m,ss,ff)
+
+if __name__=='__main__':
+    import sys
+    if sys.argv and sys.argv[1].startswith('-fs'):
+        FS = sys.argv[1].split('=')
+        FS = len(FS)>1 and int( FS[1]) or 75
+        for r in frame2minsec( sys.argv[2:] or sys.stdin, FS): print( r)
+    else:
+        for a in sys.argv[1:]:
+            print( minsec2sec( a) if ':' in a else prnsec( float(a)) )
 
 # vim:ts=4:sw=4:expandtab
