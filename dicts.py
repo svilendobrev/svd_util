@@ -8,7 +8,33 @@ class DictAttr( dict):
     def __init__( me, *a, **k):
         dict.__init__( me, *a, **k)
         me.__dict__ = me
+    def remove( me, keys):
+        for k in keys: me.pop( k,None)
+        return me
+    discard = subtract = remove
+    def intersect( me, keys):
+        return intersect_update( me, keys)
+
 dictAttr = DictAttr
+
+#XXX all these are non-associative, i.e. f(a,b) != f(b,a)
+def remove( d, keys):
+    'overwrite'
+    for k in keys: d.pop(k,None)
+    return d
+discard = remove
+def subtract( d, keys):
+    'new copy'
+    return remove( d.copy(), keys)
+    return d.__class__( (k,v) for k,v in d.items() if k not in keys)
+
+def intersection( d, keys):
+    'new copy'
+    return d.__class__( (k,d[k]) for k in keys if k in d)
+def intersect_update( d, keys):
+    'overwrite'
+    return remove( d, set(d)-set(keys))
+
 
 def make_dict_lower( base):
     class dict_lower( base):
@@ -217,5 +243,15 @@ if __name__ == '__main__':
     assert d == dictOrder( [['a','4'], ['b','5']] ), d
     d = dictOrder_fromstr( txt, dict= dictOrder, ignore_comments =False)
     assert d == dictOrder( [['a','4'], ['b','5'], ['#c','6 7']] ), d
+
+    dab = dict( a=1, b=2)
+    dac = dict( a=3, c=2)
+
+    assert subtract( dab, dac) == dict( b=2)
+    assert remove( dab.copy(), dac) == dict( b=2)
+
+    assert intersection( dab, dac) == dict( a=1)
+    assert intersection( dac, dab) == dict( a=3)
+    assert intersect_update( dab, dac) == dict( a=1)
 
 # vim:ts=4:sw=4:expandtab
