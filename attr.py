@@ -6,6 +6,7 @@ additional python-reflection tools:
 - local vs see-through-hierarchy getattr
 - fail-proof issubclass()
 - subclasses extractor
+- func_attrs decorator
 '''
 #from py3 import basestring
 import sys
@@ -20,7 +21,6 @@ def set_attrib( self, name, value, getattr =getattr, setattr=setattr):
         for a in name[:-1]:
             self = getattr( self, a)
     setattr( self, name1, value )
-    #exec( 'self.'+name+'=value' )
 
 def get_attrib( self, name, *default_value, **kargs):
     'getattr over hierachical name'
@@ -196,7 +196,7 @@ def isiterable( obj, string_is_iterable =False):
     if isinstance( obj, basestring):
         return string_is_iterable
     try:
-        x = iter( obj)
+        iter( obj)
     except TypeError:
         return False
     return True
@@ -265,6 +265,14 @@ def inspect_methods( klas, filter_out =lambda name: name.startswith( '_') ):
                 break
     return methods
 
+def func_attrs( **ka):
+    '''@func_attrs( label='hey')
+    def ...
+    '''
+    def deco( f):
+        for k,v in ka.items(): setattr( f,k,v)
+        return f
+    return deco
 
 ########
 # util/module.py
