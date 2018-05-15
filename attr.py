@@ -206,7 +206,7 @@ def iscollection( obj):
     return isinstance( obj, (list, tuple, set))
 
 def subclasses_in( locals, base_klas, module_name =None, exclude =(), include_base =False):
-    if isinstance( locals,dict): all = locals.itervalues()
+    if isinstance( locals,dict): all = locals.values()
     else: all = locals
     return sorted( #dict( (c.__name__, c) for c in
             set( c
