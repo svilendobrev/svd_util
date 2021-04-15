@@ -75,12 +75,11 @@ class zvuchene( transliterator):
         #'ой': 'oy',
         #'ий': 'iy',
         #'уй': 'uy',
+        'ѝ': 'i',
         'ь': '',
         'ъ': 'y',
-        'ю': 'yu',
-        'ю': 'ju',
-        'я': 'ya',
-        'я': 'ja',
+        'ю': 'yu|ju',
+        'я': 'ya|ja|q',
         'ая': 'aia',
         'ия': 'iia',
         'eя': 'eia',
@@ -222,6 +221,7 @@ if __name__ == '__main__':
     optbool( 'cp1251', )
     optbool( 'org', )
     optbool( 'rename',      help='преименува файлове, запазва .ext')
+    optbool( 'symrename',   help='преименува само символични връзки - къде сочат, целите')
     optbool( 'extrename',   help='превежда и .ext -> .еьт')
     tmap = dict( (c.__name__, c) for c in transliterator.__subclasses__() )
     optany( 'map', type= 'choice', choices= sorted( tmap), default= zvuchene.__name__,
@@ -247,7 +247,16 @@ if __name__ == '__main__':
             l = l.rstrip()
             ext=''
             if rename:
-                path,l = os.path.split( l.rstrip('/') )
+                l = l.rstrip('/')
+                if opts.symrename:
+                    if not os.path.islink( l):
+                        print( '!ignore non-symlink', l)
+                        continue
+                    lorg = l
+                    #path,lorg = os.path.split( l)
+                    l = os.readlink( l)
+                else:
+                    path,l = os.path.split( l)
                 if not renext: l,ext = os.path.splitext( l )
             else: path = None
             if iutf: l = l.decode('utf8')
@@ -258,6 +267,10 @@ if __name__ == '__main__':
                 if org: sys.stdout.write( l +' = ')
                 sys.stdout.write( r+'\n')
             if rename and l!=r:
+              if opts.symrename:
+                os.remove( lorg)
+                os.symlink( r+ext, lorg)
+              else:
                 l = os.path.join( path,l)+ext
                 r = os.path.join( path,r)+ext
                 try:

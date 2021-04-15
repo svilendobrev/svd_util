@@ -76,8 +76,8 @@ def optappend( name, *short, **k):
 def optcount( name, *short, **k):
     return optany( name, action='count', default=0, *short, **k)
 
-def getoptz():
-    options,args = oparser.parse_args()
+def getoptz( args_in =None):
+    options,args = oparser.parse_args( args_in)
     return options,args
 
 #.. type= 'choice', choices= mp3times.apps,

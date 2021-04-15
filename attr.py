@@ -42,7 +42,10 @@ def get_attrib( self, name, *default_value, **kargs):
 def get_item( d, name, *default_value, **kargs):
     'get_attrib but for dict/indexable - full'
     #from operator import getitem
-    kargs.setdefault( 'getattr', lambda d,k: d[k] )
+    def _getter( d,k):
+        if not hasattr( d, '__getitem__'): raise KeyError
+        return d[k]
+    kargs.setdefault( 'getattr', _getter) #lambda d,k: d[k] )
     kargs.setdefault( 'error', KeyError)
     return get_attrib( d, name, *default_value, **kargs)
 
