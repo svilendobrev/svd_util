@@ -3,6 +3,12 @@
 from __future__ import print_function
 import pip
 import sys
+
+try: # for pip >= 10
+    from pip._internal.req import parse_requirements as _parse_requirements, req_file
+except ImportError: # for pip <= 9.0.3
+    from pip.req import parse_requirements as _parse_requirements, req_file
+
 '''
 pipmerge many-requirements-or-constraints-files..
  where constraints-files are those having "constr" in name
@@ -31,45 +37,85 @@ if 'resurrect the comments':
         _filename = None
         cmts_by_filename_lineno = {}
         @classmethod
-        def ignore_comments( ctx, lines_enum):
+        def ignore_comments( ctx, lines_enum):          #same in v19-v20
             for line_number, line in lines_enum:
-                m = pip.req.req_file.COMMENT_RE.search( line)
+                m = req_file.COMMENT_RE.search( line)
                 if m:
                     cmt = m.group(0)
+                    if isinstance( cmt, str): cmt = cmt.strip()
                     ctx.cmts_by_filename_lineno[ (ctx._filename, line_number) ] = cmt
                     line = line[ :m.start()] + line[ m.end(): ]
                 line = line.strip()
                 if line:
                     yield line_number, line
 
-        #these instead of parsing .comes_from: -r ... (line ..)
-        @classmethod
-        def parse_requirements( ctx, filename, *a,**ka):
-            ctx._filename = filename
-            return pip.req.parse_requirements( filename, *a,**ka)
 
-    _process_line = pip.req.req_file.process_line
-    def process_line( line, filename, line_number, *a,**ka):
-        for r in _process_line( line, filename, line_number, *a,**ka):
-            r.comment = ctx.cmts_by_filename_lineno.get( (filename, line_number))
-            yield r
-    pip.req.req_file.process_line = process_line
-    pip.req.req_file.ignore_comments = ctx.ignore_comments
+    try:
+        _process_line = req_file.process_line
+    except AttributeError: #v20
+        ParsedLine__init = req_file.ParsedLine.__init__
+        def __init__( self, filename, lineno, *a,**ka):
+            ParsedLine__init( self, filename, lineno, *a,**ka)
+            self.comment = ctx.cmts_by_filename_lineno.get( (filename, lineno))
+            #print( 3333, filename, lineno, self.comment)
+            #TODO req/req_file. handle_requirement_line: ParsedLine -> ParsedRequirement ama bez comment :(
+        req_file.ParsedLine.__init__ = __init__
+        from pip._internal.req.constructors import install_req_from_parsed_requirement
+        #these instead of parsing .comes_from: -r ... (line ..)
+
+        _handle_requirement_line = req_file.handle_requirement_line
+        def handle_requirement_line( line, *a,**ka):
+            r = _handle_requirement_line( line, *a,**ka)
+            r.comment = line.comment
+            return r
+        req_file.handle_requirement_line = handle_requirement_line
+
+        def parse_requirements( filename, *a,**ka):    #same in v19-v20
+            ctx._filename = filename
+            for r in _parse_requirements( filename, *a,**ka):
+                i = install_req_from_parsed_requirement( r)
+                i.comment = r.comment
+                yield i
+        #def namer(r): return r.requirement
+        #def is_editable(r): return r.is_editable
+    else: #v19
+        def process_line( line, filename, line_number, *a,**ka):
+            for r in _process_line( line, filename, line_number, *a,**ka):
+                r.comment = ctx.cmts_by_filename_lineno.get( (filename, line_number))
+                yield r
+        req_file.process_line = process_line
+        #these instead of parsing .comes_from: -r ... (line ..)
+
+        def parse_requirements( filename, *a,**ka):    #same in v19-v20
+            ctx._filename = filename
+            return _parse_requirements( filename, *a,**ka)
+    #def namer(r): return r.name
+    #def is_editable(r): return r.editable
+    req_file.ignore_comments = ctx.ignore_comments
 
 
 files   = sys.argv[1:] # [ 'requirements.txt', 'constraints.txt' ]
-parsed  = [ list( ctx.parse_requirements( fn, session=True, constraint= 'constr' in fn))
+parsed  = [ list( parse_requirements( fn, session=True, constraint= 'constr' in fn))
             for fn in files
             ]
+#print( 13333, ctx.cmts_by_filename_lineno)
 
 #import pprint
 #pprint.pprint( parsed)
 
 base = parsed[0]
-
+if 0:
+ for r in base:
+    print( r.requirement, r.options, r.line_source)
+    try:    #r.name not in v20 .. so copy it
+        r.name = r.requirement
+    except AttributeError:
+        pass
 r_byname = dict( (r.name, r) for r in base )
+
 for p in parsed[1:]:
     for r in p:
+        #print( 222, r)
         existing = r_byname.get( r.name)
         if not existing:
             if not r.constraint:

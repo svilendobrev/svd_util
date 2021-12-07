@@ -29,6 +29,7 @@ def load_list_as_tuple():
 class Loader_map_as_anydict( object):
     'inherit + Loader'
     anydict = None      #override
+    allow_duplicate_keys = True
     @classmethod        #and call this
     def load_map_as_anydict( klas):
         yaml.add_constructor( 'tag:yaml.org,2002:map', klas.construct_yaml_map)
@@ -48,6 +49,10 @@ class Loader_map_as_anydict( object):
                 raise ConstructorError("while constructing a mapping", node.start_mark,
                         "found unacceptable key (%s)" % exc, key_node.start_mark)
             value = self.construct_object(value_node, deep=deep)
+            if not self.allow_duplicate_keys:
+                if key in mapping:
+                    raise ConstructorError("while constructing a mapping", node.start_mark,
+                        "found a duplicate key (%s)" % key, key_node.start_mark)
             mapping[key] = value
         return mapping
 

@@ -222,7 +222,7 @@ def subclasses_in( locals, base_klas, module_name =None, exclude =(), include_ba
         , key= lambda c: c.__name__)
 
 def subclasses( klas):
-    'ALL subclasses of klas but klas itself'
+    'ALL subclasses of klas but klas itself ; breadth-first; non-recursive'
     subklasi = []
     klasi = [klas]
     while True:
@@ -234,6 +234,14 @@ def subclasses( klas):
             if y not in subklasi: subklasi.append(y)
         klasi = x
     return subklasi
+
+def all_subclasses_of( klas):
+    'ALL subclasses of klas but klas itself ; depth-first ; recursive'
+    res = []
+    for sub in klas.__subclasses__():
+        res.append(sub)
+        res += all_subclasses_of(sub)
+    return res
 
 class anymethod( object):
     '''wrapper that calls func with/via whatever it is called

@@ -1,7 +1,49 @@
 # sdobrev 2007
 'ordered set - by-item-creation'
+from __future__ import print_function #,unicode_literals
 
-class OrderedSet(set):
+try:
+    import collections.abc
+    has_collections = True
+except:
+    has_collections = False
+else:   #this seems copypasted from somewhere
+  class OrderedSet( collections.OrderedDict, collections.abc.MutableSet):
+    def __init__(self, items=()):
+        collections.OrderedDict.__init__(self, [(i, True) for i in items])
+
+    def update(self, *args):
+        for s in args:
+            for e in s:
+                self.add(e)
+    def add(self, elem):
+        self[elem] = None
+    def discard(self, elem):
+        self.pop(elem, None)
+    def __le__(self, other):
+        return all(e in other for e in self)
+    def __lt__(self, other):
+        return self <= other and self != other
+    def __ge__(self, other):
+        return all(e in self for e in other)
+    def __gt__(self, other):
+        return self >= other and self != other
+    def __repr__(self):
+        return 'OrderedSet([%s])' % (', '.join(map(repr, self.keys())))
+    def __str__(self):
+        return '{%s}' % (', '.join(map(repr, self.keys())))
+    difference = property(lambda self: self.__sub__)
+    difference_update = property(lambda self: self.__isub__)
+    intersection = property(lambda self: self.__and__)
+    intersection_update = property(lambda self: self.__iand__)
+    issubset = property(lambda self: self.__le__)
+    issuperset = property(lambda self: self.__ge__)
+    symmetric_difference = property(lambda self: self.__xor__)
+    symmetric_difference_update = property(lambda self: self.__ixor__)
+    union = property(lambda self: self.__or__)
+
+if not has_collections:     # pre py2.6?
+  class OrderedSet_raw(set):
     def __init__(self, d=None, **kwargs):
         self._list = []
         if d: self.update( d, **kwargs)
@@ -80,45 +122,41 @@ class OrderedSet(set):
         return self
     __isub__ = difference_update
 
-def _test():
-    if 1:
-        import sqlalchemy.util
-        o = sqlalchemy.util.OrderedSet
-    else:
-        o = None
+if not has_collections: OrderedSet = OrderedSet_raw
 
-    for OS in [OrderedSet,] + bool(o is not None )*[o]:
-        print OS
+def _test():
+    for OS in [OrderedSet, OrderedSet_raw]:
+        print( OS)
         def init():
             a = OS( [1,3,5,18] )
             b = OS( [5,2,3] )
             return a,b
 
         a,b = init()
-        print  (a&b)
+        print( a&b)
         assert list(a&b) == [3,5] or list(a&b) == [5,3] #XXX ???
         a &= b
-        print a
+        print( a)
         assert list(a) == [3,5] or list(a) == [5,3]     #XXX sets.Set is wrong here
 
         a,b = init()
-        print  (a|b)
+        print( a|b)
         assert list(a|b) == [1,3,5,18,2]
         a |= b
         assert list(a) == [1,3,5,18,2]
 
         a,b = init()
-        print  (a-b)
+        print( a-b)
         assert list(a-b) == [1,18]
         a-=b
         assert list(a) == [1,18]
 
         a,b = init()
-        print  (a^b)
+        print( a^b)
         assert list(a^b) == [1,18,2]
         a ^= b
         assert list(a) == [1,18,2]
-    print 'ok'
+    print( 'ok')
 
 if __name__ == '__main__':
     _test()

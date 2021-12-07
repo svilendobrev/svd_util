@@ -1,7 +1,7 @@
 # sdobrev 2011
 'usability-tuned yaml i/o - human re-editable - aligned, ordered, min-clutter'
 
-from svd_util.py3 import dictOrder
+from collections import OrderedDict
 
 import yaml
 from . import yaml_anydict, yaml_extra
@@ -20,7 +20,7 @@ class Dumper( yaml_extra.Dumper_AlignMapValues,
 
 
 class Loader( yaml_anydict.Loader_map_as_anydict, yaml.Loader):
-    anydict = dictOrder
+    anydict = OrderedDict
 
 def dump( d, **kargs):
     return yaml.dump( d, allow_unicode= True, default_flow_style= False, Dumper= Dumper, **kargs)
@@ -33,7 +33,7 @@ def load( f, retab =4, **kargs):
         f = f.expandtabs( retab)
     return yaml.load( f, Loader= Loader, **kargs)
 
-#yaml_anydict.dump_anydict_as_map_inheriting( dictOrder)
+#yaml_anydict.dump_anydict_as_map_inheriting( OrderedDict)
 yaml_anydict.dump_anydict_as_map_inheriting( dict)
 yaml_anydict.dump_seq_as_list( tuple, Base=Dumper)
 yaml_anydict.dump_seq_as_list( set,   Base=Dumper)

@@ -13,7 +13,8 @@ class DictAttr( dict):
         return me
     discard = subtract = remove
     def intersect( me, keys):
-        return intersect_update( me, keys)
+        return me.remove( set(me)-set(keys))
+    only = keep = intersect
 
 dictAttr = DictAttr
 
@@ -64,6 +65,15 @@ try:
     from collections import OrderedDict as dictOrder
 except ImportError:
     from dictOrder import dictOrder
+
+def fix_pprint_dict( mydict):
+    import pprint
+    pprint.PrettyPrinter._dispatch[ mydict.__repr__] = pprint.PrettyPrinter._dispatch[ dict.__repr__]
+    #now if len(repr)<width...
+    pprint._safe_repr0 = pprint._safe_repr
+    pprint._safe_repr = lambda o, *a,**ka: pprint._safe_repr0( (dict(o) if isinstance(o, mydict) else o), *a,**ka)
+
+def fix_pprint_dictOrder(): fix_pprint_dict( dictOrder)
 
 #dict_lower_ordered = make_dict_lower( dictOrder)
 

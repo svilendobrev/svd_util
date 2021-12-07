@@ -11,7 +11,7 @@ src2=${src1/#\.\//}
 src=${src2//\//.}
 shift
 #PYTHONPATH=.. exec python -m `basename "$pwd"`.`basename -s .py $src` "$@"
-PYTHONPATH=.. exec python3 -m `basename "$pwd"`.$src "$@"
+PYTHONPATH=.. exec python -m `basename "$pwd"`.$src "$@"
 
 #man bash
 #  ${parameter%word}

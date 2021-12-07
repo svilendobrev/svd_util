@@ -38,32 +38,47 @@ def unified_diff_ignore_space( a, b, fromfile='', tofile='', fromfiledate='',
                 for line in b[j1:j2]:
                     yield '+' + line
 
-def diff( h1, h2, h1name ='', h2name ='', type='unified', **kargs):
-    if isinstance( h1, str): h1 = h1.splitlines(1)
-    if isinstance( h2, str): h2 = h2.splitlines(1)
+def olddiff( a,b, aname, bname):
+    d = difflib.Differ()
+    N = 2
+    buff=[]
+    once = False
+    for line in d.compare( a,b):
+        if line[0]==' ':
+            buff.append( line)
+            if len(buff)>N: del buff[0]
+        else:
+            if not once:
+                yield '-', aname, '->', '+', bname
+                once = True
+            for l in buff:      #pre-context only
+                yield l,
+            buff = []
+            yield line
 
+import difflib
+def diff( a, b, aname ='a', bname ='b', type ='unified', #or ndiff or context
+        **ka):  #unified context ndiff /unittest
+    if isinstance( a, str): a = a.splitlines()  #was keepends=True
+    if isinstance( b, str): b = b.splitlines()
+
+    if type=='ndiff':
+        return difflib.ndiff( a,b)
     try:
         differ = type=='context' and difflib.context_diff or difflib.unified_diff
     except NameError:
-        d = difflib.Differ()
-        N = 2
-        buff=[]
-        a = False
-        for line in d.compare( h1,h2):
-            if line[0]==' ':
-                buff.append( line)
-                if len(buff)>N: del buff[0]
-            else:
-                if not a:
-                    yield '-', h1name, '->', '+', h2name
-                    a=True
-                for l in buff:      #pre-context only
-                    yield l,
-                buff = []
-                yield line
-    else:
-        for l in differ( h1, h2, h1name, h2name, **kargs):
-            yield l
+        differ = olddiff
+    return differ( a, b, aname, bname, **kargs)
+
+def diff_pprint( a, b, **ka):
+    import pprint
+    if not isinstance( a, str): a = pprint.pformat( a)
+    if not isinstance( b, str): b = pprint.pformat( b)
+    return diff( a, b, **ka)
+
+def difftext( a, b, use_pprint =False, **ka):
+    differ = diff_pprint if use_pprint else diff
+    return '\n'.join( differ( a,b, **ka))
 
 # vim:ts=4:sw=4:expandtab
 

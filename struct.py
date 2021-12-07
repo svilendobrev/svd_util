@@ -35,7 +35,7 @@ class Struct_debug( Struct):
         Struct.__setattr__( me, name, value)
 
 #######
-
+# same in ./dicts XXX
 class DictAttr( dict):
     'getitem == getattr ; like Struct'
     def __init__( me, *a, **k):
