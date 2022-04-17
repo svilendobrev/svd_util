@@ -6,10 +6,11 @@ def appendif( lst, *oo):
 
 def extendif( lst, oo): return appendif( lst, *(oo or ()))
 
-import collections
+try: from collections.abc import Iterable
+except: from collections import Iterable
 def setorder( *a):
     r = []
-    if len(a)==1 and isinstance( a[0], collections.Iterable): #(list,tuple,dict)):
+    if len(a)==1 and isinstance( a[0], Iterable): #(list,tuple,dict)):
         a = a[0]
     return extendif( r, a )
 listif = setorder
