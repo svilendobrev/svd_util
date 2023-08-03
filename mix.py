@@ -7,7 +7,7 @@ class _DelLog:
         self.text = text
         self._debug = debug
     def __del__(self):
-        if self._debug.die: print "==die", self.text
+        if self._debug.die: print( "==die", self.text)
 
 def _w_ref_None(): return None
 def w_ref( x):
@@ -65,6 +65,18 @@ class Namer:
         me.value = namespace[ name]
     def __str__( me): return '%s(=%r)' % (me.name, me.value)
     def __hash__( me): return me.value
+
+from enum import Enum
+class strEnum( str, Enum):
+    '''takes sequence of strings , or one string to be split by whitespace
+    >>> s = strEnum( 'aname', ['a', 'bb', 'c'])
+    >>> print( s, s.bb, s.bb.name)
+    <enum 'aname'> aname.bb bb
+    >>> t = strEnum( 'bname', 'a bb cc')
+    >>> print( t, t.bb, t.cc.name)
+    <enum 'bname'> bname.bb cc
+    '''
+    def _generate_next_value_(name, start, count, last_values): return name
 
 
 #############
@@ -132,20 +144,20 @@ class UniqMutex:
         """
         if threaded:
             if active_monitor.attach( task_key):
-                print '! another', task_type, 'is running:', active_monitor
+                print( '! another', task_type, 'is running:', active_monitor)
                 return
             def doer():
                 try:
                     task( *args, **kargs)
                 finally:
                     active_monitor.detach( task_key)
-                    if dbg_thread: print name, 'Ended'
+                    if dbg_thread: print( name, 'Ended')
             thr = active_monitor.Thread( target= doer )
             name = '%s:%s' % ( thr.getName(), task_type)
             thr.setName( name)
             active_monitor.set( task_key, name)
             thr.start()
-            if dbg_thread: print name, 'Started'
+            if dbg_thread: print( name, 'Started')
         else:
             task( *args, **kargs)
 
@@ -194,10 +206,22 @@ class TreeByRelationAttr( object):
 
 
 if __name__ == '__main__':
-    print list( neighbours( 'abcd') )
-    print list( neighbours( 'abc') )
-    print list( neighbours( 'ab') )
-    print list( neighbours( 'a') )
-    print list( neighbours( '') )
+    def test():
+        '''
+        >>> list( neighbours( 'abcd') )
+        [('a', 'b'), ('b', 'c'), ('c', 'd')]
+        >>> list( neighbours( 'abc') )
+        [('a', 'b'), ('b', 'c')]
+        >>> list( neighbours( 'ab') )
+        [('a', 'b')]
+        >>> list( neighbours( 'a') )
+        []
+        >>> list( neighbours( '') )
+        []
+        '''
+        pass
+
+    import doctest
+    doctest.testmod()
 
 # vim:ts=4:sw=4:expandtab

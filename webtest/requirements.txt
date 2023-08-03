@@ -1,0 +1,7 @@
+selenium
+selenium-wire
+# needs also these binaries - "geckodriver" and "firefox" (as os-level packages or else)
+
+## for parallel testing ; use like $ unittest-parallel --class-fixtures -p swltest.py
+#unittest-parallel 
+

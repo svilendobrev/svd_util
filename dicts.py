@@ -4,7 +4,16 @@
 #all are named dict*
 
 class DictAttr( dict):
-    '''attr-access == item-access ; i.e. self.a is self['a']'''
+    '''attr-access == item-access ; i.e. self.a is self['a']
+    >>> d = dictAttr( a=1, b=2)
+    >>> d
+    {'a': 1, 'b': 2}
+    >>> d.a , d['b']
+    (1, 2)
+    >>> d.c = 3
+    >>> d['c']
+    3
+    '''
     def __init__( me, *a, **k):
         dict.__init__( me, *a, **k)
         me.__dict__ = me
@@ -163,8 +172,7 @@ def dictOrder_fromstr( txt, dict =dictOrder, **ka):
 
 #########
 def dict_without( d, *popthese):
-    popthese = set( popthese)
-    return dict( (k,v) for k,v in d.items() if k not in popthese)
+    return subtract( d, popthese)
 dict_pop = dict_without
 #def dict_with( d, **kargs): return dict( d, **kargs)
 dict_add = dict_with = dict

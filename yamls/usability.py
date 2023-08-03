@@ -4,7 +4,10 @@
 from collections import OrderedDict
 
 import yaml
-from . import yaml_anydict, yaml_extra
+try:
+    from . import yaml_anydict, yaml_extra
+except: #running as main script
+    import yaml_anydict, yaml_extra
 
 class Dumper( yaml_extra.Dumper_AlignMapValues,
               yaml_extra.Dumper_PreferBlock_for_Multiline,

@@ -43,12 +43,12 @@ def frame2minsec( args, FS =75):
 
 if __name__=='__main__':
     import sys
-    if sys.argv and sys.argv[1].startswith('-fs'):
+    if sys.argv[1:] and sys.argv[1].startswith('-fs'):
         FS = sys.argv[1].split('=')
         FS = len(FS)>1 and int( FS[1]) or 75
         for r in frame2minsec( sys.argv[2:] or sys.stdin, FS): print( r)
     else:
-        for a in sys.argv[1:]:
+        for a in sys.argv[1:] or sys.stdin:
             print( minsec2sec( a) if ':' in a else prnsec( float(a)) )
 
 # vim:ts=4:sw=4:expandtab

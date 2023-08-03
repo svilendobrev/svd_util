@@ -6,11 +6,10 @@ v3 = sys.version_info[0]>=3
 if v3:
     from collections import OrderedDict as dictOrder
     import collections
-    #import __builtins__    #always there
-    if not hasattr( __builtins__, 'callable'):  #again in 3.3
+    try: callable = callable      #gone in 3.2, back in 3.3 , moved out of __builtin__ in 3.10
+    except AttributeError:
         def callable(x): return isinstance( x, collections.Callable)
 
-    #if not hasattr( __builtins__, 'unicode'):
     unicode=str
     basestring=str
     file=open

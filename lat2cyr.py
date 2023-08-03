@@ -26,7 +26,7 @@ def dec(x): return x and x.decode( 'cp1251')
 #def low2up( k): return ''.join( chr(ord(kk)-32) for kk in k)
 def capital(v): return v and v[0].upper()+v[1:]
 
-def make( cyr =(), lat =(), cyr2lat ={} ):
+def make( cyr =(), lat =(), cyr2lat ={}, lat2cyr ={} ):
     if 0 :#not _v3:
         cyr = dec( cyr)
         lat = dec( lat)
@@ -40,6 +40,8 @@ def make( cyr =(), lat =(), cyr2lat ={} ):
                 )
     c2l.update( [(capital(k), capital(v)) for k,v in c2l.items()])
     l2c.update( [(capital(k), capital(v)) for k,v in l2c.items()])
+    l2c.update( lat2cyr)
+    l2c.update( [(capital(k), capital(v)) for k,v in lat2cyr.items()])
 
     cl = dict( zip( cyr,lat ) )
     cl.update( (capital(k), capital(v)) for k,v in zip( cyr,lat ) )
@@ -88,6 +90,9 @@ class zvuchene( transliterator):
         'э': 'ye',
         'ы': 'yi',
         'в': 'w',
+        },
+        lat2cyr = {
+        'x': 'кс',
         })
 
 class special2plain( transliterator):
