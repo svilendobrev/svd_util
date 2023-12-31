@@ -84,6 +84,13 @@ else:  #readonly:
             return dict( status= fresp.status, headers= str( fresp.headers) )
         return dict( status= fresp.code, headers= str( fresp.info()) )  #pre 3.9
 
+def hack_verbose_HTTPError():
+    urllib.error.HTTPError.__str__ = lambda err: f'''\
+HTTP Error {err.code}: {err.msg}
+ url: {getattr( err, 'filename', None)}
+ data: {err.read()}'''
+# headers: {getattr( err, 'headers', None)}
+
 def response( req, debug =False):
     '''send req, read-all, return dict( status, headers, data) or raise
         headers is dictlike, ignores case of header-names - doc/python3/html/library/email.message.html#email.message.EmailMessage
@@ -115,5 +122,10 @@ def json_resp( resp):
     if 'application/json' in resp['headers'].get( 'content-type', '').lower():   # headers ignores case of header-names
         resp['json'] = _json.loads( resp['data'])   #.decode( 'utf-8') ?? XXX
     return resp
+
+def data_utf8( resp):
+    return resp['data'].decode( 'utf8')
+def exc_utf8( exc):
+    return exc.read().decode( 'utf8')
 
 # vim:ts=4:sw=4:expandtab

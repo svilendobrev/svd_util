@@ -1,0 +1,140 @@
+#########################################
+#polymorphism/asset: union vs interface
+
+query polymorphic_asset_union {
+  asset {
+    all {
+      __typename
+      ... on Xasset       { id holder data}
+      ... on Yasset       { id holder data}
+      ... on AnyAsset     { id holder atype}
+    }
+    all_with_fragment: all { ... s }
+  }
+}
+#fragments for shortening the above/union
+fragment t on Xasset     { id data holder { id } }
+fragment r on Yasset     { id data holder { id } }
+fragment a on AnyAsset   { id atype holder { id } }
+fragment s on Asset { __typename
+  ... t
+  ... r
+  ... a
+}
+
+#XXX no ifdef... @skip/@include still need valid code inside
+#query polymorphic_asset_interface {
+#  asset {
+#    all {
+#      __typename id holder { id }  #type
+#      ... on Truck        { data}
+#      ... on Repairshop   { data}
+#      ... on AnyAsset     { atype}
+#    }
+#    all_with_fragment: all { ... s }
+#  }
+#}
+#fragment t on Truck      { data}
+#fragment r on Repairshop { data}
+#fragment a on AnyAsset   { atype}
+#fragment s on Asset {
+#  __typename id type holder { id }
+#  ... t
+#  ... r
+#  ... a
+#}
+
+#may generate reusable fragments for above, included-by-client, but not directive/injection - against the tide. see fp2/maybeql.py
+
+###fragments for deal
+#fragment sa on Deal { supplier_asset { ... s } }
+#fragment ra on Deal { recipient_asset { ... s } }
+
+
+###################################
+#nested type/all/one/.. vs flat type_<sfx>
+
+query type_is_nested {
+  role {
+    one( id:2) { id }
+    count
+    all { id }
+    all_count {
+      data { id }
+      count
+    }
+  }
+}
+
+#query type_flat {
+#  role( id:2) { id }
+#  role_count
+#  role_all { id }
+#  role_all_count {
+#    data { id }
+#    count
+#  }
+#}
+
+
+###################################
+#filter on all
+
+query orderby {
+  role {
+    default:
+      all
+        { id type }
+    id_down:
+      all( orderby: [ id_desc ])
+        { id type }
+    type_up__id_up:
+      all( orderby: [ type, id])
+        { id type }
+    type_down__id_up:
+      all( orderby: [ type_desc, id])
+        { id type }
+  }
+}
+
+query distinct {
+  user {
+    default: all( filter: {
+              roles: { holder: { id: 2 }}
+              }) {
+      id email roles: { id type holder { id } }
+    }
+    distinct: all( distinct:[], filter:{
+              roles: { holder: { id: 2 }}
+              }) {
+      id email roles: { id type holder { id } }
+    }
+  }
+}
+
+query pagination {
+  role {
+    first:      all( first: 2           ) { id }
+    first_skip: all( skip: 3, first: 2  ) { id }
+    last_skip:  all( skip: 3, last : 2  ) { id }
+    last:       all( last : 2           ) { id }
+    pages:      all( page: 2, perpage:5 ) { id }
+    limit_ofs_forw: all( offset:3,  limit: 2) { id }
+    limit_ofs_back: all( offset:-3, limit: 2) { id }
+  }
+}
+
+
+# - filter empty / missing filter should do same = no filtering
+# - filter on 1 level / multiple levels across relations (toone/tomany)
+# - filter and AND and OR and NOT
+# - filter any/none of tomany relation - ...:{}
+# - filter tomany_relation-each ??
+# - subdata-tomany-relations filter
+# filter syntax config
+# ff/ff_cmp - ff_cmp: {..} : eq: in: gt.. 
+# ignorecase as modifier (try both options)
+# op/op_expr
+# modifiers - year
+
+# vim:ts=2:sw=2:expandtab
