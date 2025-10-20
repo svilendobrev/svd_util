@@ -11,7 +11,7 @@ from __future__ import print_function
 from svd_util import dbg
 log = dbg.log_funcname.log
 
-from svd_util.struct import DictAttr
+from svd_util.structs import DictAttr
 
 from uuid import uuid4
 def uuid(): return uuid4().hex

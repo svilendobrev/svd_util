@@ -3,7 +3,7 @@
 
 #from util
 from ..attr import issubclass, subclasses #, subclasses_in
-from ..struct import DictAttr
+from ..structs import DictAttr
 from .. import gencxx
 from .. import xml2obj
 

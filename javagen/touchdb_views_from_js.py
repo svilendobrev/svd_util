@@ -209,7 +209,7 @@ if 0:
 
 
 tab = 4*' '
-from svd_util.struct import DictAttr
+from svd_util.structs import DictAttr
 
 import re
 doc_attr  = 'doc \. (?P<attr>\w+)'

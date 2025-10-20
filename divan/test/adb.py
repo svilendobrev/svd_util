@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from svd_util.struct import DictAttr
+from svd_util.structs import DictAttr
 import unittest
 
 import types as _types

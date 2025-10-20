@@ -9,7 +9,7 @@ import touchdb_views_from_js as jviews
 # reducefuncs: hands
 
 from svd_util.javagen import jgenerator as jg
-from svd_util.struct import DictAttr
+from svd_util.structs import DictAttr
 
 class Types:
     id      = jg.Text

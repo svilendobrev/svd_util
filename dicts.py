@@ -180,7 +180,7 @@ dict_add = dict_with = dict
 
 if __name__ == '__main__':
 
-    from struct import DictAttr
+    #from structs import DictAttr
     def t0():
         e= DictAttr( a=2)
         assert ( e['a'] == 2 ),e

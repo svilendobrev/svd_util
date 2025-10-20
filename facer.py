@@ -38,7 +38,7 @@ class TheChannelFace( MoreChannelFace):  #implementing all methods
 '''
 
 #from util
-from .struct import DictAttr
+from .structs import DictAttr
 try:
     from collections import OrderedDict as dictOrder
 except:

@@ -17,7 +17,7 @@ elif 0*'lxml':
         return X
 
 else: #ElementTree - ok
-    from struct import DictAttr
+    from structs import DictAttr
     #import sys
     class e3obj( DictAttr):
         def __str__( me): return me._text__
