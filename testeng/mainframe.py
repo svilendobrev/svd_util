@@ -37,7 +37,7 @@ class SampleBase( object):
             if k in me.ENGINE_ARGS:
                 setattr(me, k, v)
 
-from svd_util.structs import DictAttr
+from svd_util.dicts import DictAttr
 
 class TestBase( unittest.TestCase):
     'Базов тестови клас! Името на наследниците му, които ще бъдат пускани трябва да започват с Test_'

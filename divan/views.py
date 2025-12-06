@@ -2,7 +2,7 @@
 from __future__ import print_function
 
 from svd_util import dbg
-from svd_util.structs import DictAttr
+from svd_util.dicts import DictAttr
 from svd_util.attr import subclasses
 log = dbg.log_funcname.log
 

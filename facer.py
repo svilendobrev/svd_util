@@ -37,8 +37,7 @@ class TheChannelFace( MoreChannelFace):  #implementing all methods
     def like_program( me, program, dislike =False): ...
 '''
 
-#from util
-from .structs import DictAttr
+from svd_util.dicts import DictAttr
 try:
     from collections import OrderedDict as dictOrder
 except:

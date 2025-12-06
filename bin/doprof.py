@@ -17,6 +17,7 @@ optz.text( 'strip',     help= 'regexp to strip from filenames; replaced with .#'
 optz.text( 'rootstrip', default= '.*/(site-packages|python\d\.\d+)/',
     help= 'regexp to strip from filenames; replaced with ##; defaults to %defaults', )
 optz.bool( 'withcalls', help= 'include call-stacks')
+optz.str( 'sortkey',  help= 'sort by: cumulative,ncalls,time ; default: time=internal/total-time', default= 'time')
 options,args = optz.get()
 
 import re
@@ -81,6 +82,7 @@ else:
 
 p = mystats( *pargs )
 p.withcalls = options.withcalls
-p.strip_dirs().sort_stats( 1).print_stats( n)
+#sortkey = 'time' #time=1
+p.strip_dirs().sort_stats( options.sortkey).print_stats( n)
 
 # vim:ts=4:sw=4:expandtab

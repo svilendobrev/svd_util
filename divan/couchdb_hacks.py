@@ -12,7 +12,7 @@ from couchdb import client, design
 # _security obj has no id...
 
 # class couchdb.Document is useless
-from svd_util.structs import DictAttr
+from svd_util.dicts import DictAttr
 import couchdb
 client.Document = couchdb.Document = DictAttr
 

@@ -30,6 +30,12 @@ class HT4stack:
             else:
                 if k not in attrs:
                     return 204,k
+                if k == 'class':
+                    if isinstance(v, str): v = v.split()
+                    vv = attrs[k]
+                    if isinstance(vv, str): vv = vv.split()
+                    if set(v).issubset( vv):
+                        continue
                 if v != attrs[k]:
                     return 205,k
 
@@ -165,12 +171,12 @@ def visit( url, stack_grammar, ienc =None, html_notfixed =False, html_strict =Fa
             return_also_headers =False,
             **kargs ):
     u = None
-    if url.startswith( 'http:'):
+    if url.startswith( 'http'):
         try:
             u = urlopen( url)
             d = u.read()
         except:
-            print( '????:', url)
+            print( '#????:', url)
             raise
     else:
         import io

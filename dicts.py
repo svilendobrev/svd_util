@@ -15,8 +15,13 @@ class DictAttr( dict):
     3
     '''
     def __init__( me, *a, **k):
-        dict.__init__( me, *a, **k)
+        super().__init__( *a, **k)
         me.__dict__ = me
+
+dictAttr = DictAttr
+
+class dict_remover:
+    'mixin to a dict-like'
     def remove( me, keys):
         for k in keys: me.pop( k,None)
         return me
@@ -25,7 +30,6 @@ class DictAttr( dict):
         return me.remove( set(me)-set(keys))
     only = keep = intersect
 
-dictAttr = DictAttr
 
 #XXX all these are non-associative, i.e. f(a,b) != f(b,a)
 def remove( d, keys):
@@ -70,10 +74,14 @@ def make_dict_lower( base):
 
 dict_lower = make_dict_lower( dict)
 
-try:
-    from collections import OrderedDict as dictOrder
-except ImportError:
-    from dictOrder import dictOrder
+import sys  # from .py3
+v3 = sys.version_info[0]>=3
+if v3: dictOrder = dict
+else:
+    try:
+        from collections import OrderedDict as dictOrder
+    except ImportError:
+        from dictOrder import dictOrder
 
 def fix_pprint_dict( mydict):
     import pprint
@@ -87,6 +95,12 @@ def fix_pprint_dictOrder(): fix_pprint_dict( dictOrder)
 #dict_lower_ordered = make_dict_lower( dictOrder)
 
 ############## like DictAttr
+class DictAttr_lower( dict_lower):
+    'getitem == getattr; ignorecase'
+    def __init__( me, *a, **k):
+        dict_lower.__init__( me, *a, **k)
+        me.__dict__ = me
+dictAttr_lower = DictAttr_lower
 class DictAttr_lower( dict_lower):
     'getitem == getattr; ignorecase'
     def __init__( me, *a, **k):
@@ -180,7 +194,6 @@ dict_add = dict_with = dict
 
 if __name__ == '__main__':
 
-    #from structs import DictAttr
     def t0():
         e= DictAttr( a=2)
         assert ( e['a'] == 2 ),e

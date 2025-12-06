@@ -31,7 +31,7 @@ extender = '+'
 #field with empty flag makes empty column (nothing in it),
 # but attributes can be set via entry-name
 
-from svd_util.structs import Struct
+from svd_util.dicts import DictAttr
 class Int(int): pass
 
 class TokenMap( Struct):
