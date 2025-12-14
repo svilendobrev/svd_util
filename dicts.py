@@ -17,8 +17,13 @@ class DictAttr( dict):
     def __init__( me, *a, **k):
         super().__init__( *a, **k)
         me.__dict__ = me
-
 dictAttr = DictAttr
+
+class DictAttr_default( DictAttr):
+    _default_ = None    #override, i.e. dictAttr_default( _default_=5)
+    def __getitem__( me, k): return me.get( k, me._default_)
+    def __getattr__( me, k): return me._default_
+dictAttr_default = DictAttr_default
 
 class dict_remover:
     'mixin to a dict-like'
